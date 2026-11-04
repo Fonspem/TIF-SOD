@@ -12,7 +12,7 @@ Trabajo Integrador Final de Sistemas Operativos Distribuidos, Facultad de Ingeni
 | `ansible/` | Aprovisionamiento: paquetes, disco de datos, etcd (systemd) y k3s |
 | `k8s/` | Manifiesto de MinIO distribuido |
 | `metadata-service/` | API REST de metadatos con bloqueos (Flask + etcd3gw) y sus pruebas |
-| `scripts/` | Medición de elecciones de etcd, clientes del bloqueo (E5, fencing), verificación de hashes |
+| `scripts/` | Medición de elecciones de etcd, clientes del bloqueo (E5, fencing), sonda de estado estable, verificación de hashes, tablas y figuras |
 | `chaos/` | Inyección de fallas: caída de nodo (E1), partición (E3), red degradada (E4) |
 | `results/` | Datos crudos de los experimentos (CSV) |
 | `docs/` | Plan de trabajo y versiones instaladas |
@@ -67,27 +67,63 @@ python app.py                     # escucha en el puerto 5000
 
 ## Experimentos
 
+Todo se corre desde `scripts/`. Los scripts de `chaos/` y `leader_election.py` anotan la hora de cada falla en `results/eN_eventos.csv`; la **sonda** (`probe.py`) hace una lectura y una escritura cada 0,5 s y anota cada pedido, así después se cruzan las dos cosas. La sonda se arranca antes de inyectar la falla y se corta con Ctrl+C (o `kill`) cuando el sistema volvió al estado estable.
+
 ```bash
 cd scripts && pip install -r requirements.txt
+export MINIO_USER=admin MINIO_PASS='<contraseña>'
 
-# Paso 2 / E2: elección de líder de etcd, 10 corridas por modo
+# Paso 2 / E2: elección de líder de etcd, 10 corridas por modo.
+# En otra terminal, la sonda mide las solicitudes fallidas del servicio de metadatos.
+python probe.py meta --etiqueta e2-kill --intervalo 0.1 --salida ../results/e2_sonda_meta_kill.csv
 python leader_election.py --modo kill --repeticiones 10 --salida ../results/e2_kill.csv
 python leader_election.py --modo stop --repeticiones 10 --salida ../results/e2_stop.csv
 
 # Paso 4 / E5: exclusión mutua, bloqueo huérfano y fencing
 python lock_clients.py concurrencia --clientes 2
 python lock_clients.py huerfano --repeticiones 5 --salida ../results/e5_kill.csv
+python lock_clients.py huerfano --ordenado --repeticiones 5 --salida ../results/e5_ordenado.csv
 python lock_clients.py fencing
 
-# E1, E3 y E4
-cd ../chaos
-./e1_caida_nodo.sh apagar vm4 && ./e1_caida_nodo.sh encender vm4
-./e3_particion.sh aislar vm3  && ./e3_particion.sh revertir vm3
-kubectl apply -f e4-netem.yaml    # o: ./e4_netem.sh aplicar / revertir
+# E1: caída de un nodo, con la sonda corriendo en otra terminal
+python probe.py s3 --etiqueta e1 --salida ../results/e1_sonda_s3.csv
+../chaos/e1_caida_nodo.sh apagar vm4       # observar un par de minutos
+../chaos/e1_caida_nodo.sh encender vm4
+
+# E3: partición. Una sonda por lado, contra etcd y contra MinIO.
+python probe.py etcd --nodos 192.168.56.13:2379 --etiqueta e3-vm3 --salida ../results/e3_etcd_vm3.csv &
+python probe.py etcd --nodos 192.168.56.11:2379 --etiqueta e3-vm1 --salida ../results/e3_etcd_vm1.csv &
+python probe.py s3 --nodos http://192.168.56.13:9000 --etiqueta e3-vm3 --salida ../results/e3_s3_vm3.csv &
+python probe.py s3 --nodos http://192.168.56.11:9000 --etiqueta e3-vm1 --salida ../results/e3_s3_vm1.csv &
+../chaos/e3_particion.sh aislar vm3; sleep 60; ../chaos/e3_particion.sh revertir vm3; sleep 30; kill %1 %2 %3 %4
+# Consistencia final: qué escrituras ve cada nodo después de reunificar
+python probe.py etcd --comprobar ../results/e3_etcd_vm1.csv ../results/e3_etcd_vm3.csv
+python probe.py s3 --comprobar ../results/e3_s3_vm1.csv ../results/e3_s3_vm3.csv
+
+# E4: red degradada (tc netem; con Chaos Mesh, anotar a mano la hora en results/e4_eventos.csv)
+python probe.py s3 --etiqueta e4 --salida ../results/e4_sonda_s3.csv &
+../chaos/e4_netem.sh aplicar; sleep 300; ../chaos/e4_netem.sh revertir; sleep 60; kill %1
 
 # Paso 7: verificación de los hashes
-cd ../scripts && MINIO_USER=admin MINIO_PASS='<contraseña>' python verify.py
+python verify.py
 ```
+
+### Tablas y figuras para el informe
+
+`analyze.py` imprime tablas en Markdown, con coma decimal, y guarda cada figura en PNG:
+
+```bash
+python analyze.py eleccion ../results/e2_kill.csv ../results/e2_stop.csv --figura ../results/figuras/e2.png
+python analyze.py sonda ../results/e2_sonda_meta_kill.csv --eventos ../results/e2_eventos.csv --por-accion \
+    --figura ../results/figuras/e2_meta.png
+python analyze.py sonda ../results/e1_sonda_s3.csv --eventos ../results/e1_eventos.csv --figura ../results/figuras/e1.png
+python analyze.py sonda ../results/e3_etcd_vm1.csv ../results/e3_etcd_vm3.csv --eventos ../results/e3_eventos.csv \
+    --figura ../results/figuras/e3_etcd.png
+python analyze.py sonda ../results/e4_sonda_s3.csv --eventos ../results/e4_eventos.csv --figura ../results/figuras/e4.png
+python analyze.py huerfano ../results/e5_kill.csv ../results/e5_ordenado.csv --figura ../results/figuras/e5.png
+```
+
+Para cada experimento salen la disponibilidad, la latencia p50 y p95 y el corte más largo por tramo (antes, durante y después de la falla), y, para cada evento, cuánto tardó en aparecer el primer error y cuánto en recuperarse el servicio.
 
 ## Pruebas del servicio de metadatos
 

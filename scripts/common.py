@@ -20,13 +20,13 @@ NODES = os.environ.get(
 BUCKET = os.environ.get("MINIO_BUCKET", "actas")
 
 
-def s3(node):
+def s3(node, config=None):
     return boto3.client(
         "s3", endpoint_url=node,
         aws_access_key_id=os.environ.get("MINIO_USER", "admin"),
         aws_secret_access_key=os.environ.get("MINIO_PASS", ""),
         region_name="us-east-1",
-        config=Config(retries={"max_attempts": 1}, connect_timeout=3, read_timeout=10),
+        config=config or Config(retries={"max_attempts": 1}, connect_timeout=3, read_timeout=10),
     )
 
 

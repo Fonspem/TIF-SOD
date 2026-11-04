@@ -5,6 +5,9 @@ consultando por HTTP a los otros dos miembros cada 20 ms, mide:
   - t_lider_ms: hasta que un miembro informa un líder nuevo;
   - t_escritura_ms: hasta que se acepta una escritura.
 Después vuelve a levantar el miembro y espera a que el clúster se estabilice.
+Anota cada detención y cada arranque en --eventos (por defecto
+results/e2_eventos.csv), con el mismo formato que los scripts de chaos/, para
+cruzarlos con una sonda (probe.py) que corra en paralelo.
 
 Modos, que dan resultados muy distintos:
   kill  -> kill -9 al proceso (caída real: los seguidores esperan el tiempo de elección).
@@ -20,6 +23,7 @@ Ejemplo (desde scripts/, con ../ansible/ssh_config generado por Vagrant):
 import argparse
 import base64
 import csv
+import os
 import statistics
 import subprocess
 import sys
@@ -69,12 +73,24 @@ def shell(plantilla, **valores):
     return plantilla.format(**valores)
 
 
+def evento(ruta, accion, host):
+    """Agrega 'momento,acción,host' al CSV de eventos (sin encabezado, como chaos/)."""
+    if not ruta:
+        return
+    if not os.path.isdir(os.path.dirname(os.path.abspath(ruta))):
+        print(f"  aviso: no existe la carpeta de {ruta}; no se anotan eventos")
+        return
+    with open(ruta, "a") as f:
+        f.write(f"{time.time():.6f},{accion},{host}\n")
+
+
 def medir(miembros, args, n):
     host, lider_id = esperar_estable(miembros)
     vivos = {h: ep for h, ep in miembros.items() if h != host}
     subprocess.run(shell(args.precalentar, host=host, ssh_config=args.ssh_config), shell=True,
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
+    evento(args.eventos, "detener", host)
     t0 = time.perf_counter()
     orden = subprocess.Popen(shell(args.detener, host=host, ssh_config=args.ssh_config), shell=True,
                              stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
@@ -95,6 +111,7 @@ def medir(miembros, args, n):
     if orden.returncode not in (0, 255) and err:
         print(f"  aviso: la orden de detener devolvió {orden.returncode}: {err.decode().strip()[:120]}")
 
+    evento(args.eventos, "iniciar", host)
     subprocess.run(shell(args.iniciar, host=host, ssh_config=args.ssh_config), shell=True, check=False)
     time.sleep(args.espera)
     fila = [n, args.modo, host, nuevo,
@@ -124,6 +141,8 @@ def main():
     p.add_argument("--iniciar", default=INICIAR)
     p.add_argument("--precalentar", default=PRECALENTAR)
     p.add_argument("--salida", default=None, help="CSV de resultados")
+    p.add_argument("--eventos", default="../results/e2_eventos.csv",
+                   help="CSV donde anotar cada detención y arranque ('' para no anotar)")
     args = p.parse_args()
     args.detener = args.detener or DETENER[args.modo]
     miembros = dict(m.split("=", 1) for m in args.miembros.split(","))

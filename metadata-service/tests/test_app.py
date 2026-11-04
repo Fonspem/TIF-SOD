@@ -146,8 +146,13 @@ def test_renovar_mantiene_el_bloqueo(api):
 def test_sigue_andando_si_cae_un_miembro(api, cluster):
     cluster.matar("n1")
     try:
-        assert api.post("/docs/acta-0006", json={}).status_code == 201
+        # Si n1 era el líder, los otros dos tardan uno o dos segundos en elegir otro y,
+        # mientras tanto, el servicio puede contestar 503: prefiere consistencia.
+        fin = time.time() + 5
+        while api.get("/health").status_code != 200 and time.time() < fin:
+            time.sleep(0.2)
         assert api.get("/health").status_code == 200
+        assert api.post("/docs/acta-0006", json={}).status_code == 201
     finally:
         cluster.iniciar("n1", estado="existing")
         cluster.esperar_quorum()

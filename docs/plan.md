@@ -11,7 +11,7 @@ Actualizado: 4 de noviembre de 2026. `[x]` hecho, `[ ]` pendiente, `[~]` en curs
 ## Código
 
 - [x] Servicio de metadatos con bloqueos, lease y fencing (`metadata-service/`), con 7 pruebas contra un etcd real.
-- [x] Medición de la elección de líder, en modos `kill` y `stop` (`scripts/leader_election.py`), probada con etcd local.
+- [x] Medición de la elección de líder, en modos `kill` y `stop` (`scripts/leader_election.py`), probada con etcd local. Anota cada caída en `results/e2_eventos.csv`.
 - [x] Clientes del bloqueo: concurrencia, bloqueo huérfano (E5) y fencing (`scripts/lock_clients.py`).
 - [x] Verificación de hashes con conmutación entre nodos (`scripts/verify.py`), probada con un S3 simulado.
 - [x] Vagrantfile con las dos variantes (`vagrant/`).
@@ -19,9 +19,15 @@ Actualizado: 4 de noviembre de 2026. `[x]` hecho, `[ ]` pendiente, `[~]` en curs
 - [x] Manifiesto de MinIO con `hostPort` (`k8s/minio.yaml`).
 - [x] Inyección de fallas E1, E3 y E4 (`chaos/`).
 - [ ] Generador del conjunto de datos y script de carga (espera la decisión sobre el formato).
-- [ ] Sonda de estado estable: tráfico continuo con registro de cada pedido.
+- [x] Sonda de estado estable (`scripts/probe.py`): lecturas y escrituras periódicas contra MinIO, etcd o el servicio de metadatos, con registro de cada pedido y comprobación de consistencia final para E3. Probada con etcd local (caída del líder y partición simulada con iptables), con el servicio de metadatos y con un S3 simulado.
 - [ ] Monitoreo: Prometheus, Grafana y el tablero (espera la decisión sobre dónde corren).
-- [ ] Scripts de tablas y gráficos para el informe.
+- [x] Tablas y figuras para el informe (`scripts/analyze.py`): sonda (E1 a E4), elección de líder (E2) y bloqueo huérfano (E5).
+
+## Notas de las pruebas locales (para la discusión)
+
+- **Escrituras ambiguas.** En la partición simulada, algunas escrituras que el cliente dio por fallidas (tiempo agotado) se aplicaron igual al reunificar: quedaron en los búferes de TCP y llegaron al líder después. No hay divergencia (todos los miembros ven lo mismo), pero un error en el cliente no garantiza que la operación no haya ocurrido. Por eso el servicio de metadatos usa transacciones con comparación: reintentar no rompe nada.
+- **Caída del líder y servicio de metadatos.** Con `kill -9` al líder, el servicio no devolvió errores (con un tiempo de espera de 8 s en el cliente), pero algunas escrituras tardaron unos 2 s: el primer miembro consultado no respondió dentro de `ETCD_TIMEOUT` y el servicio pasó al siguiente.
+- **Minoría aislada.** El miembro aislado rechaza lecturas linealizables y escrituras durante toda la partición; la mayoría sólo tiene uno o dos segundos de errores si tiene que elegir un líder nuevo.
 
 ## Con el servidor listo
 
