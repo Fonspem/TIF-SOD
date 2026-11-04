@@ -1,0 +1,43 @@
+# -*- mode: ruby -*-
+# Cuatro VM para el TIF de SOD (Propuesta C), en la red privada 192.168.56.0/24.
+#
+#   Variante principal, VirtualBox (Ubuntu 22.04):     vagrant up
+#   Variante laptop dedicada, KVM/libvirt (Ubuntu 24.04, ver Anexo B del informe):
+#                                                      vagrant up --provider=libvirt
+#
+# Después, para Ansible:  vagrant ssh-config > ../ansible/ssh_config
+
+NODOS = {
+  "vm1" => { ip: "192.168.56.11", ram_kvm: 2560 },  # k3s server, etcd-1, minio-0
+  "vm2" => { ip: "192.168.56.12", ram_kvm: 2048 },  # k3s agent, etcd-2, minio-1
+  "vm3" => { ip: "192.168.56.13", ram_kvm: 2048 },  # k3s agent, etcd-3, minio-2
+  "vm4" => { ip: "192.168.56.14", ram_kvm: 2048 },  # k3s agent, minio-3
+}
+
+Vagrant.configure("2") do |config|
+  config.vm.box_check_update = false
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  NODOS.each do |nombre, nodo|
+    config.vm.define nombre do |vm|
+      vm.vm.hostname = nombre
+      vm.vm.network "private_network", ip: nodo[:ip]
+
+      vm.vm.provider "virtualbox" do |vb, override|
+        override.vm.box = "ubuntu/jammy64"
+        vb.name = nombre        # nombre fijo: VBoxManage controlvm vm4 poweroff (E1)
+        vb.memory = 2048
+        vb.cpus = 2
+      end
+
+      vm.vm.provider "libvirt" do |lv, override|
+        override.vm.box = "bento/ubuntu-24.04"
+        lv.default_prefix = "tif_"  # dominios tif_vm1 ... tif_vm4: virsh destroy tif_vm4 (E1)
+        lv.memory = nodo[:ram_kvm]
+        lv.cpus = 2
+        lv.cpu_mode = "host-passthrough"
+        lv.storage :file, size: "10G"  # disco de datos de MinIO (/dev/vdb); Ansible lo monta en /mnt/minio
+      end
+    end
+  end
+end

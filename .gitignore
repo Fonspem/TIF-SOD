@@ -1,0 +1,10 @@
+# Generados localmente
+ansible/ssh_config
+kubeconfig
+vagrant/.vagrant/
+**/__pycache__/
+**/.venv/
+.pytest_cache/
+*.pyc
+# Datos generados (los CSV de resultados sí se versionan)
+dataset/

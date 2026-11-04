@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+[Unit]
+Description=etcd del TIF (miembro {{ etcd_name }})
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+EnvironmentFile=/etc/etcd/etcd.env
+ExecStart=/usr/local/bin/etcd
+# Sin reinicio automático: en los experimentos, el miembro vuelve cuando lo decide el script.
+Restart=no
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

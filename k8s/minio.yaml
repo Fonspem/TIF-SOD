@@ -1,0 +1,67 @@
+# MinIO distribuido: 4 réplicas, una por nodo, que forman un único conjunto de
+# borrado de 4 unidades (paridad por defecto EC:2: lectura con 2 unidades,
+# escritura con 3).
+#
+# Cada pod expone el puerto 9000 en su propio nodo (hostPort): así un cliente
+# puede hablarle a una unidad concreta, por ejemplo a cada lado de una partición
+# en E3. Con un Service NodePort, kube-proxy repartiría las conexiones entre
+# todos los pods.
+#
+# Antes de aplicar, crear las credenciales:
+#   kubectl create namespace minio
+#   kubectl -n minio create secret generic minio-creds \
+#     --from-literal=MINIO_ROOT_USER=admin --from-literal=MINIO_ROOT_PASSWORD='<contraseña de 12+ caracteres>'
+#   kubectl apply -f minio.yaml
+apiVersion: v1
+kind: Namespace
+metadata: { name: minio }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: minio-hl, namespace: minio }
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true   # los pods se encuentran por DNS aunque todavía no estén listos
+  selector: { app: minio }
+  ports: [{ name: api, port: 9000 }]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: { name: minio, namespace: minio }
+spec:
+  serviceName: minio-hl
+  replicas: 4
+  podManagementPolicy: Parallel    # arrancan juntos; si no, cada uno espera al anterior para siempre
+  selector: { matchLabels: { app: minio } }
+  template:
+    metadata: { labels: { app: minio } }
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector: { matchLabels: { app: minio } }
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: minio
+          # La edición comunitaria está archivada: imagen fijada por versión (o el fork pgsty/minio).
+          image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+          args: ["server", "http://minio-{0...3}.minio-hl.minio.svc.cluster.local/data"]
+          envFrom: [{ secretRef: { name: minio-creds } }]
+          env:
+            - { name: MINIO_PROMETHEUS_AUTH_TYPE, value: public }
+          ports:
+            - { name: api, containerPort: 9000, hostPort: 9000 }
+          readinessProbe:
+            httpGet: { path: /minio/health/ready, port: 9000 }
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /minio/health/live, port: 9000 }
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests: { memory: 256Mi }
+            limits: { memory: 1Gi }
+          volumeMounts: [{ name: data, mountPath: /data }]
+      volumes:
+        - name: data
+          hostPath: { path: /mnt/minio, type: DirectoryOrCreate }

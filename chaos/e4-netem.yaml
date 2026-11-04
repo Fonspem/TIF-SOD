@@ -1,0 +1,16 @@
+# E4: red degradada sobre los pods de MinIO con Chaos Mesh (variante principal).
+#   kubectl apply -f e4-netem.yaml     # aplica 200 ms de latencia y 5 % de pérdida durante 5 minutos
+#   kubectl delete -f e4-netem.yaml    # revierte antes de tiempo
+# Sin Chaos Mesh, la misma falla se aplica con tc netem: ver e4_netem.sh.
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata: { name: e4-degradada, namespace: minio }
+spec:
+  action: netem
+  mode: all
+  selector:
+    namespaces: [minio]
+    labelSelectors: { app: minio }
+  delay: { latency: "200ms", jitter: "20ms" }
+  loss: { loss: "5", correlation: "25" }
+  duration: "5m"

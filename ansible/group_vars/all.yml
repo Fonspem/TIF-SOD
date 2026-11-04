@@ -1,0 +1,14 @@
+# Versiones fijadas: registrar en ../docs/versiones.md las que efectivamente se instalen.
+etcd_version: v3.6.5
+k3s_channel: stable            # o fijar con k3s_version, por ejemplo v1.33.5+k3s1
+k3s_version: ""
+
+# El token del clúster k3s se pasa por variable de entorno: K3S_TOKEN=... ansible-playbook site.yml
+k3s_token: "{{ lookup('env', 'K3S_TOKEN') | default('cambiar-este-token-de-laboratorio', true) }}"
+k3s_server_ip: 192.168.56.11
+
+etcd_heartbeat_ms: 100
+etcd_election_ms: 1000
+
+minio_dir: /mnt/minio
+disco_datos: /dev/vdb          # existe sólo en la variante libvirt; si no está, se usa un directorio

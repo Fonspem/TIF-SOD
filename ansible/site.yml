@@ -1,0 +1,148 @@
+# Aprovisionamiento completo:  K3S_TOKEN=<token> ansible-playbook site.yml
+# Una segunda ejecución no debería reportar cambios (idempotencia).
+
+- name: Base de todas las VM
+  hosts: all
+  become: true
+  tasks:
+    - name: Paquetes base
+      ansible.builtin.apt:
+        name: [curl, chrony, jq, iptables, xfsprogs, iproute2]
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Hora sincronizada (los experimentos comparan tiempos entre nodos)
+      ansible.builtin.service:
+        name: chrony
+        state: started
+        enabled: true
+
+    - name: Interfaz de la red privada (la que tiene la IP del inventario)
+      ansible.builtin.set_fact:
+        iface_privada: >-
+          {{ ansible_facts.interfaces | map('regex_replace', '[^a-zA-Z0-9_]', '_') | map('extract', ansible_facts)
+             | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'equalto', ip)
+             | map(attribute='device') | first }}
+
+    - name: ¿Hay disco de datos?
+      ansible.builtin.stat:
+        path: "{{ disco_datos }}"
+      register: disco
+
+    - name: Formatear el disco de datos en XFS (sólo si está vacío)
+      ansible.builtin.shell: "blkid {{ disco_datos }} || mkfs.xfs {{ disco_datos }}"
+      register: mkfs
+      changed_when: "'meta-data' in mkfs.stdout"
+      when: disco.stat.exists
+
+    - name: Directorio de datos de MinIO
+      ansible.builtin.file:
+        path: "{{ minio_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Montar el disco de datos en el arranque
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        line: "{{ disco_datos }} {{ minio_dir }} xfs defaults,nofail 0 2"
+      when: disco.stat.exists
+
+    - name: Montar el disco de datos ahora
+      ansible.builtin.shell: "mountpoint -q {{ minio_dir }} || mount {{ minio_dir }}"
+      register: montaje
+      changed_when: false
+      when: disco.stat.exists
+
+- name: Clúster etcd de 3 miembros (systemd, fuera de k3s)
+  hosts: etcd
+  become: true
+  tasks:
+    - name: Descargar etcd
+      ansible.builtin.unarchive:
+        src: "https://github.com/etcd-io/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
+        dest: /opt
+        remote_src: true
+        creates: "/opt/etcd-{{ etcd_version }}-linux-amd64/etcd"
+
+    - name: Instalar binarios
+      ansible.builtin.copy:
+        src: "/opt/etcd-{{ etcd_version }}-linux-amd64/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+        remote_src: true
+        mode: "0755"
+      loop: [etcd, etcdctl]
+
+    - name: Directorio de configuración
+      ansible.builtin.file:
+        path: /etc/etcd
+        state: directory
+        mode: "0755"
+
+    - name: Configuración del miembro
+      ansible.builtin.template:
+        src: templates/etcd.env.j2
+        dest: /etc/etcd/etcd.env
+        mode: "0644"
+      notify: Reiniciar etcd
+
+    - name: "Unidad systemd (Restart=no: los experimentos deciden cuándo vuelve)"
+      ansible.builtin.template:
+        src: templates/etcd.service.j2
+        dest: /etc/systemd/system/etcd.service
+        mode: "0644"
+      notify: Reiniciar etcd
+
+    - name: Arrancar etcd (los tres a la vez, para formar el quórum inicial)
+      ansible.builtin.systemd:
+        name: etcd
+        state: started
+        enabled: true
+        daemon_reload: true
+
+  handlers:
+    - name: Reiniciar etcd
+      ansible.builtin.systemd:
+        name: etcd
+        state: restarted
+        daemon_reload: true
+
+- name: Servidor k3s
+  hosts: k3s_server
+  become: true
+  tasks:
+    - name: Instalar k3s server
+      ansible.builtin.shell: >
+        curl -sfL https://get.k3s.io |
+        INSTALL_K3S_CHANNEL={{ k3s_channel }} INSTALL_K3S_VERSION={{ k3s_version }} K3S_TOKEN={{ k3s_token }}
+        INSTALL_K3S_EXEC="server --node-ip {{ ip }} --flannel-iface {{ iface_privada }}
+        --write-kubeconfig-mode 644 --disable traefik --disable servicelb" sh -
+      args:
+        creates: /usr/local/bin/k3s
+
+    - name: Copiar el kubeconfig al anfitrión
+      ansible.builtin.fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: ../kubeconfig
+        flat: true
+
+    - name: Apuntar el kubeconfig a la IP del servidor
+      delegate_to: localhost
+      become: false
+      ansible.builtin.replace:
+        path: ../kubeconfig
+        regexp: "127.0.0.1"
+        replace: "{{ ip }}"
+
+- name: Agentes k3s
+  hosts: k3s_agent
+  become: true
+  tasks:
+    - name: Instalar k3s agent
+      ansible.builtin.shell: >
+        curl -sfL https://get.k3s.io |
+        INSTALL_K3S_CHANNEL={{ k3s_channel }} INSTALL_K3S_VERSION={{ k3s_version }}
+        K3S_URL=https://{{ k3s_server_ip }}:6443 K3S_TOKEN={{ k3s_token }}
+        INSTALL_K3S_EXEC="agent --node-ip {{ ip }} --flannel-iface {{ iface_privada }}" sh -
+      args:
+        creates: /usr/local/bin/k3s-agent-uninstall.sh
