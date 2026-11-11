@@ -6,71 +6,75 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 
 ## Dónde estamos
 
-- **Avance general: alrededor del 30 %.** Es una estimación a ojo para ubicarnos, ponderada por área según la tabla de abajo.
+- **Avance general: alrededor del 35 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
 - **Ya está hecho:**
-  - Casi todo el código y las herramientas de medición, probados en local.
+  - Todo el código y las herramientas de medición, probados en local.
   - El borrador del informe completo, salvo los resultados.
+- **En curso:** la preparación de la laptop EXO (Parte 1 de la guía del host).
 - **Falta:**
-  - Preparar el servidor y correr todo en el clúster.
-  - Completar los resultados en el informe.
+  - Levantar el clúster y correr los experimentos.
+  - Completar el informe con los resultados y con las decisiones del 11/11.
   - Armar los entregables de la defensa.
-- **El cuello de botella es la laptop EXO.** Casi todo lo que falta depende de ella. Lo que no depende, lo adelanta el equipo en paralelo.
+- **El cuello de botella sigue siendo la laptop.** Todo lo que no depende de ella ya está hecho o en marcha.
 
 | Área | Avance | Peso en el total |
 |---|---|---|
-| A. Servidor (laptop EXO) | 5 % | 10 % |
-| B. Código y herramientas | 65 % | 25 % |
+| A. Servidor (laptop EXO) | 10 % | 10 % |
+| B. Código y herramientas | 85 % | 25 % |
 | C. Ejecución y mediciones | 0 % | 25 % |
 | D. Informe | 55 % | 25 % |
 | E. Defensa y entregables | 0 % | 15 % |
-| **Total** | **≈ 30 %** | |
+| **Total** | **≈ 35 %** | |
 
-## Decisiones pendientes
+## Decisiones tomadas el 11/11
 
-| # | Qué hay que decidir | Recomendación | Qué destraba |
-|---|---|---|---|
-| 3 | Formato de los 1.000 documentos | Actas de examen ficticias, la mayoría en PDF y el resto en .txt, de pocos KB a unos 5 MB, con semilla fija para que salgan siempre iguales | Generador y carga (Paso 5), E1 y la verificación final |
-| 8 | Dónde corren Prometheus y Grafana, y si se usa Chaos Mesh | En la laptop, con Docker, como ya prevén los requisitos del servidor. Chaos Mesh queda sólo nombrado en el marco teórico | Tablero de Grafana, docker-compose y la demo |
-| 12 | Variante principal del informe | La laptop con KVM pasa a ser la principal, porque ahí se mide. VirtualBox queda como alternativa | Texto de 6.1, Paso 1 y Anexo B |
+| # | Decisión |
+|---|---|
+| 1 | Acceso de los compañeros: se les comparte solo la EXO por Tailscale (no se los invita al tailnet). Entran con un usuario `tif` sin sudo, cada uno con su llave SSH |
+| 3 | Conjunto de datos: 1.000 actas de examen ficticias, alrededor del 70 % en PDF y el resto en texto, con semilla fija (unos 0,4 GB) |
+| 8 | Prometheus y Grafana en el anfitrión con Docker (red host). Chaos Mesh queda solo en el marco teórico: las fallas se inyectan con apagado de VM, iptables y tc netem |
+| 12 | El informe describe la EXO con KVM/libvirt como entorno principal; VirtualBox queda como alternativa |
+| — | Todo corre en la EXO; la HP y la Acer no se usan. En modo TIF, del homelab queda prendido solo Tailscale |
+| — | Rendimiento base con scripts propios: `load.py` (escritura), `verify.py` (lectura) y la sonda (latencia). warp queda opcional |
+| — | Versiones fijas: k3s v1.36.6+k3s1, etcd v3.6.16, Prometheus v3.15.1, Grafana 13.2.6, node_exporter v1.12.1 |
 
-## A. Servidor (laptop EXO): 5 %
-
-| | Actividad | % | Nota |
-|---|---|---|---|
-| ⬜ | Relevar el estado actual de la laptop con el bloque de la sección 9 de `requisitos-servidor.md` | 0 % | Primer paso |
-| ⬜ | Decidir qué se apaga o se deshabilita de lo que ya corre en la laptop | 0 % | Hace falta el contexto de Red Laboratorio |
-| 🟡 | Requisitos R1 a R11: modo texto, energía, red, SSH, KVM/libvirt, convivencia con Docker, Vagrant, disco, memoria, Docker y herramientas | 10 % | Debian y Docker ya están |
-| ⬜ | Prueba de aceptación R12: una VM de prueba con red, apagado brusco, corte de enlace y snapshot | 0 % | Con esto, el servidor queda listo |
-
-## B. Código y herramientas: 65 %
+## A. Servidor (laptop EXO): 10 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
-| ✅ | Repositorio en GitHub (`Fonspem/TIF-SOD`) | 100 % | Subido el 11/11 |
-| 🟡 | Vagrantfile (VirtualBox y libvirt) | 85 % | Falta probarlo en la laptop |
-| 🟡 | Ansible: base, disco de datos, etcd y k3s | 80 % | Falta correrlo contra las VM |
-| 🟡 | Manifiesto de MinIO (`k8s/minio.yaml`) | 80 % | Falta desplegarlo |
-| 🟡 | Servicio de metadatos con bloqueos, lease y fencing, con 7 pruebas | 95 % | Usa el puerto 8000, como piden los requisitos del servidor |
-| 🟡 | Medición de la elección de líder (E2) | 90 % | Falta correrla en el clúster |
-| 🟡 | Clientes del bloqueo: concurrencia, bloqueo huérfano (E5) y fencing | 90 % | Falta correrlos en el clúster |
-| 🟡 | Inyección de fallas E1, E3 y E4 (`chaos/`) | 80 % | Falta correrla en el clúster |
+| ✅ | Relevamiento del estado de la laptop | 100 % | 11/11 |
+| ✅ | Qué se apaga en modo TIF: todo el homelab salvo Tailscale | 100 % | Lo hace el comando `tif` |
+| 🟡 | Parte 1: KVM/libvirt, Vagrant, Ansible, kubectl, UFW y prueba R12 | 10 % | La está corriendo John |
+| ⬜ | Parte 2: usuario `tif`, comando `tif`, primer arranque del clúster y carga de las actas | 0 % | La guía está lista |
+| ⬜ | Parte 3: acceso de los compañeros por Tailscale y subida de resultados a GitHub | 0 % | Se escribe cuando ande el clúster |
+
+## B. Código y herramientas: 85 %
+
+| | Actividad | % | Nota |
+|---|---|---|---|
+| ✅ | Repositorio en GitHub (`Fonspem/TIF-SOD`) | 100 % | |
+| 🟡 | Vagrantfile (libvirt principal, VirtualBox alternativa) | 85 % | Falta probarlo en la laptop |
+| 🟡 | Ansible: base, disco de datos, etcd, k3s, node_exporter y módulo netem | 80 % | Falta correrlo contra las VM |
+| 🟡 | Manifiesto de MinIO | 80 % | Falta desplegarlo |
+| 🟡 | Servicio de metadatos con bloqueos, lease y fencing, con métricas y 7 pruebas | 95 % | Falta correrlo en el clúster |
+| 🟡 | Monitoreo: Prometheus, Grafana con el tablero del Paso 5, node_exporter y la API en Docker | 90 % | Consultas probadas con un Prometheus local; falta verlo con MinIO real |
+| 🟡 | Generador de actas, carga con SHA-256 y verificación | 95 % | Probado con un S3 simulado: 1.000 de 1.000 |
+| 🟡 | Medición de elección de líder (E2) y clientes del bloqueo (E5) | 90 % | Falta correrlos en el clúster |
+| 🟡 | Inyección de fallas E1, E3 y E4 | 80 % | Falta correrla en el clúster |
 | 🟡 | Sonda de estado estable y análisis (tablas y figuras) | 90 % | Falta correrlos en el clúster |
-| 🟡 | Verificación de hashes (`verify.py`) | 90 % | Falta correrla en el clúster |
-| ⛔ | Generador de las 1.000 actas y script de carga con manifiesto SHA-256 | 10 % | Espera la decisión 3. El borrador del informe tiene una versión vieja |
-| ⛔ | Monitoreo: docker-compose de Prometheus y Grafana, node_exporter en las VM y tablero del Paso 5 | 0 % | Espera la decisión 8 |
-| ⬜ | Instalación en el host de etcdctl, mc y warp, con versiones fijas | 0 % | Los requisitos del servidor dicen que los pone el repo |
-| 🟡 | README probado desde cero | 70 % | Se prueba en la etapa 2 |
+| ✅ | Comando `tif` (prender, apagar y estado, con modo TIF) | 100 % | En la guía de la Parte 2; probado con comandos simulados |
+| 🟡 | README probado desde cero | 70 % | Se prueba con la Parte 2 |
 
 ## C. Ejecución y mediciones: 0 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
-| ⬜ | Paso 1: levantar las 4 VM y aprovisionarlas con Ansible | 0 % | Necesita el servidor listo |
-| ⬜ | Paso 2: etcd de 3 miembros, más E2 con 10 corridas por modo | 0 % | No necesita MinIO: se mide apenas etcd esté arriba |
-| ⬜ | Paso 3: MinIO, bucket y rendimiento base con warp | 0 % | |
+| ⬜ | Paso 1: levantar las 4 VM y aprovisionarlas | 0 % | Parte 2 de la guía |
+| ⬜ | Paso 2: etcd de 3 miembros, más E2 con 10 corridas por modo | 0 % | Se mide apenas etcd esté arriba |
+| ⬜ | Paso 3: MinIO y rendimiento base | 0 % | Parte 2 de la guía |
 | ⬜ | Paso 4: servicio de metadatos, demo con dos clientes y E5 | 0 % | |
-| ⛔ | Paso 5: generar y cargar las 1.000 actas; tablero de Grafana | 0 % | Decisiones 3 y 8 |
-| ⬜ | Paso 6: jornada de caos (E1, E3 y E4) con las sondas | 0 % | Después del Paso 5 |
+| ⬜ | Paso 5: generar y cargar las 1.000 actas; tablero de Grafana | 0 % | Parte 2 de la guía |
+| ⬜ | Paso 6: jornada de caos (E1, E3 y E4) con las sondas | 0 % | |
 | ⬜ | Paso 7: verificación final de los 1.000 hashes | 0 % | |
 | ⬜ | Capturas de evidencia (Grafana y terminal) | 0 % | Durante los pasos 1 a 7 |
 
@@ -78,23 +82,23 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 
 | | Actividad | % | Nota |
 |---|---|---|---|
-| ✅ | Portada | 100 % | Es la de ustedes; no se toca |
-| ✅ | Índice | 100 % | Ya está insertado; se actualiza al final |
+| ✅ | Portada e índice | 100 % | El índice se actualiza al final |
 | 🟡 | Resumen y palabras clave | 80 % | Faltan los resultados |
 | ✅ | 1. Introducción y 2. Objetivos y escenario | 95 % | |
-| ✅ | 3. Marco teórico (breve) y 4. Herramientas | 90 % | |
+| ✅ | 3. Marco teórico (breve) | 90 % | |
+| 🟡 | 4. Herramientas | 75 % | Falta reflejar las decisiones 8 y 12 (Docker en el host, sin Chaos Mesh, rendimiento con scripts propios) |
 | 🟡 | 5. Organización del equipo | 20 % | Faltan nombres, roles y autoevaluación |
-| 🟡 | 6. Materiales y métodos | 70 % | Falta el diagrama de arquitectura como figura. 6.2 depende de la decisión 3; el entorno, de la 12 |
-| 🟡 | 7. Implementación práctica | 65 % | Faltan las evidencias reales. El Paso 5 depende de la decisión 3 |
-| 🟡 | 8. Resultados | 10 % | Las tablas están armadas, con 13 huecos [medir] |
+| 🟡 | 6. Materiales y métodos | 55 % | Pasar la EXO a entorno principal (12) y describir el conjunto de datos (3). Falta el diagrama de arquitectura |
+| 🟡 | 7. Implementación práctica | 55 % | Actualizar Paso 1 (libvirt), Paso 3 (rendimiento) y Paso 5 (generador, carga y tablero). Faltan las evidencias reales |
+| 🟡 | 8. Resultados | 10 % | Tablas armadas, con 13 huecos [medir] |
 | 🟡 | 9. Discusión y 10. Conclusiones | 40 % | Se completan con los datos |
-| 🟡 | Referencias APA | 90 % | Al final, revisar que estén todas las citadas |
-| ⬜ | Política de respaldo | 0 % | La pide el rol de almacenamiento y todavía no está |
-| 🟡 | Runbook: guion de operación de la jornada de caos | 20 % | Hay un guion de 7 pasos; falta el documento |
-| ⬜ | Post-mortem de cada experimento | 0 % | La plantilla se puede dejar lista ahora |
+| 🟡 | Referencias APA | 90 % | Revisar al final |
+| ⬜ | Política de respaldo | 0 % | La pide el rol de almacenamiento |
+| 🟡 | Runbook de la jornada de caos | 20 % | Hay un guion de 7 pasos; falta el documento |
+| ⬜ | Post-mortem de cada experimento | 0 % | |
 | ⬜ | Figuras: arquitectura y resultados de E1 a E5 | 0 % | `analyze.py` ya genera las de resultados |
 | ⬜ | Anexo A: bitácoras | 0 % | |
-| ✅ | Anexo B: variante de la laptop | 100 % | Cambia si la laptop pasa a ser la principal (decisión 12) |
+| 🟡 | Anexo B: pasa a ser la variante VirtualBox | 50 % | Hoy describe la laptop; se invierte con la decisión 12 |
 | ⬜ | Exportar a PDF y revisar el formato APA | 0 % | Al final |
 
 ## E. Defensa y entregables: 0 %
@@ -109,50 +113,34 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 
 ## Orden de trabajo
 
-El camino crítico es:
+El camino crítico:
+1. laptop lista (Parte 1);
+2. clúster arriba con las actas cargadas (Parte 2);
+3. E2 y E5, que no necesitan nada más;
+4. jornada de caos (E1, E3 y E4);
+5. resultados en el informe;
+6. defensa.
 
-1. laptop lista;
-2. VM y etcd;
-3. MinIO;
-4. carga de las actas;
-5. jornada de caos;
-6. resultados;
-7. informe y defensa.
+Mientras John prepara la laptop, el equipo:
+- pasa al informe las decisiones 3, 8 y 12;
+- escribe la política de respaldo, el runbook y la plantilla de post-mortem;
+- hace el diagrama de arquitectura.
 
-Todo lo demás va en paralelo, para que nadie quede esperando.
+## Recursos de la EXO en modo TIF (estimación del 11/11)
 
-**Etapa 1, ahora**
-- **Usuario:**
-  - Prepara la laptop (R1 a R12) y trae el relevamiento.
-  - Contesta las decisiones 3, 8 y 12.
-- **el equipo, en paralelo:**
-  - Generador de actas y carga (cuando esté la decisión 3).
-  - docker-compose de monitoreo y tablero (cuando esté la decisión 8).
-  - Instalación de etcdctl, mc y warp.
-  - Política de respaldo, runbook y plantilla de post-mortem.
-  - Diagrama de arquitectura.
+| Recurso | Hay | Usa el TIF | Margen |
+|---|---|---|---|
+| RAM | 11,4 GB | ~10,1 GB: VMs 8,5 + 0,4 de QEMU, monitoreo y API 0,6, Debian y Tailscale 0,5 | ~1,3 GB, más 6,2 GB de swap |
+| Disco | 87 GB libres | 25 a 30 GB | ~55 GB |
+| CPU | 4 hilos | 8 vCPU | En las pruebas de rendimiento la CPU es el límite, y eso se informa |
 
-**Etapa 2, con la laptop lista**
-- Pasos 1 y 2: VM, Ansible y etcd. E2 se mide apenas etcd esté arriba.
-- Paso 3: MinIO y warp.
-- Paso 4: servicio de metadatos, demo y E5.
-
-**Etapa 3**
-- Paso 5: actas y tablero.
-- Paso 6: jornada de caos con sus post-mortems.
-- Paso 7: verificación final.
-- Capturas en cada paso y tramos grabados para el video.
-
-**Etapa 4**
-- **el equipo:** informe con resultados y figuras.
-- **Usuario:** nombres, autoevaluación y bitácoras.
-- Presentación, video y ensayo de la demo.
+Plan B si la RAM queda justa: bajar vm2 a vm4 de 2 a 1,75 GB.
 
 ## Notas de las pruebas locales (para la discusión)
 
-- **Escrituras ambiguas.** En la partición simulada, algunas escrituras se aplicaron igual al reunificar aunque el cliente las dio por fallidas por tiempo agotado. Habían quedado en los búferes de TCP y llegaron al líder después.
+- **Escrituras ambiguas.** En la partición simulada, algunas escrituras se aplicaron igual al reunificar, aunque el cliente las había dado por fallidas por tiempo agotado. Habían quedado en los búferes de TCP y llegaron al líder después.
   - No hubo divergencia: todos los miembros ven lo mismo.
   - Pero un error en el cliente no garantiza que la operación no haya ocurrido.
   - Por eso el servicio de metadatos usa transacciones con comparación: reintentar no rompe nada.
 - **Caída del líder y servicio de metadatos.** Con `kill -9` al líder, el servicio no devolvió errores (con un tiempo de espera de 8 s en el cliente). Algunas escrituras tardaron unos 2 s: el primer miembro consultado no respondió dentro de `ETCD_TIMEOUT` y el servicio pasó al siguiente.
-- **Minoría aislada.** El miembro aislado rechaza escrituras y lecturas linealizables durante toda la partición. La mayoría sólo tiene uno o dos segundos de errores, si tiene que elegir un líder nuevo.
+- **Minoría aislada.** El miembro aislado rechaza escrituras y lecturas linealizables durante toda la partición. La mayoría solo tiene uno o dos segundos de errores, si tiene que elegir un líder nuevo.
