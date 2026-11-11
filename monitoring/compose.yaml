@@ -1,0 +1,65 @@
+# Monitoreo del TIF y API de metadatos, en el anfitrión (fuera de las VM).
+# Todo con red host: Prometheus llega a las VM por 192.168.56.0/24 sin pasar por la
+# cadena FORWARD, y lo que se expone (3000, 8000 y 9090) lo filtra el firewall del anfitrión.
+# Uso: docker compose up -d --build   ·   docker compose down
+name: tif
+services:
+  prometheus:
+    image: prom/prometheus:v3.15.1
+    container_name: tif-prometheus
+    restart: "no"
+    network_mode: host
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=30d
+      - --storage.tsdb.retention.size=2GB        # tope de disco para las métricas
+      - --web.listen-address=0.0.0.0:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus:/prometheus
+
+  grafana:
+    image: grafana/grafana:13.2.6
+    container_name: tif-grafana
+    restart: "no"
+    network_mode: host
+    environment:
+      GF_SERVER_HTTP_PORT: "3000"
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?falta GRAFANA_ADMIN_PASSWORD en monitoring/.env}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_DATE_FORMATS_DEFAULT_TIMEZONE: America/Argentina/Buenos_Aires
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana:/var/lib/grafana
+
+  node-exporter:                                 # métricas del anfitrión: CPU, RAM, disco y temperatura
+    image: prom/node-exporter:v1.12.1
+    container_name: tif-node-exporter
+    restart: "no"
+    network_mode: host
+    pid: host
+    command:
+      - --path.rootfs=/host
+      - --web.listen-address=127.0.0.1:9100     # solo local: lo lee Prometheus
+    volumes:
+      - /:/host:ro,rslave
+
+  api:                                           # servicio de metadatos (metadata-service/)
+    build: ../metadata-service
+    image: tif-api:local
+    container_name: tif-api
+    restart: "no"
+    network_mode: host
+    environment:
+      ETCD: 192.168.56.11:2379,192.168.56.12:2379,192.168.56.13:2379
+      PORT: "8000"
+      LOCK_TTL: "15"
+
+volumes:
+  prometheus:
+  grafana:

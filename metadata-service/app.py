@@ -15,11 +15,13 @@ no hay quórum, contesta 503: el servicio prefiere consistencia a disponibilidad
 import base64
 import json
 import os
+import time
 
 import etcd3gw
 from etcd3gw import exceptions as etcd_exc
 from etcd3gw.lease import Lease
-from flask import Flask, jsonify, request
+from flask import Flask, g, jsonify, request
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
 
 ENDPOINTS = [e.strip() for e in os.environ.get(
     "ETCD", "192.168.56.11:2379,192.168.56.12:2379,192.168.56.13:2379").split(",") if e.strip()]
@@ -29,6 +31,32 @@ TRANSICIONES = {"borrador": {"firmada"}, "firmada": {"archivada"}, "archivada": 
 
 app = Flask(__name__)
 _preferido = 0  # índice del último miembro de etcd que respondió
+
+# Métricas para Prometheus (las lee el tablero de Grafana): pedidos por ruta y código, y su duración.
+PEDIDOS = Counter("tif_api_pedidos_total", "Pedidos atendidos por la API de metadatos",
+                  ["ruta", "metodo", "codigo"])
+DURACION = Histogram("tif_api_pedido_segundos", "Duración de los pedidos a la API de metadatos", ["ruta"],
+                     buckets=(0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 4, 8))
+
+
+@app.before_request
+def _inicio_pedido():
+    g.inicio = time.perf_counter()
+
+
+@app.after_request
+def _medir_pedido(respuesta):
+    ruta = request.url_rule.rule if request.url_rule else "desconocida"
+    if ruta != "/metrics":
+        PEDIDOS.labels(ruta, request.method, str(respuesta.status_code)).inc()
+        if "inicio" in g:
+            DURACION.labels(ruta).observe(time.perf_counter() - g.inicio)
+    return respuesta
+
+
+@app.get("/metrics")
+def metricas():
+    return generate_latest(), 200, {"Content-Type": CONTENT_TYPE_LATEST}
 
 
 class SinEtcd(Exception):

@@ -5,11 +5,11 @@
 #   ./e1_caida_nodo.sh apagar vm4      # anota la hora exacta en results/e1_eventos.csv
 #   ./e1_caida_nodo.sh encender vm4
 #
-# Variante libvirt (laptop dedicada, Anexo B):  PROVEEDOR=libvirt ./e1_caida_nodo.sh apagar vm4
+# Por defecto usa libvirt (la EXO). Con VirtualBox:  PROVEEDOR=virtualbox ./e1_caida_nodo.sh apagar vm4
 set -euo pipefail
 accion=${1:?uso: $0 apagar|encender <vm>}
 vm=${2:?falta la VM, por ejemplo vm4}
-proveedor=${PROVEEDOR:-virtualbox}
+proveedor=${PROVEEDOR:-libvirt}
 eventos=${EVENTOS:-../results/e1_eventos.csv}
 
 registrar() { printf '%s,%s,%s\n' "$(date +%s.%N)" "$accion" "$vm" >> "$eventos"; }

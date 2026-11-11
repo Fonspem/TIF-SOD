@@ -8,11 +8,12 @@ Trabajo Integrador Final de Sistemas Operativos Distribuidos, Facultad de Ingeni
 
 | Carpeta | Contenido |
 |---|---|
-| `vagrant/` | Vagrantfile de las 4 VM, con dos variantes: VirtualBox (principal) y KVM/libvirt (laptop dedicada) |
-| `ansible/` | Aprovisionamiento: paquetes, disco de datos, etcd (systemd) y k3s |
+| `vagrant/` | Vagrantfile de las 4 VM: KVM/libvirt en la laptop dedicada (principal) o VirtualBox (alternativa) |
+| `ansible/` | Aprovisionamiento: paquetes, disco de datos, etcd (systemd), k3s y node_exporter |
 | `k8s/` | Manifiesto de MinIO distribuido |
-| `metadata-service/` | API REST de metadatos con bloqueos (Flask + etcd3gw) y sus pruebas |
-| `scripts/` | Medición de elecciones de etcd, clientes del bloqueo (E5, fencing), sonda de estado estable, verificación de hashes, tablas y figuras |
+| `metadata-service/` | API REST de metadatos con bloqueos (Flask + etcd3gw), sus pruebas y su imagen Docker |
+| `monitoring/` | Prometheus, Grafana (con el tablero del TIF), node_exporter del anfitrión y la API, con Docker Compose |
+| `scripts/` | Generación y carga de las 1.000 actas, verificación de hashes, medición de elecciones de etcd, clientes del bloqueo (E5, fencing), sonda de estado estable, tablas y figuras |
 | `chaos/` | Inyección de fallas: caída de nodo (E1), partición (E3), red degradada (E4) |
 | `results/` | Datos crudos de los experimentos (CSV) |
 | `docs/` | Plan de trabajo y versiones instaladas |
@@ -26,7 +27,8 @@ Trabajo Integrador Final de Sistemas Operativos Distribuidos, Facultad de Ingeni
   etcd-1                 etcd-2             etcd-3             -
   minio-0                minio-1            minio-2            minio-3
 
-  Anfitrión: servicio de metadatos (puerto 8000), scripts de carga, verificación y medición
+  Anfitrión (Docker, red host): API de metadatos :8000 · Prometheus :9090 · Grafana :3000
+  Anfitrión: scripts de carga, verificación, medición y caos
 ```
 
 - etcd corre como servicio systemd, separado del almacén interno de k3s, para poder detener a su líder sin afectar a Kubernetes.
@@ -35,12 +37,12 @@ Trabajo Integrador Final de Sistemas Operativos Distribuidos, Facultad de Ingeni
 
 ## Cómo levantarlo
 
-Requisitos del anfitrión: Vagrant con VirtualBox (o con KVM/libvirt y el plugin vagrant-libvirt), Ansible, kubectl y Python 3.11 o superior.
+Requisitos del anfitrión: Vagrant con KVM/libvirt y el plugin vagrant-libvirt (o con VirtualBox), Ansible, kubectl 1.36, Docker con Compose y Python 3.11 o superior.
 
 ```bash
 # 1. Máquinas virtuales
 cd vagrant
-vagrant up                        # o: vagrant up --provider=libvirt
+vagrant up --provider=libvirt     # o: vagrant up --provider=virtualbox
 vagrant ssh-config > ../ansible/ssh_config
 
 # 2. Aprovisionamiento (etcd y k3s)
@@ -55,14 +57,21 @@ kubectl create namespace minio
 kubectl -n minio create secret generic minio-creds \
   --from-literal=MINIO_ROOT_USER=admin --from-literal=MINIO_ROOT_PASSWORD='<contraseña>'
 kubectl apply -f ../k8s/minio.yaml
-mc alias set lab http://192.168.56.11:9000 admin '<contraseña>'
-mc mb lab/actas
-mc admin info lab                 # 4/4 unidades en línea
+kubectl -n minio get pods -o wide                       # 4 pods Running, uno por VM
+curl -s -o /dev/null -w '%{http_code}\n' http://192.168.56.11:9000/minio/health/cluster   # 200: hay quórum de escritura
 
-# 4. Servicio de metadatos (en el anfitrión)
-cd ../metadata-service
-python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt
-python app.py                     # escucha en el puerto 8000
+# 4. Monitoreo y API de metadatos (Docker en el anfitrión, red host)
+cd ../monitoring
+cp .env.example .env              # y poner la contraseña de Grafana
+docker compose up -d --build      # Grafana :3000 (tablero "TIF · Estado del sistema"), Prometheus :9090, API :8000
+
+# 5. Actas de prueba: generar, subir y verificar (el bucket se crea solo)
+cd ../scripts
+python3 -m venv ../.venv && . ../.venv/bin/activate && pip install -r requirements.txt
+export MINIO_USER=admin MINIO_PASS='<contraseña>'
+python generar_actas.py           # 1.000 actas ficticias (PDF y texto, ~0,4 GB) en ../dataset/actas
+python load.py                    # sube, registra cada SHA-256 y escribe ../results/manifest.csv (MB/s de escritura)
+python verify.py                  # baja todo y compara los hashes (MB/s de lectura)
 ```
 
 ## Experimentos

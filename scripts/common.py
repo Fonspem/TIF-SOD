@@ -1,14 +1,19 @@
 """Cliente S3 compartido por los scripts de carga y verificación.
 
 Cada pod de MinIO expone el puerto 9000 en su propio nodo (hostPort), así que
-cada URL de NODES habla con una unidad concreta. with_failover prueba los nodos
-en orden hasta que uno responde, para no depender de un solo nodo cuando se
-apaga una VM.
+cada URL de NODES habla con una unidad concreta. with_failover empieza por el
+último nodo que respondió y, si falla, prueba los demás: así un nodo apagado
+no le suma una espera a cada pedido.
+
+Los clientes se crean una sola vez por nodo (crearlos es caro y no es seguro
+hacerlo desde varios hilos a la vez); después se comparten, porque los clientes
+de boto3 sí se pueden usar desde varios hilos.
 
 Credenciales por variables de entorno: MINIO_USER y MINIO_PASS.
 """
 import hashlib
 import os
+import threading
 
 import boto3
 from botocore.config import Config
@@ -30,14 +35,33 @@ def s3(node, config=None):
     )
 
 
+_clientes = {}
+_lock = threading.Lock()
+_preferido = 0  # índice en NODES del último nodo que respondió
+
+
+def cliente(node):
+    """Cliente S3 de ese nodo, creado la primera vez que se pide."""
+    with _lock:
+        if node not in _clientes:
+            _clientes[node] = s3(node)
+        return _clientes[node]
+
+
 def with_failover(fn):
     """Ejecuta fn(cliente) contra el primer nodo que responda; si ninguno responde, relanza el último error."""
+    global _preferido
     ultimo = None
-    for node in NODES:
+    inicio = _preferido
+    for i in range(len(NODES)):
+        idx = (inicio + i) % len(NODES)
         try:
-            return fn(s3(node))
+            resultado = fn(cliente(NODES[idx]))
         except Exception as e:  # noqa: BLE001 (cualquier falla de red o de MinIO pasa al siguiente nodo)
             ultimo = e
+            continue
+        _preferido = idx
+        return resultado
     raise ultimo
 
 

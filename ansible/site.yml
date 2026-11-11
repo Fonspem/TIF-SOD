@@ -5,9 +5,9 @@
   hosts: all
   become: true
   tasks:
-    - name: Paquetes base
+    - name: Paquetes base (prometheus-node-exporter publica CPU, RAM y red de la VM en el puerto 9100)
       ansible.builtin.apt:
-        name: [curl, chrony, jq, iptables, xfsprogs, iproute2]
+        name: [curl, chrony, jq, iptables, xfsprogs, iproute2, prometheus-node-exporter]
         state: present
         update_cache: true
         cache_valid_time: 3600
@@ -17,6 +17,19 @@
         name: chrony
         state: started
         enabled: true
+
+    - name: node_exporter prendido (lo lee el Prometheus del anfitrión)
+      ansible.builtin.service:
+        name: prometheus-node-exporter
+        state: started
+        enabled: true
+
+    - name: Módulo netem para E4 (en algunas imágenes viene en linux-modules-extra)
+      ansible.builtin.shell: >-
+        modprobe sch_netem ||
+        { apt-get install -y "linux-modules-extra-$(uname -r)" && modprobe sch_netem; }
+      register: netem
+      changed_when: "'Setting up' in netem.stdout"
 
     - name: Interfaz de la red privada (la que tiene la IP del inventario)
       ansible.builtin.set_fact:

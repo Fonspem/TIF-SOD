@@ -1,9 +1,9 @@
 # -*- mode: ruby -*-
 # Cuatro VM para el TIF de SOD (Propuesta C), en la red privada 192.168.56.0/24.
 #
-#   Variante principal, VirtualBox (Ubuntu 22.04):     vagrant up
-#   Variante laptop dedicada, KVM/libvirt (Ubuntu 24.04, ver Anexo B del informe):
+#   Variante principal, KVM/libvirt en la laptop dedicada (Ubuntu 24.04):
 #                                                      vagrant up --provider=libvirt
+#   Alternativa, VirtualBox (Ubuntu 22.04):            vagrant up --provider=virtualbox
 #
 # Después, para Ansible:  vagrant ssh-config > ../ansible/ssh_config
 

@@ -1,0 +1,42 @@
+# Qué mide Prometheus en el TIF. Las VM están en 192.168.56.11 a .14 (vm1 a vm4).
+global:
+  scrape_interval: 5s          # fino, para ver bien las fallas de los experimentos
+  scrape_timeout: 4s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: etcd              # elección de líder, propuestas y latencia de disco
+    static_configs:
+      - targets: ['192.168.56.11:2379', '192.168.56.12:2379', '192.168.56.13:2379']
+    relabel_configs: &vm        # etiqueta vm (vm1 a vm4) según la IP; los demás trabajos la reusan
+      - source_labels: [__address__]
+        regex: '192\.168\.56\.1([1-4]):\d+'
+        target_label: vm
+        replacement: 'vm$1'
+
+  - job_name: minio-nodo        # visión de cada nodo: pedidos S3, errores, latencia y discos locales
+    metrics_path: /minio/v2/metrics/node
+    static_configs:
+      - targets: ['192.168.56.11:9000', '192.168.56.12:9000', '192.168.56.13:9000', '192.168.56.14:9000']
+    relabel_configs: *vm
+
+  - job_name: minio-cluster     # visión del clúster: discos en línea y reparación (heal)
+    metrics_path: /minio/v2/metrics/cluster
+    scrape_interval: 15s        # este punto consulta a los demás nodos: más caro
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['192.168.56.11:9000', '192.168.56.12:9000', '192.168.56.13:9000', '192.168.56.14:9000']
+    relabel_configs: *vm
+
+  - job_name: nodos             # node_exporter de cada VM
+    static_configs:
+      - targets: ['192.168.56.11:9100', '192.168.56.12:9100', '192.168.56.13:9100', '192.168.56.14:9100']
+    relabel_configs: *vm
+
+  - job_name: anfitrion         # node_exporter de la EXO
+    static_configs:
+      - targets: ['127.0.0.1:9100']
+
+  - job_name: api               # servicio de metadatos
+    static_configs:
+      - targets: ['127.0.0.1:8000']
