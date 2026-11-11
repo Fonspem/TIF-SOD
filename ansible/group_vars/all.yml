@@ -1,7 +1,7 @@
 # Versiones fijadas: registrar en ../docs/versiones.md las que efectivamente se instalen.
-etcd_version: v3.6.5
-k3s_channel: stable            # o fijar con k3s_version, por ejemplo v1.33.5+k3s1
-k3s_version: ""
+etcd_version: v3.6.16
+k3s_channel: stable            # sólo se usa si k3s_version queda vacía
+k3s_version: v1.36.6+k3s1     # fija; el kubectl del anfitrión tiene que ser 1.35, 1.36 o 1.37
 
 # El token del clúster k3s se pasa por variable de entorno: K3S_TOKEN=... ansible-playbook site.yml
 k3s_token: "{{ lookup('env', 'K3S_TOKEN') | default('cambiar-este-token-de-laboratorio', true) }}"
