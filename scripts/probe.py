@@ -48,7 +48,7 @@ from medidas import cortes, percentil
 
 RESULTADOS = Path(__file__).resolve().parent.parent / "results"
 ETCD = os.environ.get("ETCD", "192.168.56.11:2379,192.168.56.12:2379,192.168.56.13:2379")
-META_API = os.environ.get("META_API", "http://localhost:5000")
+META_API = os.environ.get("META_API", "http://localhost:8000")
 TIMEOUT = {"s3": 5.0, "etcd": 2.0, "meta": 8.0}  # el de meta cubre la conmutación interna del servicio
 COLUMNAS = ["t", "objetivo", "etiqueta", "nodo", "op", "ok", "ms", "clave", "error"]
 OPERACIONES = ("lectura", "escritura")

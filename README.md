@@ -26,7 +26,7 @@ Trabajo Integrador Final de Sistemas Operativos Distribuidos, Facultad de Ingeni
   etcd-1                 etcd-2             etcd-3             -
   minio-0                minio-1            minio-2            minio-3
 
-  Anfitrión: servicio de metadatos (puerto 5000), scripts de carga, verificación y medición
+  Anfitrión: servicio de metadatos (puerto 8000), scripts de carga, verificación y medición
 ```
 
 - etcd corre como servicio systemd, separado del almacén interno de k3s, para poder detener a su líder sin afectar a Kubernetes.
@@ -62,7 +62,7 @@ mc admin info lab                 # 4/4 unidades en línea
 # 4. Servicio de metadatos (en el anfitrión)
 cd ../metadata-service
 python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt
-python app.py                     # escucha en el puerto 5000
+python app.py                     # escucha en el puerto 8000
 ```
 
 ## Experimentos

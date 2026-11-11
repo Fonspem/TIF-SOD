@@ -8,7 +8,7 @@ Modos:
   fencing       El dueño se "pausa" más que el TTL, otro cliente toma el bloqueo y la
                 escritura del dueño viejo tiene que ser rechazada (409).
 
-Ejemplos (con la API en el puerto 5000):
+Ejemplos (con la API en el puerto 8000):
     python lock_clients.py concurrencia --clientes 2
     python lock_clients.py huerfano --repeticiones 5 --salida ../results/e5_kill.csv
     python lock_clients.py huerfano --ordenado --repeticiones 5 --salida ../results/e5_ordenado.csv
@@ -135,7 +135,7 @@ def fencing(args):
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("modo", choices=["concurrencia", "huerfano", "fencing", "_duenio"])
-    p.add_argument("--api", default="http://localhost:5000")
+    p.add_argument("--api", default="http://localhost:8000")
     p.add_argument("--doc", default="acta-demo")
     p.add_argument("--clientes", type=int, default=2)
     p.add_argument("--repeticiones", type=int, default=5)
