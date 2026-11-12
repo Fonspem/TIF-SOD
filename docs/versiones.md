@@ -24,7 +24,7 @@ Lo que dice "completar" se anota cuando se instale.
 | Box | `bento/ubuntu-24.04` (proveedor libvirt, 202508.03.0) |
 | k3s | v1.36.6+k3s1 |
 | etcd | v3.6.16 |
-| MinIO | `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` |
+| MinIO | `docker.io/pgsty/minio:RELEASE.2026-08-04T00-00-00Z`, fork comunitario de Pigsty (quay.io dejó de permitir descargas anónimas de `quay.io/minio/minio` el 24/09/2026) |
 | node_exporter de las VM | paquete `prometheus-node-exporter` de Ubuntu 24.04 (completar la versión) |
 
 ## Monitoreo y servicio de metadatos (Docker, en el anfitrión)

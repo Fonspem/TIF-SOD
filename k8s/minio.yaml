@@ -43,8 +43,10 @@ spec:
               topologyKey: kubernetes.io/hostname
       containers:
         - name: minio
-          # La edición comunitaria está archivada: imagen fijada por versión (o el fork pgsty/minio).
-          image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+          # La edición comunitaria de MinIO está archivada y, desde el 24/09/2026, quay.io rechaza
+          # las descargas anónimas de sus imágenes (401). Se usa el fork comunitario de Pigsty,
+          # que mantiene el mismo formato en disco, las mismas variables MINIO_* y la misma API.
+          image: docker.io/pgsty/minio:RELEASE.2026-08-04T00-00-00Z
           args: ["server", "http://minio-{0...3}.minio-hl.minio.svc.cluster.local/data"]
           envFrom: [{ secretRef: { name: minio-creds } }]
           env:
