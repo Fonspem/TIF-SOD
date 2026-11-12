@@ -12,6 +12,8 @@ Ejemplos (desde scripts/):
       --figura ../results/figuras/e1.png
   python analyze.py sonda ../results/e3_etcd_vm1.csv ../results/e3_etcd_vm3.csv \\
       --eventos ../results/e3_eventos.csv --figura ../results/figuras/e3_etcd.png
+  python analyze.py sonda ../results/e2_sonda_meta_kill.csv --eventos ../results/e2_eventos.csv \\
+      --por-accion --hasta 12:00      (deja afuera lo que la sonda anotó después de las 12)
   python analyze.py eleccion ../results/e2_kill.csv ../results/e2_stop.csv --figura ../results/figuras/e2.png
   python analyze.py huerfano ../results/e5_kill.csv ../results/e5_ordenado.csv --figura ../results/figuras/e5.png
 
@@ -23,6 +25,7 @@ import csv
 import os
 import statistics
 import sys
+import time
 from pathlib import Path
 
 from medidas import cortes, percentil
@@ -153,10 +156,22 @@ def respuesta_a_eventos(pedidos, eventos):
     return filas
 
 
+def hora_del_dia(hhmm, referencia):
+    """Epoch de la hora HH:MM[:SS] (hora local) del mismo día que el epoch de referencia."""
+    dia = time.localtime(referencia)
+    partes = [int(x) for x in hhmm.split(":")] + [0]
+    return time.mktime((dia.tm_year, dia.tm_mon, dia.tm_mday, partes[0], partes[1], partes[2], 0, 0, -1))
+
+
 def cmd_sonda(args):
     series = {}
     for ruta in args.csv:
         filas = leer_sonda(ruta)
+        if filas and (args.desde or args.hasta):
+            # Recorte por hora: por ejemplo, para dejar afuera lo que anotó una corrida abortada
+            desde = hora_del_dia(args.desde, filas[0]["t"]) if args.desde else float("-inf")
+            hasta = hora_del_dia(args.hasta, filas[0]["t"]) if args.hasta else float("inf")
+            filas = [f for f in filas if desde <= f["t"] <= hasta]
         if not filas:
             sys.exit(f"{ruta} no tiene pedidos")
         series[nombre_de_serie(ruta, filas)] = filas
@@ -395,6 +410,8 @@ def main():
             s.add_argument("--eventos", help="CSV de eventos de chaos/ o de leader_election.py")
             s.add_argument("--por-accion", action="store_true",
                            help="agrupar los tramos por acción, sin el host (útil en E2, donde cae un líder distinto cada vez)")
+            s.add_argument("--desde", metavar="HH:MM", help="usar sólo los pedidos desde esa hora local del día de la sonda")
+            s.add_argument("--hasta", metavar="HH:MM", help="usar sólo los pedidos hasta esa hora local del día de la sonda")
     args = p.parse_args()
     {"sonda": cmd_sonda, "eleccion": cmd_eleccion, "huerfano": cmd_huerfano}[args.cmd](args)
 
