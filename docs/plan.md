@@ -6,14 +6,14 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 
 ## Dónde estamos
 
-- **Avance general: alrededor del 59 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
+- **Avance general: alrededor del 60 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
 - **Ya está hecho:**
   - Todo el código y las herramientas de medición, probados en local.
   - El borrador del informe completo, salvo los resultados.
   - La política de respaldo (sección 6.4 del informe), el runbook de la jornada de caos y la plantilla de post-mortem.
   - **El clúster anda en la laptop (12/11):** 4 VMs, etcd, k3s, MinIO, monitoreo y API, con las 1.000 actas cargadas y verificadas (1.000 de 1.000). Medición base: escritura 6,7 MB/s, lectura 62,8 MB/s.
 - **Incidente no planificado (12/11, de 11:28 a 15:48):** vm3 se congeló sola; el sistema siguió andando con 2 de 3 en etcd y 3 de 4 en MinIO. Se recuperó con un reinicio forzado. Acción correctiva: un watchdog en cada VM, probado: una VM congelada vuelve sola en 35 s. Post-mortem: [docs/postmortems/2026-11-12-vm3.md](postmortems/2026-11-12-vm3.md).
-- **Sigue:** E2 con `stop` y E5 (la guía sigue en el paso 3), después la Parte 3 (compañeros y GitHub).
+- **Sigue:** E5, la prueba de restauración y las tablas (pasos 4 a 6 de la guía), después la Parte 3 (compañeros y GitHub).
 - **Falta:**
   - Correr los experimentos: E2 y E5 ahora; después la jornada de caos (E1, E3 y E4).
   - Completar el informe con los resultados. Las decisiones del 11/11 ya están en el informe.
@@ -24,10 +24,10 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 |---|---|---|
 | A. Servidor (laptop EXO) | 74 % | 10 % |
 | B. Código y herramientas | 92 % | 25 % |
-| C. Ejecución y mediciones | 40 % | 25 % |
+| C. Ejecución y mediciones | 45 % | 25 % |
 | D. Informe | 73 % | 25 % |
 | E. Defensa y entregables | 0 % | 15 % |
-| **Total** | **≈ 59 %** | |
+| **Total** | **≈ 60 %** | |
 
 ## Decisiones tomadas el 11/11
 
@@ -75,12 +75,12 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | 🟡 | Respaldo: `verify.py --copia` (actas) y `respaldo.sh` (instantánea de etcd y prueba de restauración) | 90 % | Probado en local, incluso con un acta alterada y una instantánea dañada; falta correrlo en el clúster |
 | 🟡 | README probado desde cero | 85 % | La Parte 2 siguió sus pasos; falta revisarlo entero al final |
 
-## C. Ejecución y mediciones: 40 %
+## C. Ejecución y mediciones: 45 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
 | ✅ | Paso 1: levantar las 4 VM y aprovisionarlas | 100 % | 12/11 |
-| 🟡 | Paso 2: etcd de 3 miembros, más E2 con 10 corridas por modo | 70 % | E2 con `kill -9`: 10 corridas (12/11). Falta `stop`. En `e2_sonda_meta_kill.csv` quedaron 70 s de una corrida abortada a las 14:40: se descartan en el análisis |
+| 🟡 | Paso 2: etcd de 3 miembros, más E2 con 10 corridas por modo | 90 % | 12/11: E2 con `kill -9` y con `stop`, 10 corridas cada uno. Con `stop`, nuevo líder en 62 ms de mediana (36 a 87 ms) y la sonda del servicio de metadatos sin un error (2.491 pedidos). Falta el análisis (paso 6 de la guía). En `e2_sonda_meta_kill.csv` quedaron 70 s de una corrida abortada a las 14:40: se descartan en el análisis |
 | 🟡 | Paso 3: MinIO y rendimiento base | 70 % | Escritura 6,7 MB/s y lectura 62,8 MB/s; falta la latencia con la sonda |
 | ⬜ | Paso 4: servicio de metadatos, demo con dos clientes y E5 | 0 % | |
 | ✅ | Paso 5: generar y cargar las 1.000 actas; tablero de Grafana | 100 % | 1.000 de 1.000 |
