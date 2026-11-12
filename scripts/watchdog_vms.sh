@@ -34,11 +34,16 @@ esperar() {
   echo "  ✓ $que (${t} s)"
 }
 
-# Clúster completo: 3 miembros de etcd sanos, 4 nodos Ready y 4 pods de MinIO listos
+# Clúster completo: 3 miembros de etcd sanos, 4 nodos Ready y MinIO listo en las 4 VM.
+# etcd y MinIO se consultan directo (MinIO publica el 9000 en cada VM): el estado de los pods en
+# Kubernetes tarda en actualizarse y, justo después de un reinicio rápido, todavía dice Running.
 completo() {
+  local ip
   [ "$("${SSH[@]}" vm1 "etcdctl --endpoints=$ETCD endpoint health" 2>&1 | grep -c 'is healthy')" -eq 3 ] &&
-  [ "$(kubectl get nodes --no-headers 2>/dev/null | awk '$2 == "Ready"' | wc -l)" -eq 4 ] &&
-  [ "$(kubectl -n minio get pods --no-headers 2>/dev/null | awk '$2 == "1/1" && $3 == "Running"' | wc -l)" -eq 4 ]
+  [ "$(kubectl get nodes --no-headers 2>/dev/null | awk '$2 == "Ready"' | wc -l)" -eq 4 ] || return 1
+  for ip in 192.168.56.11 192.168.56.12 192.168.56.13 192.168.56.14; do
+    curl -sf -m 3 -o /dev/null "http://$ip:9000/minio/health/ready" || return 1
+  done
 }
 
 apagada() { [ "$("${VIRSH[@]}" domstate "tif_$1")" = "shut off" ]; }

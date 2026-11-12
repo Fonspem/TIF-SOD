@@ -11,6 +11,7 @@ set -euo pipefail
 vm=${1:?Uso: ./probar_watchdog.sh vmN}
 SSH_CONFIG=${SSH_CONFIG:-../ansible/ssh_config}
 SSH=(ssh -F "$SSH_CONFIG" -o ConnectTimeout=5 -o LogLevel=ERROR)
+VIRSH=(virsh -c qemu:///system)
 ETCD=192.168.56.11:2379,192.168.56.12:2379,192.168.56.13:2379
 EVENTOS=../results/watchdog_eventos.csv
 [ -f "$EVENTOS" ] || echo "epoch,evento,vm" > "$EVENTOS"
@@ -18,11 +19,16 @@ EVENTOS=../results/watchdog_eventos.csv
 registrar() { printf '%s,%s,%s\n' "$(date +%s.%N)" "$1" "$vm" >> "$EVENTOS"; }
 arranque() { "${SSH[@]}" "$vm" cat /proc/sys/kernel/random/boot_id 2>/dev/null; }
 
-# Clúster completo: 3 miembros de etcd sanos, 4 nodos Ready y 4 pods de MinIO listos
+# Clúster completo: 3 miembros de etcd sanos, 4 nodos Ready y MinIO listo en las 4 VM.
+# etcd y MinIO se consultan directo (MinIO publica el 9000 en cada VM): el estado de los pods en
+# Kubernetes tarda en actualizarse y, justo después de un reinicio rápido, todavía dice Running.
 completo() {
+  local ip
   [ "$("${SSH[@]}" vm1 "etcdctl --endpoints=$ETCD endpoint health" 2>&1 | grep -c 'is healthy')" -eq 3 ] &&
-  [ "$(kubectl get nodes --no-headers 2>/dev/null | awk '$2 == "Ready"' | wc -l)" -eq 4 ] &&
-  [ "$(kubectl -n minio get pods --no-headers 2>/dev/null | awk '$2 == "1/1" && $3 == "Running"' | wc -l)" -eq 4 ]
+  [ "$(kubectl get nodes --no-headers 2>/dev/null | awk '$2 == "Ready"' | wc -l)" -eq 4 ] || return 1
+  for ip in 192.168.56.11 192.168.56.12 192.168.56.13 192.168.56.14; do
+    curl -sf -m 3 -o /dev/null "http://$ip:9000/minio/health/ready" || return 1
+  done
 }
 
 # Controles antes de colgarla: si alguno falla, no se toca nada
@@ -31,6 +37,13 @@ completo || { echo "El clúster no está completo: no sigo." >&2; exit 1; }
   { echo "El watchdog no está activo en $vm: no sigo." >&2; exit 1; }
 antes=$(arranque)
 echo "$(date +%H:%M:%S) Controles bien: clúster completo y watchdog activo en $vm"
+
+# libvirt avisa cuando el watchdog dispara: se escucha ese evento desde antes de colgarla
+evento=$(mktemp)
+trap 'rm -f "$evento"' EXIT
+"${VIRSH[@]}" event --domain "tif_$vm" --event watchdog --timeout 300 --timestamp > "$evento" 2>&1 &
+escucha=$!
+sleep 1
 
 echo "$(date +%H:%M:%S) Cuelgo el núcleo de $vm"
 t0=$(date +%s)
@@ -47,6 +60,13 @@ until ahora=$(arranque) && [ -n "$ahora" ] && [ "$ahora" != "$antes" ]; do
 done
 registrar volvio
 echo "$(date +%H:%M:%S) ✓ $vm volvió sola en $(( $(date +%s) - t0 )) s, con un arranque nuevo"
+kill "$escucha" 2>/dev/null || true
+wait "$escucha" 2>/dev/null || true
+if grep -q "event 'watchdog'" "$evento"; then
+  echo "  ✓ libvirt registró el disparo del watchdog (hora UTC): $(grep -m1 "event 'watchdog'" "$evento")"
+else
+  echo "  ⚠️ libvirt no registró el disparo del watchdog: la VM volvió por otro motivo. Revisá el registro de libvirt."
+fi
 
 until completo; do
   if [ $(( $(date +%s) - t0 )) -ge 600 ]; then
