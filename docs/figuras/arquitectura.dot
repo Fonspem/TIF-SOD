@@ -1,0 +1,58 @@
+digraph G {
+  graph [rankdir=TB, compound=true, newrank=true, fontname="DejaVu Sans", fontsize=11, bgcolor="#fcfcfb", nodesep=0.3, ranksep=0.45, pad=0.25];
+  node  [fontname="DejaVu Sans", fontsize=10, shape=box, style="rounded,filled", color="#c9c8c3", fillcolor="#ffffff", penwidth=1, margin="0.12,0.06"];
+  edge  [fontname="DejaVu Sans", fontsize=9, color="#52514e", fontcolor="#52514e", arrowsize=0.7];
+
+  equipo [label="Integrantes del equipo\n(desde sus casas)", fillcolor="#f2f1ee"];
+
+  subgraph cluster_host {
+    label=<<b>Anfitrión: laptop dedicada</b><br/>Debian 13 · i3-1005G1 (2 núcleos, 4 hilos) · 12 GB · KVM/libvirt + Vagrant · Docker Compose>;
+    labeljust=r; style="rounded"; color="#9b9a95"; fontsize=10;
+    acceso   [label="Acceso: VPN (solo este equipo)\nSSH con llave + tmux\nusuario tif, sin sudo"];
+    grafana  [label="Grafana\n(lee de Prometheus)"];
+    prom     [label="Prometheus\nmétricas cada 5 s"];
+    scripts  [label="Scripts: load · verify · probe\nleader_election · lock_clients\nchaos/ (virsh, iptables, tc netem)"];
+    api      [label="Servicio de metadatos\nFlask + etcd3gw\nbloqueos con lease y fencing"];
+    wd       [label="QEMU: un watchdog\ni6300esb por VM\n(acción: reset)", fillcolor="#f2f1ee"];
+    acceso -> scripts [style=invis]; grafana -> api [style=invis]; prom -> wd [style=invis];
+  }
+  {rank=same; acceso; grafana; prom}
+  {rank=same; scripts; api; wd}
+  equipo -> acceso [label=" acceso remoto"];
+
+  subgraph cluster_vms {
+    label=<<b>Red privada 192.168.56.0/24</b> · 4 VM Ubuntu Server 24.04 · 2 vCPU cada una<br/><font point-size="9" color="#52514e">etcd: 3 miembros con Raft (tolera 1 caído) · MinIO: un conjunto de borrado EC 2+2 con los 4 discos (lectura con 2 caídos, escritura con 1)</font>>;
+    labelloc=b; style="rounded"; color="#9b9a95"; fontsize=10;
+    vm1 [shape=plaintext, style="", label=<<table border="1" cellborder="0" cellspacing="2" cellpadding="3" color="#9b9a95" bgcolor="#ffffff">
+      <tr><td><b>vm1</b> (.11 · 2,5 GB)</td></tr>
+      <tr><td bgcolor="#cde2fb">etcd-1 (systemd)</td></tr>
+      <tr><td bgcolor="#d4f0e4">k3s servidor</td></tr>
+      <tr><td bgcolor="#fbdccd">MinIO · minio-3</td></tr>
+      <tr><td bgcolor="#eeede9">disco 10 GB XFS</td></tr></table>>];
+    vm2 [shape=plaintext, style="", label=<<table border="1" cellborder="0" cellspacing="2" cellpadding="3" color="#9b9a95" bgcolor="#ffffff">
+      <tr><td><b>vm2</b> (.12 · 2 GB)</td></tr>
+      <tr><td bgcolor="#cde2fb">etcd-2 (systemd)</td></tr>
+      <tr><td bgcolor="#d4f0e4">k3s agente</td></tr>
+      <tr><td bgcolor="#fbdccd">MinIO · minio-2</td></tr>
+      <tr><td bgcolor="#eeede9">disco 10 GB XFS</td></tr></table>>];
+    vm3 [shape=plaintext, style="", label=<<table border="1" cellborder="0" cellspacing="2" cellpadding="3" color="#9b9a95" bgcolor="#ffffff">
+      <tr><td><b>vm3</b> (.13 · 2 GB)</td></tr>
+      <tr><td bgcolor="#cde2fb">etcd-3 (systemd)</td></tr>
+      <tr><td bgcolor="#d4f0e4">k3s agente</td></tr>
+      <tr><td bgcolor="#fbdccd">MinIO · minio-1</td></tr>
+      <tr><td bgcolor="#eeede9">disco 10 GB XFS</td></tr></table>>];
+    vm4 [shape=plaintext, style="", label=<<table border="1" cellborder="0" cellspacing="2" cellpadding="3" color="#9b9a95" bgcolor="#ffffff">
+      <tr><td><b>vm4</b> (.14 · 2 GB)</td></tr>
+      <tr><td bgcolor="#f2f1ee">sin etcd</td></tr>
+      <tr><td bgcolor="#d4f0e4">k3s agente</td></tr>
+      <tr><td bgcolor="#fbdccd">MinIO · minio-0</td></tr>
+      <tr><td bgcolor="#eeede9">disco 10 GB XFS</td></tr></table>>];
+    vm1 -> vm2 -> vm3 -> vm4 [style=invis];
+  }
+  {rank=same; vm1; vm2; vm3; vm4}
+
+  scripts -> vm1 [lhead=cluster_vms, label=" S3 (puerto 9000 de cada VM)"];
+  api -> vm2 [lhead=cluster_vms, label=" bloqueos y estado (etcd)"];
+  prom -> vm4 [lhead=cluster_vms, style=dashed, label=" métricas"];
+  wd -> vm3 [lhead=cluster_vms, style=dotted, label=" reinicia una VM congelada"];
+}
