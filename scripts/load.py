@@ -63,8 +63,11 @@ def registrar(api, doc, huella, tam, objeto):
 def subir(ruta, api):
     datos = ruta.read_bytes()
     huella = sha256(datos)
-    with_failover(lambda c: c.put_object(Bucket=BUCKET, Key=ruta.name, Body=datos, Metadata={"sha256": huella}))
-    estado = registrar(api, ruta.stem, huella, len(datos), ruta.name) if api else "-"
+    with_failover(lambda c: c.put_object(
+        Bucket=BUCKET, Key=ruta.name, Body=datos,
+        Metadata={"sha256": huella}))
+    estado = (registrar(api, ruta.stem, huella, len(datos),
+                        ruta.name) if api else "-")
     return ruta.name, huella, len(datos), estado
 
 

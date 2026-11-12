@@ -8,7 +8,7 @@ bajarlo).
 
 - Con la misma semilla salen siempre los mismos archivos, byte por byte.
 - Tamaños: 60 % chicos (2 a 100 KB), 30 % medianos (100 KB a 1 MB) y 10 %
-  grandes (1 a 5 MB). En total, unos 0,5 GB.
+  grandes (1 a 5 MB). En total, unos 0,4 GB.
 - Formatos: alrededor del 70 % PDF y el resto texto. Los grandes son siempre PDF
   con un "anexo escaneado" (una imagen de ruido que ocupa el resto del tamaño).
 - Los PDF se escriben a mano (PDF 1.4 con Courier, para que las columnas queden
@@ -155,16 +155,18 @@ def tamanio_objetivo(rng):
 
 def generar(numero, semilla):
     """Devuelve (nombre de archivo, contenido) del acta número `numero`."""
+    # Semilla propia por acta: sale idéntica, byte por byte.
     rng = random.Random(semilla * 1_000_003 + numero)
-    objetivo, grande = tamanio_objetivo(rng)
-    lineas = lineas_del_acta(rng, numero)
-    if grande or rng.random() < 2 / 3:
+    objetivo, grande = tamanio_objetivo(rng)  # 2 KB a 5 MB
+    lineas = lineas_del_acta(rng, numero)  # 1.ª: aviso
+    if grande or rng.random() < 2 / 3:  # ~70 % en PDF
         datos = pdf(lineas)
         faltan = objetivo - len(datos) - 400
-        if faltan > 1_000:  # el resto del tamaño lo ocupa el "anexo escaneado"
+        if faltan > 1_000:  # "anexo escaneado" de relleno
             ancho = int(math.sqrt(faltan))
             alto = faltan // ancho
-            datos = pdf(lineas, (ancho, alto, rng.randbytes(ancho * alto)))
+            imagen = (ancho, alto, rng.randbytes(ancho * alto))
+            datos = pdf(lineas, imagen)
         return f"acta-{numero:04d}.pdf", datos
     texto = "\n".join(lineas) + "\n"
     faltan = objetivo - len(texto.encode())

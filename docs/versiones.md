@@ -1,14 +1,38 @@
 # Versiones instaladas
 
-Completar con las versiones que efectivamente se usen en las mediciones.
+Las versiones fijas están en el repositorio (`ansible/group_vars/all.yml`, `k8s/minio.yaml` y
+`monitoring/compose.yaml`). Las del anfitrión salen del relevamiento de la laptop del 11/11/2026.
+Lo que dice "completar" se anota cuando se instale.
+
+## Anfitrión
 
 | Componente | Versión |
 |---|---|
-| Anfitrión (SO, CPU, RAM) | |
-| Vagrant / proveedor | |
-| Box de las VM | |
-| k3s | v1.36.6+k3s1 (kubectl del anfitrión: 1.36) |
+| Laptop | Intel Core i3-1005G1 (2 núcleos, 4 hilos), 12 GB de RAM, SSD de 119 GiB |
+| Sistema operativo | Debian 13 |
+| Hipervisor | KVM con libvirt 11.3.0 y QEMU 10.0.13 |
+| Vagrant | 2.3.8 (paquete de Debian) con el plugin vagrant-libvirt 0.12.2 |
+| Ansible | ansible-core 2.22 |
+| kubectl | v1.36.6 |
+| Docker | 29.9.2, con Compose v5.6.0 |
+| Python | 3.13.5 |
+
+## Máquinas virtuales
+
+| Componente | Versión |
+|---|---|
+| Box | `bento/ubuntu-24.04` (proveedor libvirt, 202508.03.0) |
+| k3s | v1.36.6+k3s1 |
 | etcd | v3.6.16 |
-| MinIO | quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z |
-| Python | |
-| etcd3gw | |
+| MinIO | `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z` |
+| node_exporter de las VM | paquete `prometheus-node-exporter` de Ubuntu 24.04 (completar la versión) |
+
+## Monitoreo y servicio de metadatos (Docker, en el anfitrión)
+
+| Componente | Versión |
+|---|---|
+| Prometheus | v3.15.1 |
+| Grafana | 13.2.6 |
+| node_exporter del anfitrión | v1.12.1 |
+| Imagen base del servicio de metadatos | `python:3.13-slim` |
+| etcd3gw | completar (`pip show etcd3gw` en la imagen `tif-api:local`) |

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# E4 sin Chaos Mesh: 200 ms de latencia y 5 % de pérdida con tc netem en la
-# interfaz privada de cada VM (la que tiene la IP 192.168.56.x).
+# E4, la variante que usa el TIF: 200 ms de latencia y 5 % de pérdida con tc netem
+# en la interfaz privada de cada VM (la que tiene la IP 192.168.56.x). Afecta a todo
+# el tráfico entre nodos: MinIO, etcd y k3s.
 #
 #   ./e4_netem.sh aplicar     # en las 4 VM
 #   ./e4_netem.sh revertir

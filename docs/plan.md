@@ -6,25 +6,25 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 
 ## Dónde estamos
 
-- **Avance general: alrededor del 35 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
+- **Avance general: alrededor del 40 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
 - **Ya está hecho:**
   - Todo el código y las herramientas de medición, probados en local.
   - El borrador del informe completo, salvo los resultados.
-- **En curso:** la preparación de la laptop EXO (Parte 1 de la guía del host).
+- **En curso:** la Parte 2 de la guía del host: usuario `tif`, primer arranque del clúster y carga de las actas. La Parte 1 terminó bien, prueba R12 incluida.
 - **Falta:**
   - Levantar el clúster y correr los experimentos.
-  - Completar el informe con los resultados y con las decisiones del 11/11.
+  - Completar el informe con los resultados. Las decisiones del 11/11 ya están en el informe.
   - Armar los entregables de la defensa.
 - **El cuello de botella sigue siendo la laptop.** Todo lo que no depende de ella ya está hecho o en marcha.
 
 | Área | Avance | Peso en el total |
 |---|---|---|
-| A. Servidor (laptop EXO) | 10 % | 10 % |
+| A. Servidor (laptop EXO) | 40 % | 10 % |
 | B. Código y herramientas | 85 % | 25 % |
 | C. Ejecución y mediciones | 0 % | 25 % |
-| D. Informe | 55 % | 25 % |
+| D. Informe | 65 % | 25 % |
 | E. Defensa y entregables | 0 % | 15 % |
-| **Total** | **≈ 35 %** | |
+| **Total** | **≈ 40 %** | |
 
 ## Decisiones tomadas el 11/11
 
@@ -38,15 +38,15 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | — | Rendimiento base con scripts propios: `load.py` (escritura), `verify.py` (lectura) y la sonda (latencia). warp queda opcional |
 | — | Versiones fijas: k3s v1.36.6+k3s1, etcd v3.6.16, Prometheus v3.15.1, Grafana 13.2.6, node_exporter v1.12.1 |
 
-## A. Servidor (laptop EXO): 10 %
+## A. Servidor (laptop EXO): 40 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
 | ✅ | Relevamiento del estado de la laptop | 100 % | 11/11 |
 | ✅ | Qué se apaga en modo TIF: todo el homelab salvo Tailscale | 100 % | Lo hace el comando `tif` |
-| 🟡 | Parte 1: KVM/libvirt, Vagrant, Ansible, kubectl, UFW y prueba R12 | 10 % | La está corriendo John |
-| ⬜ | Parte 2: usuario `tif`, comando `tif`, primer arranque del clúster y carga de las actas | 0 % | La guía está lista |
-| ⬜ | Parte 3: acceso de los compañeros por Tailscale y subida de resultados a GitHub | 0 % | Se escribe cuando ande el clúster |
+| ✅ | Parte 1: KVM/libvirt, Vagrant, Ansible, kubectl, UFW y prueba R12 | 100 % | 11/11: todo bien |
+| 🟡 | Parte 2: usuario `tif`, comando `tif`, primer arranque del clúster y carga de las actas | 5 % | La está corriendo John. Antes del paso 5 va la limpieza de la VM de prueba |
+| ⬜ | Parte 3: acceso de los compañeros por Tailscale y subida de resultados a GitHub | 0 % | Se escribe cuando ande el clúster. Incluye dejar que `tif` use el comando `tif` (regla de sudoers) |
 
 ## B. Código y herramientas: 85 %
 
@@ -78,18 +78,18 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ⬜ | Paso 7: verificación final de los 1.000 hashes | 0 % | |
 | ⬜ | Capturas de evidencia (Grafana y terminal) | 0 % | Durante los pasos 1 a 7 |
 
-## D. Informe (Google Doc): 55 %
+## D. Informe (Google Doc): 65 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
-| ✅ | Portada e índice | 100 % | El índice se actualiza al final |
+| ✅ | Portada e índice | 100 % | El índice se actualiza al final; ya cambió el título del Anexo B |
 | 🟡 | Resumen y palabras clave | 80 % | Faltan los resultados |
 | ✅ | 1. Introducción y 2. Objetivos y escenario | 95 % | |
-| ✅ | 3. Marco teórico (breve) | 90 % | |
-| 🟡 | 4. Herramientas | 75 % | Falta reflejar las decisiones 8 y 12 (Docker en el host, sin Chaos Mesh, rendimiento con scripts propios) |
+| ✅ | 3. Marco teórico (breve) | 95 % | Se sumaron tc netem e iptables (Hemminger, 2005) |
+| ✅ | 4. Herramientas | 100 % | Con las decisiones 8 y 12: Docker en el anfitrión, sin Chaos Mesh, rendimiento con scripts propios |
 | 🟡 | 5. Organización del equipo | 20 % | Faltan nombres, roles y autoevaluación |
-| 🟡 | 6. Materiales y métodos | 55 % | Pasar la EXO a entorno principal (12) y describir el conjunto de datos (3). Falta el diagrama de arquitectura |
-| 🟡 | 7. Implementación práctica | 55 % | Actualizar Paso 1 (libvirt), Paso 3 (rendimiento) y Paso 5 (generador, carga y tablero). Faltan las evidencias reales |
+| 🟡 | 6. Materiales y métodos | 85 % | La laptop con KVM ya es el entorno principal y el conjunto de datos está descrito. Falta el diagrama de arquitectura |
+| 🟡 | 7. Implementación práctica | 75 % | Pasos 1, 3, 5 y 6 actualizados. Faltan las evidencias reales y acortar las líneas largas de los bloques de código de los pasos 2 a 4 y de E3, que se cortan en el PDF |
 | 🟡 | 8. Resultados | 10 % | Tablas armadas, con 13 huecos [medir] |
 | 🟡 | 9. Discusión y 10. Conclusiones | 40 % | Se completan con los datos |
 | 🟡 | Referencias APA | 90 % | Revisar al final |
@@ -98,7 +98,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ⬜ | Post-mortem de cada experimento | 0 % | |
 | ⬜ | Figuras: arquitectura y resultados de E1 a E5 | 0 % | `analyze.py` ya genera las de resultados |
 | ⬜ | Anexo A: bitácoras | 0 % | |
-| 🟡 | Anexo B: pasa a ser la variante VirtualBox | 50 % | Hoy describe la laptop; se invierte con la decisión 12 |
+| ✅ | Anexo B: variante VirtualBox | 100 % | |
 | ⬜ | Exportar a PDF y revisar el formato APA | 0 % | Al final |
 
 ## E. Defensa y entregables: 0 %
@@ -122,7 +122,7 @@ El camino crítico:
 6. defensa.
 
 Mientras John prepara la laptop, el equipo:
-- pasa al informe las decisiones 3, 8 y 12;
+- ✅ pasa al informe las decisiones 3, 8 y 12 (11/11);
 - escribe la política de respaldo, el runbook y la plantilla de post-mortem;
 - hace el diagrama de arquitectura.
 

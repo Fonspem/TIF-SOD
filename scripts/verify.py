@@ -20,10 +20,13 @@ from common import BUCKET, sha256, with_failover
 
 def revisar(fila):
     try:
-        datos = with_failover(lambda c: c.get_object(Bucket=BUCKET, Key=fila["key"])["Body"].read())
+        datos = with_failover(lambda c: c.get_object(
+            Bucket=BUCKET, Key=fila["key"])["Body"].read())
     except Exception as e:  # noqa: BLE001
         return fila["key"], "ERROR", str(e)[:80], 0
-    return fila["key"], "OK" if sha256(datos) == fila["sha256"] else "CORRUPTO", "", len(datos)
+    igual = sha256(datos) == fila["sha256"]
+    return (fila["key"], "OK" if igual else "CORRUPTO", "",
+            len(datos))
 
 
 def main():

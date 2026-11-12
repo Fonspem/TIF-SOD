@@ -1,7 +1,8 @@
-# E4: red degradada sobre los pods de MinIO con Chaos Mesh (variante principal).
-#   kubectl apply -f e4-netem.yaml     # aplica 200 ms de latencia y 5 % de pérdida durante 5 minutos
+# E4 con Chaos Mesh: alternativa opcional, el TIF no la usa (Chaos Mesh no se instala en k3s).
+# La variante usada es tc netem en la interfaz privada de cada VM: ver e4_netem.sh.
+# Esta afecta solo a los pods de MinIO; la de tc netem, a todo el tráfico entre nodos.
+#   kubectl apply -f e4-netem.yaml     # con Chaos Mesh instalado: 200 ms y 5 % de pérdida durante 5 minutos
 #   kubectl delete -f e4-netem.yaml    # revierte antes de tiempo
-# Sin Chaos Mesh, la misma falla se aplica con tc netem: ver e4_netem.sh.
 apiVersion: chaos-mesh.org/v1alpha1
 kind: NetworkChaos
 metadata: { name: e4-degradada, namespace: minio }
