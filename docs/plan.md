@@ -78,7 +78,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ⬜ | Paso 5: generar y cargar las 1.000 actas; tablero de Grafana | 0 % | Parte 2 de la guía |
 | ⬜ | Paso 6: jornada de caos (E1, E3 y E4) con las sondas | 0 % | |
 | ⬜ | Paso 7: verificación final de los 1.000 hashes | 0 % | |
-| ⬜ | Capturas de evidencia (Grafana y terminal) | 0 % | Durante los pasos 1 a 7 |
+| ⬜ | Capturas de evidencia (Grafana y terminal) | 0 % | La guía de la Parte 2 marca qué guardar: texto en `results/evidencias/` y capturas 📸. En los experimentos, los CSV se guardan solos |
 
 ## D. Informe (Google Doc): 70 %
 
