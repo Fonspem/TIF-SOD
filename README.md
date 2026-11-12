@@ -43,7 +43,7 @@ Requisitos del anfitrión: Vagrant con KVM/libvirt y el plugin vagrant-libvirt (
 # 1. Máquinas virtuales
 cd vagrant
 vagrant up --provider=libvirt     # o: vagrant up --provider=virtualbox
-vagrant ssh-config > ../ansible/ssh_config
+vagrant ssh-config | sed 's/LogLevel FATAL/LogLevel ERROR/' > ../ansible/ssh_config   # FATAL ocultaría los errores de conexión
 
 # 2. Aprovisionamiento (etcd y k3s)
 cd ../ansible

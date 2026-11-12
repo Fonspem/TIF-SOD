@@ -5,7 +5,8 @@
 #                                                      vagrant up --provider=libvirt
 #   Alternativa, VirtualBox (Ubuntu 22.04):            vagrant up --provider=virtualbox
 #
-# Después, para Ansible:  vagrant ssh-config > ../ansible/ssh_config
+# Después, para Ansible:  vagrant ssh-config | sed 's/LogLevel FATAL/LogLevel ERROR/' > ../ansible/ssh_config
+#   (Vagrant pone LogLevel FATAL, que oculta los errores de conexión de ssh)
 
 NODOS = {
   "vm1" => { ip: "192.168.56.11", ram_kvm: 2560 },  # k3s server, etcd-1, minio-0
