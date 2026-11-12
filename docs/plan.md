@@ -40,6 +40,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | — | Rendimiento base con scripts propios: `load.py` (escritura), `verify.py` (lectura) y la sonda (latencia). warp queda opcional |
 | — | Versiones fijas: k3s v1.36.6+k3s1, etcd v3.6.16, Prometheus v3.15.1, Grafana 13.2.6, node_exporter v1.12.1 |
 | — | MinIO (12/11): `pgsty/minio:RELEASE.2026-08-04T00-00-00Z`, el fork comunitario, porque quay.io dejó de permitir descargas anónimas el 24/09/2026 |
+| — | Desde el 12/11, el resto del trabajo lo hacen John y el equipo; John hace de los demás integrantes cuando hace falta (por ejemplo, el compañero que entra desde Windows). Los compañeros podrán probar todo en clase con su guía |
 
 ## A. Servidor (laptop EXO): 70 %
 
@@ -49,7 +50,8 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Qué se apaga en modo TIF: todo el homelab salvo Tailscale | 100 % | Lo hace el comando `tif` |
 | ✅ | Parte 1: KVM/libvirt, Vagrant, Ansible, kubectl, UFW y prueba R12 | 100 % | 11/11: todo bien |
 | ✅ | Parte 2: usuario `tif`, comando `tif`, primer arranque del clúster y carga de las actas | 100 % | 12/11. Evidencias en `results/evidencias/` y capturas de los pasos 6, 8 y 9 |
-| ⬜ | Parte 3: acceso de los compañeros por Tailscale y subida de resultados a GitHub | 0 % | Va después de E2 y E5. Incluye dejar que `tif` use el comando `tif` (regla de sudoers) |
+| 🟡 | Parte 3: acceso de los compañeros | 10 % | Guía escrita (12/11): se simula un compañero desde la PC Windows de John; la invitación de Tailscale queda para la clase. Hay una guía aparte para los compañeros, sin datos privados |
+| ⬜ | Parte 4: subir los resultados a GitHub desde la EXO (llave de despliegue) | 0 % | Después de la Parte 3 |
 
 ## B. Código y herramientas: 92 %
 
