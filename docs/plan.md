@@ -1,15 +1,16 @@
 # Plan del TIF: estado y orden de trabajo
 
-Actualizado: 11 de noviembre de 2026.
+Actualizado: 12 de noviembre de 2026.
 
 Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empezar · ⛔ trabado (la nota dice por qué)
 
 ## Dónde estamos
 
-- **Avance general: alrededor del 40 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
+- **Avance general: alrededor del 43 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
 - **Ya está hecho:**
   - Todo el código y las herramientas de medición, probados en local.
   - El borrador del informe completo, salvo los resultados.
+  - La política de respaldo (sección 6.4 del informe), el runbook de la jornada de caos y la plantilla de post-mortem.
 - **En curso:** la Parte 2 de la guía del host: usuario `tif`, primer arranque del clúster y carga de las actas. La Parte 1 terminó bien, prueba R12 incluida.
 - **Falta:**
   - Levantar el clúster y correr los experimentos.
@@ -20,11 +21,11 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | Área | Avance | Peso en el total |
 |---|---|---|
 | A. Servidor (laptop EXO) | 40 % | 10 % |
-| B. Código y herramientas | 85 % | 25 % |
+| B. Código y herramientas | 86 % | 25 % |
 | C. Ejecución y mediciones | 0 % | 25 % |
-| D. Informe | 65 % | 25 % |
+| D. Informe | 70 % | 25 % |
 | E. Defensa y entregables | 0 % | 15 % |
-| **Total** | **≈ 40 %** | |
+| **Total** | **≈ 43 %** | |
 
 ## Decisiones tomadas el 11/11
 
@@ -48,7 +49,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | 🟡 | Parte 2: usuario `tif`, comando `tif`, primer arranque del clúster y carga de las actas | 5 % | La está corriendo John. Antes del paso 5 va la limpieza de la VM de prueba |
 | ⬜ | Parte 3: acceso de los compañeros por Tailscale y subida de resultados a GitHub | 0 % | Se escribe cuando ande el clúster. Incluye dejar que `tif` use el comando `tif` (regla de sudoers) |
 
-## B. Código y herramientas: 85 %
+## B. Código y herramientas: 86 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
@@ -63,6 +64,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | 🟡 | Inyección de fallas E1, E3 y E4 | 80 % | Falta correrla en el clúster |
 | 🟡 | Sonda de estado estable y análisis (tablas y figuras) | 90 % | Falta correrlos en el clúster |
 | ✅ | Comando `tif` (prender, apagar y estado, con modo TIF) | 100 % | En la guía de la Parte 2; probado con comandos simulados |
+| 🟡 | Respaldo: `verify.py --copia` (actas) y `respaldo.sh` (instantánea de etcd y prueba de restauración) | 90 % | Probado en local, incluso con un acta alterada y una instantánea dañada; falta correrlo en el clúster |
 | 🟡 | README probado desde cero | 70 % | Se prueba con la Parte 2 |
 
 ## C. Ejecución y mediciones: 0 %
@@ -78,11 +80,11 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ⬜ | Paso 7: verificación final de los 1.000 hashes | 0 % | |
 | ⬜ | Capturas de evidencia (Grafana y terminal) | 0 % | Durante los pasos 1 a 7 |
 
-## D. Informe (Google Doc): 65 %
+## D. Informe (Google Doc): 70 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
-| ✅ | Portada e índice | 100 % | El índice se actualiza al final; ya cambió el título del Anexo B |
+| ✅ | Portada e índice | 100 % | El índice se actualiza al final: ya cambiaron el título del Anexo B y se sumó la 6.4 |
 | 🟡 | Resumen y palabras clave | 80 % | Faltan los resultados |
 | ✅ | 1. Introducción y 2. Objetivos y escenario | 95 % | |
 | ✅ | 3. Marco teórico (breve) | 95 % | Se sumaron tc netem e iptables (Hemminger, 2005) |
@@ -93,9 +95,9 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | 🟡 | 8. Resultados | 10 % | Tablas armadas, con 13 huecos [medir] |
 | 🟡 | 9. Discusión y 10. Conclusiones | 40 % | Se completan con los datos |
 | 🟡 | Referencias APA | 90 % | Revisar al final |
-| ⬜ | Política de respaldo | 0 % | La pide el rol de almacenamiento |
-| 🟡 | Runbook de la jornada de caos | 20 % | Hay un guion de 7 pasos; falta el documento |
-| ⬜ | Post-mortem de cada experimento | 0 % | |
+| 🟡 | Política de respaldo | 90 % | Sección 6.4: regla 3-2-1, versionado y bloqueo de objetos, réplica a otra sede e instantáneas de etcd. Falta el resultado de la prueba de restauración (8.3) |
+| ✅ | Runbook de la jornada de caos | 100 % | `docs/runbook.md`: controles, criterios para abortar, reversión, respaldo y restauración. El Paso 6 del informe lo cita |
+| 🟡 | Post-mortem de cada experimento | 10 % | Plantilla lista (`docs/postmortem-plantilla.md`); se escriben después de cada experimento |
 | ⬜ | Figuras: arquitectura y resultados de E1 a E5 | 0 % | `analyze.py` ya genera las de resultados |
 | ⬜ | Anexo A: bitácoras | 0 % | |
 | ✅ | Anexo B: variante VirtualBox | 100 % | |
@@ -123,7 +125,7 @@ El camino crítico:
 
 Mientras John prepara la laptop, el equipo:
 - ✅ pasa al informe las decisiones 3, 8 y 12 (11/11);
-- escribe la política de respaldo, el runbook y la plantilla de post-mortem;
+- ✅ escribe la política de respaldo, el runbook y la plantilla de post-mortem (12/11);
 - hace el diagrama de arquitectura.
 
 ## Recursos de la EXO en modo TIF (estimación del 11/11)

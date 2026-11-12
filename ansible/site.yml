@@ -84,7 +84,7 @@
         dest: "/usr/local/bin/{{ item }}"
         remote_src: true
         mode: "0755"
-      loop: [etcd, etcdctl]
+      loop: [etcd, etcdctl, etcdutl]  # etcdutl restaura instantáneas (respaldo)
 
     - name: Directorio de configuración
       ansible.builtin.file:

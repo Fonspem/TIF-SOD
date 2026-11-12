@@ -8,14 +8,29 @@ del Paso 3.
 
     python verify.py                       # usa ../results/manifest.csv
     python verify.py --manifiesto otro.csv --salida ../results/verificacion_e1.csv
+    python verify.py --copia ../respaldo/actas   # además guarda cada acta correcta (respaldo)
+
+Con --copia, la misma pasada que verifica hace la copia de respaldo del bucket:
+solo se guardan las actas cuyo hash coincide con el manifiesto.
 """
 import argparse
 import csv
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 from common import BUCKET, sha256, with_failover
+
+COPIA = None  # carpeta de la copia de respaldo (--copia); None = no copiar
+
+
+def guardar(key, datos):
+    destino = (COPIA / key).resolve()
+    if COPIA not in destino.parents:  # una clave con ".." no puede salir de la carpeta
+        raise ValueError(f"clave fuera de la carpeta de copia: {key}")
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    destino.write_bytes(datos)
 
 
 def revisar(fila):
@@ -25,6 +40,11 @@ def revisar(fila):
     except Exception as e:  # noqa: BLE001
         return fila["key"], "ERROR", str(e)[:80], 0
     igual = sha256(datos) == fila["sha256"]
+    if igual and COPIA:
+        try:
+            guardar(fila["key"], datos)
+        except (OSError, ValueError) as e:
+            return fila["key"], "ERROR", f"copia: {e}"[:80], len(datos)
     return (fila["key"], "OK" if igual else "CORRUPTO", "",
             len(datos))
 
@@ -34,7 +54,12 @@ def main():
     p.add_argument("--manifiesto", default="../results/manifest.csv")
     p.add_argument("--salida", help="CSV con el resultado de cada documento")
     p.add_argument("--hilos", type=int, default=8)
+    p.add_argument("--copia", help="carpeta donde guardar una copia de cada acta correcta (respaldo)")
     args = p.parse_args()
+    global COPIA
+    if args.copia:
+        COPIA = Path(args.copia).resolve()
+        COPIA.mkdir(parents=True, exist_ok=True)
 
     with open(args.manifiesto, newline="") as f:
         manifiesto = list(csv.DictReader(f))
@@ -46,6 +71,8 @@ def main():
     malos = [r for r in resultados if r[1] != "OK"]
     print(f"OK: {len(resultados) - len(malos)} / {len(resultados)}  fallas: {len(malos)}")
     print(f"Lectura: {leidos / 1e6:.0f} MB en {segundos:.0f} s ({leidos / 1e6 / max(segundos, 0.001):.1f} MB/s)")
+    if COPIA:
+        print(f"Copia: {len(resultados) - len(malos)} actas en {COPIA}")
     for r in malos[:20]:
         print(r[:3])
     if args.salida:

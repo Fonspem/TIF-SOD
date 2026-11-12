@@ -8,6 +8,8 @@ vagrant/.vagrant/
 *.pyc
 # Datos generados (los CSV de resultados sí se versionan)
 dataset/
+# Copias de respaldo (actas e instantáneas de etcd): no van al repositorio
+respaldo/
 
 # Secretos locales del monitoreo
 monitoring/.env

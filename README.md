@@ -13,10 +13,10 @@ Trabajo Integrador Final de Sistemas Operativos Distribuidos, Facultad de Ingeni
 | `k8s/` | Manifiesto de MinIO distribuido |
 | `metadata-service/` | API REST de metadatos con bloqueos (Flask + etcd3gw), sus pruebas y su imagen Docker |
 | `monitoring/` | Prometheus, Grafana (con el tablero del TIF), node_exporter del anfitrión y la API, con Docker Compose |
-| `scripts/` | Generación y carga de las 1.000 actas, verificación de hashes, medición de elecciones de etcd, clientes del bloqueo (E5, fencing), sonda de estado estable, tablas y figuras |
+| `scripts/` | Generación y carga de las 1.000 actas, verificación de hashes, medición de elecciones de etcd, clientes del bloqueo (E5, fencing), sonda de estado estable, tablas y figuras, respaldo de etcd |
 | `chaos/` | Inyección de fallas: caída de nodo (E1), partición (E3), red degradada (E4) |
 | `results/` | Datos crudos de los experimentos (CSV) |
-| `docs/` | Plan de trabajo y versiones instaladas |
+| `docs/` | Plan de trabajo, versiones instaladas, [runbook](docs/runbook.md) de la jornada de caos y [plantilla de post-mortem](docs/postmortem-plantilla.md) |
 
 ## Arquitectura
 
@@ -77,6 +77,8 @@ python verify.py                  # baja todo y compara los hashes (MB/s de lect
 ## Experimentos
 
 Todo se corre desde `scripts/`. Los scripts de `chaos/` y `leader_election.py` anotan la hora de cada falla en `results/eN_eventos.csv`; la **sonda** (`probe.py`) hace una lectura y una escritura cada 0,5 s y anota cada pedido, así después se cruzan las dos cosas. La sonda se arranca antes de inyectar la falla y se corta con Ctrl+C (o `kill`) cuando el sistema volvió al estado estable.
+
+El guion completo de la jornada está en el [runbook](docs/runbook.md): controles antes de cada falla, criterios para abortar, cómo revertir cada una, y el respaldo y la prueba de restauración. Cada experimento cierra con un post-mortem según la [plantilla](docs/postmortem-plantilla.md).
 
 ```bash
 cd scripts && pip install -r requirements.txt
