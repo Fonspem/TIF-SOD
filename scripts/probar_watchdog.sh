@@ -3,6 +3,11 @@
 # de vm3) y mide cuánto tarda en volver sola, sin que nadie la reinicie.
 # Origen: docs/postmortems/2026-11-12-vm3.md.
 #
+# k3s (su kubelet) deja kernel.panic=10: tras un pánico, el núcleo se reinicia solo a los 10 s y el
+# watchdog no llega a actuar. Por eso, justo antes de colgarla, se pone kernel.panic=0 (sólo para
+# ese arranque): la VM queda congelada como vm3 y la tiene que rescatar el watchdog. Al volver a
+# arrancar, el kubelet deja kernel.panic=10 otra vez.
+#
 # Uso, desde scripts/ en el anfitrión:  ./probar_watchdog.sh vm4
 # Conviene vm4: no tiene etcd, sólo MinIO, que sigue sirviendo con 3 de 4 discos.
 # Anota la hora de cada evento en results/watchdog_eventos.csv.
@@ -45,10 +50,10 @@ trap 'rm -f "$evento"' EXIT
 escucha=$!
 sleep 1
 
-echo "$(date +%H:%M:%S) Cuelgo el núcleo de $vm"
+echo "$(date +%H:%M:%S) Cuelgo el núcleo de $vm, sin reinicio automático (kernel.panic=0)"
 t0=$(date +%s)
 registrar colgar
-timeout 10 "${SSH[@]}" "$vm" "sudo sh -c 'echo c > /proc/sysrq-trigger'" >/dev/null 2>&1 || true
+timeout 10 "${SSH[@]}" "$vm" "sudo sh -c 'sysctl -qw kernel.panic=0 && echo c > /proc/sysrq-trigger'" >/dev/null 2>&1 || true
 
 echo "  esperando a que vuelva sola (sin virsh ni nada)…"
 until ahora=$(arranque) && [ -n "$ahora" ] && [ "$ahora" != "$antes" ]; do
@@ -65,7 +70,7 @@ wait "$escucha" 2>/dev/null || true
 if grep -q "event 'watchdog'" "$evento"; then
   echo "  ✓ libvirt registró el disparo del watchdog (hora UTC): $(grep -m1 "event 'watchdog'" "$evento")"
 else
-  echo "  ⚠️ libvirt no registró el disparo del watchdog: la VM volvió por otro motivo. Revisá el registro de libvirt."
+  echo "  ⚠️ libvirt no registró el disparo del watchdog: la VM volvió sin él. Revisá el registro de libvirt."
 fi
 
 until completo; do
