@@ -6,13 +6,14 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 
 ## Dónde estamos
 
-- **Avance general: alrededor del 56 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
+- **Avance general: alrededor del 58 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
 - **Ya está hecho:**
   - Todo el código y las herramientas de medición, probados en local.
   - El borrador del informe completo, salvo los resultados.
   - La política de respaldo (sección 6.4 del informe), el runbook de la jornada de caos y la plantilla de post-mortem.
   - **El clúster anda en la laptop (12/11):** 4 VMs, etcd, k3s, MinIO, monitoreo y API, con las 1.000 actas cargadas y verificadas (1.000 de 1.000). Medición base: escritura 6,7 MB/s, lectura 62,8 MB/s.
-- **Sigue:** E2 y E5 (la guía ya está; John la corre ahora) y después la Parte 3 (compañeros y GitHub).
+- **Incidente no planificado (12/11, de 11:28 a 15:48):** vm3 se congeló sola; el sistema siguió andando con 2 de 3 en etcd y 3 de 4 en MinIO. Se recuperó con un reinicio forzado. Post-mortem: [docs/postmortems/2026-11-12-vm3.md](postmortems/2026-11-12-vm3.md).
+- **Sigue:** el watchdog en las 4 VMs (acción del post-mortem), después E2 con `stop` y E5, y la Parte 3 (compañeros y GitHub).
 - **Falta:**
   - Correr los experimentos: E2 y E5 ahora; después la jornada de caos (E1, E3 y E4).
   - Completar el informe con los resultados. Las decisiones del 11/11 ya están en el informe.
@@ -21,12 +22,12 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 
 | Área | Avance | Peso en el total |
 |---|---|---|
-| A. Servidor (laptop EXO) | 70 % | 10 % |
+| A. Servidor (laptop EXO) | 72 % | 10 % |
 | B. Código y herramientas | 92 % | 25 % |
-| C. Ejecución y mediciones | 35 % | 25 % |
-| D. Informe | 72 % | 25 % |
+| C. Ejecución y mediciones | 40 % | 25 % |
+| D. Informe | 73 % | 25 % |
 | E. Defensa y entregables | 0 % | 15 % |
-| **Total** | **≈ 56 %** | |
+| **Total** | **≈ 58 %** | |
 
 ## Decisiones tomadas el 11/11
 
@@ -40,9 +41,10 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | — | Rendimiento base con scripts propios: `load.py` (escritura), `verify.py` (lectura) y la sonda (latencia). warp queda opcional |
 | — | Versiones fijas: k3s v1.36.6+k3s1, etcd v3.6.16, Prometheus v3.15.1, Grafana 13.2.6, node_exporter v1.12.1 |
 | — | MinIO (12/11): `pgsty/minio:RELEASE.2026-08-04T00-00-00Z`, el fork comunitario, porque quay.io dejó de permitir descargas anónimas el 24/09/2026 |
+| — | 12/11, después del incidente de vm3: cada VM lleva un watchdog virtual (`i6300esb`, acción `reset`) que systemd atiende cada 15 s; si la VM se congela, QEMU la reinicia sola |
 | — | Desde el 12/11, el resto del trabajo lo hacen John y el equipo; John hace de los demás integrantes cuando hace falta (por ejemplo, el compañero que entra desde Windows). Los compañeros podrán probar todo en clase con su guía |
 
-## A. Servidor (laptop EXO): 70 %
+## A. Servidor (laptop EXO): 72 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
@@ -51,7 +53,9 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Parte 1: KVM/libvirt, Vagrant, Ansible, kubectl, UFW y prueba R12 | 100 % | 11/11: todo bien |
 | ✅ | Parte 2: usuario `tif`, comando `tif`, primer arranque del clúster y carga de las actas | 100 % | 12/11. Evidencias en `results/evidencias/` y capturas de los pasos 6, 8 y 9 |
 | 🟡 | Parte 3: acceso de los compañeros | 10 % | Guía escrita (12/11): se simula un compañero desde la PC Windows de John; la invitación de Tailscale queda para la clase. Hay una guía aparte para los compañeros, sin datos privados |
-| ⬜ | Parte 4: subir los resultados a GitHub desde la EXO (llave de despliegue) | 0 % | Después de la Parte 3 |
+| ✅ | Incidente de vm3: diagnóstico y recuperación | 100 % | 12/11. Post-mortem en `docs/postmortems/` |
+| 🟡 | Watchdog en las 4 VMs | 0 % | Ansible (`--tags watchdog`) y `scripts/watchdog_vms.sh`, que las reinicia de a una |
+| ⬜ | Parte 4: subir los resultados a GitHub desde la EXO (llave de despliegue) | 0 % | Después de la Parte 3. Antes de subir `results/evidencias/`, revisar que no tenga datos privados de la red |
 
 ## B. Código y herramientas: 92 %
 
@@ -71,12 +75,12 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | 🟡 | Respaldo: `verify.py --copia` (actas) y `respaldo.sh` (instantánea de etcd y prueba de restauración) | 90 % | Probado en local, incluso con un acta alterada y una instantánea dañada; falta correrlo en el clúster |
 | 🟡 | README probado desde cero | 85 % | La Parte 2 siguió sus pasos; falta revisarlo entero al final |
 
-## C. Ejecución y mediciones: 35 %
+## C. Ejecución y mediciones: 40 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
 | ✅ | Paso 1: levantar las 4 VM y aprovisionarlas | 100 % | 12/11 |
-| 🟡 | Paso 2: etcd de 3 miembros, más E2 con 10 corridas por modo | 40 % | etcd arriba con líder; falta E2 |
+| 🟡 | Paso 2: etcd de 3 miembros, más E2 con 10 corridas por modo | 70 % | E2 con `kill -9`: 10 corridas (12/11). Falta `stop`. En `e2_sonda_meta_kill.csv` quedaron 70 s de una corrida abortada a las 14:40: se descartan en el análisis |
 | 🟡 | Paso 3: MinIO y rendimiento base | 70 % | Escritura 6,7 MB/s y lectura 62,8 MB/s; falta la latencia con la sonda |
 | ⬜ | Paso 4: servicio de metadatos, demo con dos clientes y E5 | 0 % | |
 | ✅ | Paso 5: generar y cargar las 1.000 actas; tablero de Grafana | 100 % | 1.000 de 1.000 |
@@ -84,7 +88,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ⬜ | Paso 7: verificación final de los 1.000 hashes | 0 % | |
 | 🟡 | Capturas de evidencia (Grafana y terminal) | 30 % | La guía de la Parte 2 marca qué guardar: texto en `results/evidencias/` y capturas 📸. En los experimentos, los CSV se guardan solos |
 
-## D. Informe (Google Doc): 72 %
+## D. Informe (Google Doc): 73 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
@@ -101,7 +105,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | 🟡 | Referencias APA | 90 % | Revisar al final |
 | 🟡 | Política de respaldo | 90 % | Sección 6.4: regla 3-2-1, versionado y bloqueo de objetos, réplica a otra sede e instantáneas de etcd. Falta el resultado de la prueba de restauración (8.3) |
 | ✅ | Runbook de la jornada de caos | 100 % | `docs/runbook.md`: controles, criterios para abortar, reversión, respaldo y restauración. El Paso 6 del informe lo cita |
-| 🟡 | Post-mortem de cada experimento | 10 % | Plantilla lista (`docs/postmortem-plantilla.md`); se escriben después de cada experimento |
+| 🟡 | Post-mortem de cada experimento | 20 % | Plantilla lista (`docs/postmortem-plantilla.md`). Primero escrito: el incidente de vm3 (`docs/postmortems/2026-11-12-vm3.md`), que también va al informe |
 | ⬜ | Figuras: arquitectura y resultados de E1 a E5 | 0 % | `analyze.py` ya genera las de resultados |
 | ⬜ | Anexo A: bitácoras | 0 % | |
 | ✅ | Anexo B: variante VirtualBox | 100 % | |

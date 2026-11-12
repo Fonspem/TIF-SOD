@@ -13,10 +13,10 @@ Trabajo Integrador Final de Sistemas Operativos Distribuidos, Facultad de Ingeni
 | `k8s/` | Manifiesto de MinIO distribuido |
 | `metadata-service/` | API REST de metadatos con bloqueos (Flask + etcd3gw), sus pruebas y su imagen Docker |
 | `monitoring/` | Prometheus, Grafana (con el tablero del TIF), node_exporter del anfitrión y la API, con Docker Compose |
-| `scripts/` | Generación y carga de las 1.000 actas, verificación de hashes, medición de elecciones de etcd, clientes del bloqueo (E5, fencing), sonda de estado estable, tablas y figuras, respaldo de etcd |
+| `scripts/` | Generación y carga de las 1.000 actas, verificación de hashes, medición de elecciones de etcd, clientes del bloqueo (E5, fencing), sonda de estado estable, tablas y figuras, respaldo de etcd, caídas de una VM (`caidas.py`) y watchdog de las VM (`watchdog_vms.sh`) |
 | `chaos/` | Inyección de fallas: caída de nodo (E1), partición (E3), red degradada (E4) |
 | `results/` | Datos crudos de los experimentos (CSV) |
-| `docs/` | Plan de trabajo, versiones instaladas, [runbook](docs/runbook.md) de la jornada de caos y [plantilla de post-mortem](docs/postmortem-plantilla.md) |
+| `docs/` | Plan de trabajo, versiones instaladas, [runbook](docs/runbook.md) de la jornada de caos y [plantilla de post-mortem](docs/postmortem-plantilla.md) y [post-mortems](docs/postmortems/) |
 
 ## Arquitectura
 

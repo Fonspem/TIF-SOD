@@ -24,6 +24,61 @@
         state: started
         enabled: true
 
+    # Watchdog: libvirt le agrega a cada VM un i6300esb con acción "reset" (Vagrantfile, o
+    # scripts/watchdog_vms.sh para las VM ya creadas). systemd lo atiende cada 15 s; si la VM se
+    # congela, deja de atenderlo y QEMU la reinicia sola. Origen: docs/postmortems/2026-11-12-vm3.md.
+    # Rige desde el próximo arranque de la VM.
+    - name: "Watchdog: driver i6300esb disponible (en algunas imágenes viene en linux-modules-extra)"
+      ansible.builtin.shell: >-
+        modinfo i6300esb >/dev/null 2>&1 ||
+        apt-get install -y "linux-modules-extra-$(uname -r)"
+      register: wdt_modulo
+      changed_when: "'Setting up' in wdt_modulo.stdout"
+      tags: [watchdog]
+
+    # Ubuntu tiene los drivers de watchdog en su lista negra y systemd-modules-load la respeta,
+    # así que /etc/modules-load.d no alcanza: lo carga un servicio con modprobe explícito.
+    - name: "Watchdog: servicio que carga el driver en cada arranque"
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/tif-watchdog-driver.service
+        content: |
+          [Unit]
+          Description=Driver del watchdog i6300esb (TIF; ver docs/postmortems/2026-11-12-vm3.md)
+
+          [Service]
+          Type=oneshot
+          RemainAfterExit=yes
+          ExecStart=/usr/sbin/modprobe i6300esb
+
+          [Install]
+          WantedBy=multi-user.target
+        mode: "0644"
+      tags: [watchdog]
+
+    - name: "Watchdog: servicio habilitado (corre en el próximo arranque)"
+      ansible.builtin.systemd:
+        name: tif-watchdog-driver.service
+        enabled: true
+        daemon_reload: true
+      tags: [watchdog]
+
+    - name: "Watchdog: carpeta de configuración de systemd"
+      ansible.builtin.file:
+        path: /etc/systemd/system.conf.d
+        state: directory
+        mode: "0755"
+      tags: [watchdog]
+
+    - name: "Watchdog: systemd lo atiende; 30 s sin atenderlo = VM congelada"
+      ansible.builtin.copy:
+        dest: /etc/systemd/system.conf.d/tif-watchdog.conf
+        content: |
+          # Incidente de vm3 del 12/11/2026: ver docs/postmortems/2026-11-12-vm3.md
+          [Manager]
+          RuntimeWatchdogSec=30s
+        mode: "0644"
+      tags: [watchdog]
+
     - name: Módulo netem para E4 (en algunas imágenes viene en linux-modules-extra)
       ansible.builtin.shell: >-
         modprobe sch_netem ||

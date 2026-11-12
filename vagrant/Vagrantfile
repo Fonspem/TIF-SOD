@@ -38,6 +38,9 @@ Vagrant.configure("2") do |config|
         lv.cpus = 2
         lv.cpu_mode = "host-passthrough"
         lv.storage :file, size: "10G"  # disco de datos de MinIO (/dev/vdb); Ansible lo monta en /mnt/minio
+        # Si la VM se congela, QEMU la reinicia sola (Ansible configura systemd para atenderlo).
+        # Sólo rige al crear la VM; a las ya creadas se lo agrega scripts/watchdog_vms.sh.
+        lv.watchdog model: "i6300esb", action: "reset"
       end
     end
   end
