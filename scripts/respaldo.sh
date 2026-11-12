@@ -46,8 +46,10 @@ for _ in $(seq 20); do
   etcdctl --endpoints=127.0.0.1:32379 endpoint health >/dev/null 2>&1 && break
   sleep 0.5
 done
-actas=$(etcdctl --endpoints=127.0.0.1:32379 get --prefix /docs/ --keys-only | grep -c . || true)
-echo "Restauración correcta. Actas registradas en la instantánea: $actas"
+# /docs/acta-NNNN son las actas; las sondas de los experimentos registran /docs/sonda-…
+docs=$(etcdctl --endpoints=127.0.0.1:32379 get --prefix /docs/ --keys-only | grep -c . || true)
+actas=$(etcdctl --endpoints=127.0.0.1:32379 get --prefix /docs/acta- --keys-only | grep -c . || true)
+echo "Restauración correcta. Actas registradas en la instantánea: $actas (documentos en total, con los de las sondas: $docs)"
 FIN
     ;;
   *) echo "acción desconocida: $accion" >&2; exit 1 ;;
