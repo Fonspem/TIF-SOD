@@ -362,7 +362,7 @@
             "type": "prometheus",
             "uid": "prometheus-tif"
           },
-          "expr": "max(minio_cluster_drive_offline_total{job=\"minio-cluster\"})",
+          "expr": "min(minio_cluster_drive_offline_total{job=\"minio-cluster\"})",
           "legendFormat": "discos caídos",
           "range": true
         }
@@ -390,7 +390,7 @@
         "orientation": "horizontal",
         "textMode": "value_and_name"
       },
-      "description": "Con 4 discos en EC:2, las lecturas toleran 2 discos caídos y las escrituras, 1."
+      "description": "Con 4 discos en EC:2, las lecturas toleran 2 discos caídos y las escrituras, 1. Cada nodo de MinIO informa lo que ve: se muestra la vista con más discos en línea y la de menos caídos, porque un nodo recién arrancado o aislado ve caídos a los demás hasta que se reconecta."
     },
     {
       "id": 7,
