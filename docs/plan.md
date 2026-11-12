@@ -6,14 +6,14 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 
 ## Dónde estamos
 
-- **Avance general: alrededor del 58 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
+- **Avance general: alrededor del 59 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
 - **Ya está hecho:**
   - Todo el código y las herramientas de medición, probados en local.
   - El borrador del informe completo, salvo los resultados.
   - La política de respaldo (sección 6.4 del informe), el runbook de la jornada de caos y la plantilla de post-mortem.
   - **El clúster anda en la laptop (12/11):** 4 VMs, etcd, k3s, MinIO, monitoreo y API, con las 1.000 actas cargadas y verificadas (1.000 de 1.000). Medición base: escritura 6,7 MB/s, lectura 62,8 MB/s.
-- **Incidente no planificado (12/11, de 11:28 a 15:48):** vm3 se congeló sola; el sistema siguió andando con 2 de 3 en etcd y 3 de 4 en MinIO. Se recuperó con un reinicio forzado. Post-mortem: [docs/postmortems/2026-11-12-vm3.md](postmortems/2026-11-12-vm3.md).
-- **Sigue:** el watchdog en las 4 VMs (acción del post-mortem), después E2 con `stop` y E5, y la Parte 3 (compañeros y GitHub).
+- **Incidente no planificado (12/11, de 11:28 a 15:48):** vm3 se congeló sola; el sistema siguió andando con 2 de 3 en etcd y 3 de 4 en MinIO. Se recuperó con un reinicio forzado. Acción correctiva: un watchdog en cada VM, probado: una VM congelada vuelve sola en 35 s. Post-mortem: [docs/postmortems/2026-11-12-vm3.md](postmortems/2026-11-12-vm3.md).
+- **Sigue:** E2 con `stop` y E5 (la guía sigue en el paso 3), después la Parte 3 (compañeros y GitHub).
 - **Falta:**
   - Correr los experimentos: E2 y E5 ahora; después la jornada de caos (E1, E3 y E4).
   - Completar el informe con los resultados. Las decisiones del 11/11 ya están en el informe.
@@ -22,12 +22,12 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 
 | Área | Avance | Peso en el total |
 |---|---|---|
-| A. Servidor (laptop EXO) | 72 % | 10 % |
+| A. Servidor (laptop EXO) | 74 % | 10 % |
 | B. Código y herramientas | 92 % | 25 % |
 | C. Ejecución y mediciones | 40 % | 25 % |
 | D. Informe | 73 % | 25 % |
 | E. Defensa y entregables | 0 % | 15 % |
-| **Total** | **≈ 58 %** | |
+| **Total** | **≈ 59 %** | |
 
 ## Decisiones tomadas el 11/11
 
@@ -44,7 +44,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | — | 12/11, después del incidente de vm3: cada VM lleva un watchdog virtual (`i6300esb`, acción `reset`) que systemd atiende cada 15 s; si la VM se congela, QEMU la reinicia sola |
 | — | Desde el 12/11, el resto del trabajo lo hacen John y el equipo; John hace de los demás integrantes cuando hace falta (por ejemplo, el compañero que entra desde Windows). Los compañeros podrán probar todo en clase con su guía |
 
-## A. Servidor (laptop EXO): 72 %
+## A. Servidor (laptop EXO): 74 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
@@ -54,7 +54,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Parte 2: usuario `tif`, comando `tif`, primer arranque del clúster y carga de las actas | 100 % | 12/11. Evidencias en `results/evidencias/` y capturas de los pasos 6, 8 y 9 |
 | 🟡 | Parte 3: acceso de los compañeros | 10 % | Guía escrita (12/11): se simula un compañero desde la PC Windows de John; la invitación de Tailscale queda para la clase. Hay una guía aparte para los compañeros, sin datos privados |
 | ✅ | Incidente de vm3: diagnóstico y recuperación | 100 % | 12/11. Post-mortem en `docs/postmortems/` |
-| 🟡 | Watchdog en las 4 VMs | 0 % | Ansible (`--tags watchdog`) y `scripts/watchdog_vms.sh`, que las reinicia de a una |
+| ✅ | Watchdog en las 4 VMs | 100 % | 12/11. Aplicado con Ansible (`--tags watchdog`) y `scripts/watchdog_vms.sh`. Probado con `scripts/probar_watchdog.sh`: una VM congelada vuelve sola en 35 s; un pánico común, en 18 s (k3s deja `kernel.panic=10`) |
 | ⬜ | Parte 4: subir los resultados a GitHub desde la EXO (llave de despliegue) | 0 % | Después de la Parte 3. Antes de subir `results/evidencias/`, revisar que no tenga datos privados de la red |
 
 ## B. Código y herramientas: 92 %
@@ -105,7 +105,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | 🟡 | Referencias APA | 90 % | Revisar al final |
 | 🟡 | Política de respaldo | 90 % | Sección 6.4: regla 3-2-1, versionado y bloqueo de objetos, réplica a otra sede e instantáneas de etcd. Falta el resultado de la prueba de restauración (8.3) |
 | ✅ | Runbook de la jornada de caos | 100 % | `docs/runbook.md`: controles, criterios para abortar, reversión, respaldo y restauración. El Paso 6 del informe lo cita |
-| 🟡 | Post-mortem de cada experimento | 20 % | Plantilla lista (`docs/postmortem-plantilla.md`). Primero escrito: el incidente de vm3 (`docs/postmortems/2026-11-12-vm3.md`), que también va al informe |
+| 🟡 | Post-mortem de cada experimento | 20 % | Plantilla lista (`docs/postmortem-plantilla.md`). Primero escrito: el incidente de vm3 (`docs/postmortems/2026-11-12-vm3.md`), cerrado con la prueba del watchdog. Va al informe (resultados y discusión) |
 | ⬜ | Figuras: arquitectura y resultados de E1 a E5 | 0 % | `analyze.py` ya genera las de resultados |
 | ⬜ | Anexo A: bitácoras | 0 % | |
 | ✅ | Anexo B: variante VirtualBox | 100 % | |

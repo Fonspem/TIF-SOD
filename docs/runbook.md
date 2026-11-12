@@ -175,7 +175,7 @@ La restauración de etcd comprueba el hash de integridad de la instantánea; si 
 
 | Síntoma | Qué hacer |
 |---|---|
-| Una VM figura `running` pero no contesta: ni ping ni ssh, y en Grafana está en rojo en las tres filas (falla gris) | `python caidas.py --vm vmN` dice desde cuándo. Con el watchdog, la VM se reinicia sola en alrededor de un minuto; si no lo hace: `virsh -c qemu:///system screenshot tif_vmN ../results/evidencias/vmN-pantalla.png` (guarda la pantalla) y después `virsh -c qemu:///system reset tif_vmN`. Ver [el post-mortem del 12/11](postmortems/2026-11-12-vm3.md) |
+| Una VM figura `running` pero no contesta: ni ping ni ssh, y en Grafana está en rojo en las tres filas (falla gris) | `python caidas.py --vm vmN` dice desde cuándo. Con el watchdog, la VM se reinicia sola en menos de un minuto (en la prueba, 35 s); si no lo hace: `virsh -c qemu:///system screenshot tif_vmN ../results/evidencias/vmN-pantalla.png` (guarda la pantalla) y después `virsh -c qemu:///system reset tif_vmN`. Ver [el post-mortem del 12/11](postmortems/2026-11-12-vm3.md) |
 | Una VM no arranca después de `encender` | `virsh -c qemu:///system start tif_vmN`; si no arranca, `cd ../vagrant && vagrant up vmN` |
 | Un pod de MinIO no vuelve a `Running` | `kubectl -n minio describe pod minio-N` (los eventos están al final). Si quedó en `Terminating` con la VM ya arriba: `kubectl -n minio delete pod minio-N` y el StatefulSet lo recrea |
 | Un miembro de etcd no vuelve | `$SSH vmN 'sudo systemctl start etcd; sudo journalctl -u etcd -n 30 --no-pager'` |
