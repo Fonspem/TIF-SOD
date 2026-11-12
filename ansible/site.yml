@@ -127,9 +127,11 @@
     - name: Instalar k3s server
       ansible.builtin.shell: >
         curl -sfL https://get.k3s.io |
-        INSTALL_K3S_CHANNEL={{ k3s_channel }} INSTALL_K3S_VERSION={{ k3s_version }} K3S_TOKEN={{ k3s_token }}
+        INSTALL_K3S_CHANNEL={{ k3s_channel }} INSTALL_K3S_VERSION={{ k3s_version }}
         INSTALL_K3S_EXEC="server --node-ip {{ ip }} --flannel-iface {{ iface_privada }}
         --write-kubeconfig-mode 644 --disable traefik --disable servicelb" sh -
+      environment:
+        K3S_TOKEN: "{{ k3s_token }}"  # por ambiente: si la tarea falla, el token no aparece en la salida
       args:
         creates: /usr/local/bin/k3s
 
@@ -155,7 +157,9 @@
       ansible.builtin.shell: >
         curl -sfL https://get.k3s.io |
         INSTALL_K3S_CHANNEL={{ k3s_channel }} INSTALL_K3S_VERSION={{ k3s_version }}
-        K3S_URL=https://{{ k3s_server_ip }}:6443 K3S_TOKEN={{ k3s_token }}
+        K3S_URL=https://{{ k3s_server_ip }}:6443
         INSTALL_K3S_EXEC="agent --node-ip {{ ip }} --flannel-iface {{ iface_privada }}" sh -
+      environment:
+        K3S_TOKEN: "{{ k3s_token }}"  # por ambiente: si la tarea falla, el token no aparece en la salida
       args:
         creates: /usr/local/bin/k3s-agent-uninstall.sh
