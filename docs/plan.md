@@ -12,9 +12,9 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
   - El borrador del informe completo, salvo los resultados.
   - La política de respaldo (sección 6.4 del informe), el runbook de la jornada de caos y la plantilla de post-mortem.
   - **El clúster anda en la laptop (12/11):** 4 VMs, etcd, k3s, MinIO, monitoreo y API, con las 1.000 actas cargadas y verificadas (1.000 de 1.000). Medición base: escritura 6,7 MB/s, lectura 62,8 MB/s.
-- **Sigue:** la Parte 3 (compañeros y GitHub) y la guía de E2 y E5, con las capturas marcadas.
+- **Sigue:** E2 y E5 (la guía ya está; John la corre ahora) y después la Parte 3 (compañeros y GitHub).
 - **Falta:**
-  - Levantar el clúster y correr los experimentos.
+  - Correr los experimentos: E2 y E5 ahora; después la jornada de caos (E1, E3 y E4).
   - Completar el informe con los resultados. Las decisiones del 11/11 ya están en el informe.
   - Armar los entregables de la defensa.
 - **El cuello de botella sigue siendo la laptop.** Todo lo que no depende de ella ya está hecho o en marcha.
@@ -49,7 +49,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Qué se apaga en modo TIF: todo el homelab salvo Tailscale | 100 % | Lo hace el comando `tif` |
 | ✅ | Parte 1: KVM/libvirt, Vagrant, Ansible, kubectl, UFW y prueba R12 | 100 % | 11/11: todo bien |
 | ✅ | Parte 2: usuario `tif`, comando `tif`, primer arranque del clúster y carga de las actas | 100 % | 12/11. Evidencias en `results/evidencias/` y capturas de los pasos 6, 8 y 9 |
-| ⬜ | Parte 3: acceso de los compañeros por Tailscale y subida de resultados a GitHub | 0 % | Se escribe cuando ande el clúster. Incluye dejar que `tif` use el comando `tif` (regla de sudoers) |
+| ⬜ | Parte 3: acceso de los compañeros por Tailscale y subida de resultados a GitHub | 0 % | Va después de E2 y E5. Incluye dejar que `tif` use el comando `tif` (regla de sudoers) |
 
 ## B. Código y herramientas: 92 %
 
@@ -67,7 +67,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | 🟡 | Sonda de estado estable y análisis (tablas y figuras) | 90 % | Falta correrlos en el clúster |
 | ✅ | Comando `tif` (prender, apagar y estado, con modo TIF) | 100 % | En la guía de la Parte 2; probado con comandos simulados |
 | 🟡 | Respaldo: `verify.py --copia` (actas) y `respaldo.sh` (instantánea de etcd y prueba de restauración) | 90 % | Probado en local, incluso con un acta alterada y una instantánea dañada; falta correrlo en el clúster |
-| 🟡 | README probado desde cero | 85 % | La Parte 2 siguió sus pasos; falta cambiar ahí la imagen de MinIO si hiciera falta y revisarlo entero |
+| 🟡 | README probado desde cero | 85 % | La Parte 2 siguió sus pasos; falta revisarlo entero al final |
 
 ## C. Ejecución y mediciones: 35 %
 
