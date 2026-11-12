@@ -107,8 +107,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "text",
+                "color": "red",
                 "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
               }
             ]
           }
@@ -185,8 +189,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "text",
+                "color": "#c3c2b7",
                 "value": null
+              },
+              {
+                "color": "blue",
+                "value": 1
               }
             ]
           }

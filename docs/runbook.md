@@ -33,7 +33,7 @@ Si pasa alguna de estas cosas, se revierte la falla en curso, se anota la hora y
 
 ## 2. Estado estable: controles antes de cada experimento
 
-En Grafana, el tablero «TIF · Estado del sistema» abierto con los últimos 15 minutos. En la terminal:
+En Grafana, el tablero «TIF · Estado del sistema» abierto con los últimos 15 minutos: `http://<anfitrión>:3000/d/tif-estado`. En la terminal:
 
 ```bash
 virsh -c qemu:///system list                       # tif_vm1 a tif_vm4 en running

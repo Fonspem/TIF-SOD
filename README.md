@@ -64,6 +64,7 @@ curl -s -o /dev/null -w '%{http_code}\n' http://192.168.56.11:9000/minio/health/
 cd ../monitoring
 cp .env.example .env              # y poner la contraseña de Grafana
 docker compose up -d --build      # Grafana :3000 (tablero "TIF · Estado del sistema"), Prometheus :9090, API :8000
+# El tablero se abre directo en http://<anfitrión>:3000/d/tif-estado (también: Dashboards > TIF)
 
 # 5. Actas de prueba: generar, subir y verificar (el bucket se crea solo)
 cd ../scripts
