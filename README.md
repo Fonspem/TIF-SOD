@@ -4,19 +4,35 @@ Prototipo de repositorio documental para una universidad con varias sedes. El co
 
 Trabajo Integrador Final de Sistemas Operativos Distribuidos, Facultad de Ingeniería, Tecnología y Arquitectura.
 
-## Estructura
+## Resultados en una tabla
+
+Todo corrió en una laptop (4 hilos, 12 GB de RAM) con 4 VM, el 12 y el 13/11/2026. El detalle de cada experimento está en su [post-mortem](docs/postmortems/) y los datos crudos, en [`results/`](results/).
+
+| Experimento | Hipótesis | Resultado |
+|---|---|---|
+| E2 · caída del líder de etcd (10 + 10 corridas) | Hay líder nuevo en menos de 2 s, sin errores | ✅ 1,5 s de mediana con `kill -9`, 62 ms con `stop`; 0 errores |
+| E5 · bloqueo huérfano y *fencing* | Un solo dueño; el bloqueo se libera solo; el token viejo se rechaza | ✅ 11,85 s hasta liberarse (TTL de 15 s); el token viejo recibe 409 |
+| E4 · red degradada (200 ms, 5 % de pérdida, 5 min) | Funciona, más lento | ✅ 0 errores en 1.953 pedidos; latencia de la API de 53 a 1.050 ms (p95) |
+| E3 · partición (vm3 aislada 60 s) | La minoría rechaza escrituras; sin divergencia | ✅ en etcd; en MinIO, en parte (la mayoría también se demoró) |
+| E1 · un nodo caído | Lee y escribe | ✅ sin pérdida de datos, con 58 s sin lecturas al principio |
+| E1 · dos nodos caídos | Solo lecturas | ⚠️ etcd siguió sin errores, pero MinIO no sirvió ni lecturas ni escrituras |
+| Integridad (SHA-256 de 1.000 actas) | 1.000 de 1.000 siempre | ✅ en cada verificación, también la final |
+
+Además, el 12/11 una VM se congeló sola durante más de 4 horas; el sistema la toleró y por eso nadie lo notó. Se agregó un *watchdog* que la reinicia en 35 s ([post-mortem](docs/postmortems/2026-11-12-vm3.md)).
+
+## Qué hay en cada carpeta
 
 | Carpeta | Contenido |
 |---|---|
-| `vagrant/` | Vagrantfile de las 4 VM: KVM/libvirt en la laptop dedicada (principal) o VirtualBox (alternativa) |
-| `ansible/` | Aprovisionamiento: paquetes, disco de datos, etcd (systemd), k3s y node_exporter |
-| `k8s/` | Manifiesto de MinIO distribuido |
-| `metadata-service/` | API REST de metadatos con bloqueos (Flask + etcd3gw), sus pruebas y su imagen Docker |
-| `monitoring/` | Prometheus, Grafana (con el tablero del TIF), node_exporter del anfitrión y la API, con Docker Compose |
-| `scripts/` | Generación y carga de las 1.000 actas, verificación de hashes, medición de elecciones de etcd, clientes del bloqueo (E5, fencing), sonda de estado estable, tablas y figuras, respaldo de etcd, caídas de una VM (`caidas.py`) y watchdog de las VM (`watchdog_vms.sh`) |
-| `chaos/` | Inyección de fallas: caída de nodo (E1), partición (E3), red degradada (E4) |
-| `results/` | Datos crudos de los experimentos (CSV) |
-| `docs/` | Plan de trabajo, versiones instaladas, [runbook](docs/runbook.md) de la jornada de caos y [plantilla de post-mortem](docs/postmortem-plantilla.md) y [post-mortems](docs/postmortems/) |
+| [`vagrant/`](vagrant/) | Vagrantfile de las 4 VM: KVM/libvirt (principal) o VirtualBox (alternativa) |
+| [`ansible/`](ansible/) | Aprovisionamiento: paquetes, disco de datos, etcd (systemd), k3s, node_exporter, módulo netem y *watchdog* |
+| [`k8s/`](k8s/) | Manifiesto de MinIO distribuido |
+| [`metadata-service/`](metadata-service/) | API REST de metadatos con bloqueos (Flask + etcd3gw), sus pruebas y su imagen Docker |
+| [`monitoring/`](monitoring/) | Prometheus, Grafana (con el tablero del TIF), node_exporter del anfitrión y la API, con Docker Compose |
+| [`scripts/`](scripts/) | Actas de prueba (generar, cargar, verificar), mediciones (E2, E5), sonda de estado estable, análisis, respaldo y herramientas de diagnóstico. Detalle abajo |
+| [`chaos/`](chaos/) | Inyección de fallas (E1, E3, E4) y `jornada.sh`, que corre cada experimento completo con un comando |
+| [`results/`](results/) | Datos crudos (CSV), salidas de la terminal y figuras de los experimentos. Ver su [README](results/README.md) |
+| [`docs/`](docs/) | Runbook, post-mortems, capturas, figuras del informe, versiones y plan. Ver su [README](docs/README.md) |
 
 ## Arquitectura
 
@@ -25,19 +41,26 @@ Trabajo Integrador Final de Sistemas Operativos Distribuidos, Facultad de Ingeni
   vm1 (.11)              vm2 (.12)          vm3 (.13)          vm4 (.14)
   k3s server             k3s agent          k3s agent          k3s agent
   etcd-1                 etcd-2             etcd-3             -
-  minio-0                minio-1            minio-2            minio-3
+  un pod de MinIO        un pod de MinIO    un pod de MinIO    un pod de MinIO
 
   Anfitrión (Docker, red host): API de metadatos :8000 · Prometheus :9090 · Grafana :3000
   Anfitrión: scripts de carga, verificación, medición y caos
 ```
 
+![Arquitectura](docs/figuras/arquitectura.png)
+
 - etcd corre como servicio systemd, separado del almacén interno de k3s, para poder detener a su líder sin afectar a Kubernetes.
-- MinIO forma un único conjunto de borrado de 4 unidades (EC:2): lee con 2 unidades y escribe con 3.
-- Cada pod de MinIO expone el puerto 9000 en su nodo (`hostPort`), para hablarle a una unidad concreta.
+- MinIO forma un único conjunto de borrado de 4 unidades (EC:2): en teoría lee con 2 unidades y escribe con 3. En la práctica, con 2 nodos apagados de golpe no sirvió lecturas (E1).
+- Cada pod de MinIO expone el puerto 9000 en su nodo (`hostPort`), para hablarle a una unidad concreta. Kubernetes elige qué pod va en cada VM: en el clúster del TIF quedaron `minio-0` en vm4, `minio-1` en vm3, `minio-2` en vm2 y `minio-3` en vm1.
+- Cada VM tiene un *watchdog* virtual (`i6300esb`, acción `reset`): si el sistema se congela, QEMU la reinicia.
+
+## Requisitos
+
+- **Anfitrión:** Linux con KVM/libvirt y el plugin vagrant-libvirt (o VirtualBox), Vagrant 2.3 o más nuevo, Ansible, kubectl 1.36, Docker con Compose y Python 3.11 o más nuevo. Las versiones exactas usadas están en [docs/versiones.md](docs/versiones.md).
+- **Recursos:** unos 10 GB de RAM libres (las VM usan 8,5 GB) y 30 GB de disco. Con 4 hilos de CPU alcanza, pero la CPU es el límite en las pruebas de rendimiento.
+- **Tiempo:** levantar todo desde cero lleva alrededor de una hora; la mayor parte es la descarga de la imagen de las VM y el aprovisionamiento.
 
 ## Cómo levantarlo
-
-Requisitos del anfitrión: Vagrant con KVM/libvirt y el plugin vagrant-libvirt (o con VirtualBox), Ansible, kubectl 1.36, Docker con Compose y Python 3.11 o superior.
 
 ```bash
 # 1. Máquinas virtuales
@@ -45,7 +68,7 @@ cd vagrant
 vagrant up --provider=libvirt     # o: vagrant up --provider=virtualbox
 vagrant ssh-config | sed 's/LogLevel FATAL/LogLevel ERROR/' > ../ansible/ssh_config   # FATAL ocultaría los errores de conexión
 
-# 2. Aprovisionamiento (etcd y k3s)
+# 2. Aprovisionamiento (etcd, k3s, node_exporter y watchdog)
 cd ../ansible
 K3S_TOKEN='<token-largo>' ansible-playbook site.yml
 export KUBECONFIG=$PWD/../kubeconfig
@@ -73,29 +96,55 @@ export MINIO_USER=admin MINIO_PASS='<contraseña>'
 python generar_actas.py           # 1.000 actas ficticias (PDF y texto, ~0,4 GB) en ../dataset/actas
 python load.py                    # sube, registra cada SHA-256 y escribe ../results/manifest.csv (MB/s de escritura)
 python verify.py                  # baja todo y compara los hashes (MB/s de lectura)
+
+# 6. Estado estable: todo tiene que salir con ✓
+cd .. && chaos/jornada.sh estado
 ```
+
+Si las VM ya estaban creadas antes de agregar el *watchdog* al Vagrantfile: `ansible-playbook site.yml --tags watchdog` y después `scripts/watchdog_vms.sh`, que se lo agrega y las reinicia de a una.
+
+**Cuidado con el firewall del anfitrión:** Docker publica los puertos saltando las reglas de UFW. Por eso el monitoreo usa la red del anfitrión (`network_mode: host`) y queda bajo el firewall: abrir 3000, 8000 y 9090 solo para la red local o la VPN.
 
 ## Experimentos
 
-Todo se corre desde `scripts/`. Los scripts de `chaos/` y `leader_election.py` anotan la hora de cada falla en `results/eN_eventos.csv`; la **sonda** (`probe.py`) hace una lectura y una escritura cada 0,5 s y anota cada pedido, así después se cruzan las dos cosas. La sonda se arranca antes de inyectar la falla y se corta con Ctrl+C (o `kill`) cuando el sistema volvió al estado estable.
-
-El guion completo de la jornada está en el [runbook](docs/runbook.md): controles antes de cada falla, criterios para abortar, cómo revertir cada una, y el respaldo y la prueba de restauración. Cada experimento cierra con un post-mortem según la [plantilla](docs/postmortem-plantilla.md).
+La forma recomendada es `chaos/jornada.sh`: un comando por experimento, que controla el estado estable, prende las sondas, inyecta la falla, la revierte (también si se corta con Ctrl+C), espera a que el clúster vuelva a estar completo, verifica las 1.000 actas y analiza las sondas. Todo queda en `results/` con la hora de inicio en el nombre.
 
 ```bash
-cd scripts && pip install -r requirements.txt
-export MINIO_USER=admin MINIO_PASS='<contraseña>'
+cd ~/TIF-SOD            # con el venv activo, MINIO_USER, MINIO_PASS y KUBECONFIG
+chaos/jornada.sh estado    # controles de estado estable; no cambia nada
+chaos/jornada.sh e4        # red degradada: 5 min de netem (200 ms y 5 % de pérdida) en las 4 VM
+chaos/jornada.sh e3        # partición: vm3 aislada de las otras tres VM durante 60 s
+chaos/jornada.sh e1-uno    # caída de un nodo: vm4 apagada de golpe durante 150 s
+chaos/jornada.sh e1-dos    # caída de dos nodos: vm4 y vm3 apagadas; vuelve vm3 y después vm4
+```
 
-# Paso 2 / E2: elección de líder de etcd, 10 corridas por modo.
-# En otra terminal, la sonda mide las solicitudes fallidas del servicio de metadatos.
+E2 y E5 se miden con sus propios scripts, desde `scripts/`:
+
+```bash
+# E2: elección de líder de etcd, 10 corridas por modo, con la sonda en otra terminal
 python probe.py meta --etiqueta e2-kill --intervalo 0.1 --salida ../results/e2_sonda_meta_kill.csv
 python leader_election.py --modo kill --repeticiones 10 --salida ../results/e2_kill.csv
 python leader_election.py --modo stop --repeticiones 10 --salida ../results/e2_stop.csv
 
-# Paso 4 / E5: exclusión mutua, bloqueo huérfano y fencing
+# E5: exclusión mutua, bloqueo huérfano y fencing
 python lock_clients.py concurrencia --clientes 2
 python lock_clients.py huerfano --repeticiones 5 --salida ../results/e5_kill.csv
 python lock_clients.py huerfano --ordenado --repeticiones 5 --salida ../results/e5_ordenado.csv
 python lock_clients.py fencing
+
+# Verificación de los hashes (también la corre jornada.sh después de cada experimento)
+python verify.py
+```
+
+El guion completo de la jornada está en el [runbook](docs/runbook.md): controles antes de cada falla, criterios para abortar, cómo revertir cada una, y el respaldo y la prueba de restauración. Cada experimento tiene su [post-mortem](docs/postmortems/).
+
+<details>
+<summary>Los mismos experimentos de caos, paso a paso y sin <code>jornada.sh</code></summary>
+
+Los scripts de `chaos/` y `leader_election.py` anotan la hora de cada falla en `results/eN_eventos.csv`; la **sonda** (`probe.py`) hace una lectura y una escritura cada 0,5 s y anota cada pedido, así después se cruzan las dos cosas. La sonda se arranca antes de inyectar la falla y se corta con Ctrl+C (o `kill`) cuando el sistema volvió al estado estable.
+
+```bash
+cd scripts
 
 # E1: caída de un nodo, con la sonda corriendo en otra terminal
 python probe.py s3 --etiqueta e1 --salida ../results/e1_sonda_s3.csv
@@ -112,30 +161,43 @@ python probe.py s3 --nodos http://192.168.56.11:9000 --etiqueta e3-vm1 --salida 
 python probe.py etcd --comprobar ../results/e3_etcd_vm1.csv ../results/e3_etcd_vm3.csv
 python probe.py s3 --comprobar ../results/e3_s3_vm1.csv ../results/e3_s3_vm3.csv
 
-# E4: red degradada (tc netem; con Chaos Mesh, anotar a mano la hora en results/e4_eventos.csv)
+# E4: red degradada
 python probe.py s3 --etiqueta e4 --salida ../results/e4_sonda_s3.csv &
 ../chaos/e4_netem.sh aplicar; sleep 300; ../chaos/e4_netem.sh revertir; sleep 60; kill %1
-
-# Paso 7: verificación de los hashes
-python verify.py
 ```
+</details>
 
-### Tablas y figuras para el informe
+### Tablas y figuras
 
-`analyze.py` imprime tablas en Markdown, con coma decimal, y guarda cada figura en PNG:
+`analyze.py` imprime tablas en Markdown, con coma decimal, y guarda cada figura en PNG. Para cada experimento salen la disponibilidad, la latencia p50 y p95 y el corte más largo por tramo (antes, durante y después de la falla), y, para cada evento, cuánto tardó en aparecer el primer error y cuánto en recuperarse el servicio.
 
 ```bash
 python analyze.py eleccion ../results/e2_kill.csv ../results/e2_stop.csv --figura ../results/figuras/e2.png
-python analyze.py sonda ../results/e2_sonda_meta_kill.csv --eventos ../results/e2_eventos.csv --por-accion \
-    --figura ../results/figuras/e2_meta.png
-python analyze.py sonda ../results/e1_sonda_s3.csv --eventos ../results/e1_eventos.csv --figura ../results/figuras/e1.png
-python analyze.py sonda ../results/e3_etcd_vm1.csv ../results/e3_etcd_vm3.csv --eventos ../results/e3_eventos.csv \
-    --figura ../results/figuras/e3_etcd.png
-python analyze.py sonda ../results/e4_sonda_s3.csv --eventos ../results/e4_eventos.csv --figura ../results/figuras/e4.png
+python analyze.py sonda ../results/e1_uno_sonda_s3_1523.csv ../results/e1_uno_sonda_meta_1523.csv \
+    --eventos ../results/e1_eventos.csv --figura ../results/figuras/e1-uno.png
 python analyze.py huerfano ../results/e5_kill.csv ../results/e5_ordenado.csv --figura ../results/figuras/e5.png
 ```
 
-Para cada experimento salen la disponibilidad, la latencia p50 y p95 y el corte más largo por tramo (antes, durante y después de la falla), y, para cada evento, cuánto tardó en aparecer el primer error y cuánto en recuperarse el servicio.
+Las figuras propias del informe salen de [`docs/figuras/graficos.py`](docs/figuras/).
+
+## Respaldo y restauración
+
+```bash
+cd scripts
+./respaldo.sh etcd                                   # instantánea de etcd en ../respaldo/etcd-AAAAMMDD-HHMM.db
+./respaldo.sh probar-etcd ../respaldo/etcd-...db     # la restaura en un etcd temporal y cuenta las actas
+python verify.py --copia ../respaldo/actas           # verifica las actas y guarda una copia en la misma pasada
+```
+
+`respaldo/` no se sube al repositorio. La política completa (regla 3-2-1, versionado, réplica a otra sede) está en la sección 6.4 del informe.
+
+## Herramientas de diagnóstico
+
+| Script | Para qué |
+|---|---|
+| `scripts/caidas.py --vm vm3 --horas 8` | Cuándo dejó de responder una VM, según Prometheus, y cómo estaba la memoria antes |
+| `scripts/probar_watchdog.sh vm4` | Cuelga a propósito el núcleo de una VM y mide cuánto tarda en volver sola |
+| `scripts/watchdog_vms.sh` | Agrega el *watchdog* a las VM ya creadas y las reinicia de a una |
 
 ## Pruebas del servicio de metadatos
 
@@ -145,6 +207,17 @@ Levantan un clúster etcd real de 3 miembros en la máquina local:
 ETCD_BIN=/ruta/a/etcd python -m pytest -q metadata-service/tests
 ```
 
-## Estado
+## Problemas conocidos
+
+| Síntoma | Causa | Solución |
+|---|---|---|
+| Las VM no salen a Internet | Docker deja la cadena FORWARD en DROP y libvirt usa nftables | `firewall_backend = "iptables"` en `/etc/libvirt/network.conf` |
+| `vagrant up` no encuentra la box | Canonical no publica boxes desde Ubuntu 24.04 | Se usa `bento/ubuntu-24.04` (pide Vagrant 2.4; en Debian anduvo la 2.3.8) |
+| Los pods de MinIO quedan en `ImagePullBackOff` | Desde el 24/09/2026, quay.io no permite descargas anónimas de `minio/minio` | Se usa el fork `pgsty/minio` (misma API y métricas) |
+| Ansible no dice por qué no conecta | El `ssh_config` de Vagrant trae `LogLevel FATAL` | Generarlo con `LogLevel ERROR` (paso 1) |
+| Una VM queda `running` pero no responde | Falla gris del sistema invitado | El *watchdog* la reinicia ([post-mortem](docs/postmortems/2026-11-12-vm3.md)) |
+| Con un nodo apagado de golpe, MinIO tarda casi un minuto en volver a responder | MinIO espera al nodo caído hasta darlo por perdido | Esperar un minuto antes de medir ([post-mortem de E1](docs/postmortems/2026-11-13-e1.md)) |
+
+## Estado del trabajo
 
 Ver [docs/plan.md](docs/plan.md).

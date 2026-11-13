@@ -2,7 +2,7 @@
 
 <!--
 Cómo usar esta plantilla:
-- Copiarla a docs/postmortems/eN.md (por ejemplo, docs/postmortems/e1.md) y completar cada sección.
+- Copiarla a docs/postmortems/AAAA-MM-DD-eN.md (por ejemplo, docs/postmortems/2026-11-13-e1.md) y completar cada sección.
 - Se escribe al terminar el experimento, con los datos todavía frescos, aunque se haya abortado.
 - Sin culpas: se describe qué pasó y por qué, no quién se equivocó. Un error de operación
   también es un dato: dice qué paso del runbook hay que hacer más claro o más seguro.
