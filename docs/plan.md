@@ -1,6 +1,6 @@
 # Plan del TIF: estado y orden de trabajo
 
-Actualizado: 12 de noviembre de 2026.
+Actualizado: 13 de noviembre de 2026.
 
 Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empezar · ⛔ trabado (la nota dice por qué)
 
@@ -71,7 +71,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Monitoreo: Prometheus, Grafana con el tablero del Paso 5, node_exporter y la API en Docker | 100 % | Los 17 objetivos `up`. Colores de las líneas de tiempo arreglados. Enlace: `/d/tif-estado` |
 | ✅ | Generador de actas, carga con SHA-256 y verificación | 100 % | En el clúster: 1.000 de 1.000 |
 | ✅ | Medición de elección de líder (E2) y clientes del bloqueo (E5) | 100 % | 12/11: corridos en el clúster |
-| 🟡 | Inyección de fallas E1, E3 y E4 | 80 % | Falta correrla en el clúster |
+| 🟡 | Inyección de fallas E1, E3 y E4 | 90 % | 13/11: `chaos/jornada.sh` corre cada experimento con un comando y revierte la falla si se corta; probado contra un clúster simulado. Falta correrla en el clúster |
 | ✅ | Sonda de estado estable y análisis (tablas y figuras) | 100 % | 12/11: `analyze.py` sacó las tablas de E2 y E5; `--hasta` recorta la corrida abortada de las 14:40. Las figuras salen de `docs/figuras/graficos.py` |
 | ✅ | Comando `tif` (prender, apagar y estado, con modo TIF) | 100 % | En la guía de la Parte 2; probado con comandos simulados |
 | ✅ | Respaldo: `verify.py --copia` (actas) y `respaldo.sh` (instantánea de etcd y prueba de restauración) | 100 % | 12/11, en el clúster: la instantánea tiene las 1.000 actas y la copia restaurada dio 1.000 de 1.000. `respaldo.sh` cuenta solo las claves `/docs/acta-` (las sondas también registran documentos) |
