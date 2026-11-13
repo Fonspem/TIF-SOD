@@ -1,4 +1,4 @@
-"""Gráficos del informe (PNG estáticos): E2 con stop y tiempos de recuperación."""
+"""Gráficos del informe (PNG estáticos): E2, E5, E3 y tiempos de recuperación."""
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -154,4 +154,34 @@ fig.text(0.02, 0.86, "Cinco corridas por modo; cada punto es una corrida y la ra
 fig.subplots_adjust(left=0.19, right=0.97, top=0.76, bottom=0.12)
 fig.savefig("e5-liberacion.png", facecolor=SUP)
 plt.close(fig)
+# 5. E3: pedidos exitosos mientras vm3 estuvo aislada (analyze.py sonda, tramo «aislar vm3», 13/11/2026)
+lados = ["etcd · lado de vm1\n(mayoría)", "etcd · lado de vm3\n(minoría)", "MinIO · por vm1\n(mayoría)", "MinIO · por vm3\n(minoría)"]
+lect = [100.0, 3.2, 7.7, 7.7]
+escr = [100.0, 3.2, 92.6, 9.1]
+fig, ax = plt.subplots(figsize=(8, 3.6), dpi=DPI)
+ejes(fig, ax)
+ax.set_xlim(0, 112); ax.set_ylim(-0.6, 3.6)
+ax.set_xticks([0, 25, 50, 75, 100], ["0", "25", "50", "75", "100 %"])
+ax.xaxis.grid(True, color=GRID, linewidth=1); ax.set_axisbelow(True)
+ax.spines["bottom"].set_visible(False)
+py = (ax.transData.transform((0, 1))[1] - ax.transData.transform((0, 0))[1])
+alto, hueco = 20 / py, 2 / py
+for i, (a, b) in enumerate(zip(lect, escr)):
+    y0 = 3 - i
+    for j, (v, color) in enumerate(((a, AZUL), (b, NARANJA))):
+        y = y0 + (alto + hueco) / 2 - j * (alto + hueco)
+        barra(ax, y, alto, v, color, horizontal=True)
+        ax.text(v + 1.2, y, f"{v:.1f} %".replace(".", ","), va="center", ha="left", fontsize=8, color=TXT)
+ax.set_yticks([3, 2, 1, 0], lados)
+fig.suptitle("E3: pedidos exitosos mientras vm3 estuvo aislada (60 s)", x=0.02, ha="left", fontsize=11, y=0.97)
+fig.text(0.02, 0.875, "Cada sonda habla con un solo nodo; tiempo máximo por pedido: 2 s en etcd y 5 s en MinIO",
+         ha="left", fontsize=8.5, color=TXT2)
+ley = [Line2D([0], [0], marker="s", color=SUP, markerfacecolor=c, markersize=8, label=t)
+       for c, t in ((AZUL, "lecturas"), (NARANJA, "escrituras"))]
+ax.legend(handles=ley, loc="upper left", bbox_to_anchor=(-0.02, 1.16), ncol=2, frameon=False, fontsize=8.5,
+          handletextpad=0.3, columnspacing=1.5)
+fig.subplots_adjust(left=0.2, right=0.97, top=0.76, bottom=0.08)
+fig.savefig("e3-particion.png", facecolor=SUP)
+plt.close(fig)
+
 print("listo")
