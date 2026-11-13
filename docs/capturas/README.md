@@ -37,3 +37,4 @@ informe; ninguna muestra direcciones ni nombres de la red de la casa.
 | `2026-11-12_1441_terminal-e2-aborta-vm3.png` | El intento de E2 aborta porque vm3 no responde (`'vm3': None`); la sonda del servicio de metadatos, sin errores (prompt tapado) |
 | `2026-11-12_1547_terminal-teclado-vm3.png` | Prueba del teclado: después de un Enter con `virsh send-key`, la pantalla de vm3 no cambia (prompt y barra de tmux sacados) |
 | `2026-11-12_1659_terminal-e2-stop.png` | Salida de E2 con `systemctl stop`: 10 corridas, medianas de 62 y 78 ms y la sonda sin errores (prompt tapado) |
+| `2026-11-13_1723_tablero-desde-windows.png` | Parte 3: el tablero abierto desde la PC Windows que simula a un compañero (sin la barra de direcciones) |

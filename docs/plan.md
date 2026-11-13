@@ -20,7 +20,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 - **Incidente no planificado (12/11, de 11:28 a 15:48):** vm3 se congeló sola; el sistema siguió andando con 2 de 3 en etcd y 3 de 4 en MinIO. Se recuperó con un reinicio forzado. Acción correctiva: un watchdog en cada VM, probado: una VM congelada vuelve sola en 35 s. Post-mortem: [docs/postmortems/2026-11-12-vm3.md](postmortems/2026-11-12-vm3.md).
 - **Sigue:** cerrar el informe y armar la defensa. La jornada de caos terminó el 13/11. La Parte 3 (acceso de los compañeros) y la Parte 4 (subir `results/` al repositorio) siguen pendientes.
 - **Falta:**
-  - Recortar cuatro capturas de la terminal (figuras 2, 8, 20 y 22) y actualizar el índice.
+  - Actualizar el índice al final (John ya lo actualizó una vez el 13/11).
   - Subir `results/` al repositorio: John lo baja a la Lenovo y lo adjunta en el chat; el equipo lo revisa y lo sube.
   - Al final: nombres y roles, bitácoras y ensayo de la demo. El video no hace falta (lo dijo la profesora el 13/11).
   - Decisión del 13/11: el informe queda largo y completo; la versión para la facultad se arma después, aparte.
@@ -57,7 +57,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Qué se apaga en modo TIF: todo el homelab salvo Tailscale | 100 % | Lo hace el comando `tif` |
 | ✅ | Parte 1: KVM/libvirt, Vagrant, Ansible, kubectl, UFW y prueba R12 | 100 % | 11/11: todo bien |
 | ✅ | Parte 2: usuario `tif`, comando `tif`, primer arranque del clúster y carga de las actas | 100 % | 12/11. Evidencias en `results/evidencias/` y capturas de los pasos 6, 8 y 9 |
-| 🟡 | Parte 3: acceso de los compañeros | 20 % | Guía escrita (12/11): se simula un compañero desde la PC Windows de John; la invitación de Tailscale queda para la clase. Hay una guía aparte para los compañeros, sin datos privados. John la empezó el 12/11 a la noche |
+| 🟡 | Parte 3: acceso de los compañeros | 70 % | 13/11: simulado desde la PC Windows de John (cliente OpenSSH instalado, llave `companero-windows` en `tif`): entra por SSH, corre `chaos/jornada.sh estado`, no tiene sudo y ve Grafana. Falta la regla de sudoers para que `tif` use el comando `tif` (hoy pide contraseña) y, en clase, compartir la EXO por Tailscale |
 | ✅ | Incidente de vm3: diagnóstico y recuperación | 100 % | 12/11. Post-mortem en `docs/postmortems/` |
 | ✅ | Watchdog en las 4 VMs | 100 % | 12/11. Aplicado con Ansible (`--tags watchdog`) y `scripts/watchdog_vms.sh`. Probado con `scripts/probar_watchdog.sh`: una VM congelada vuelve sola en 35 s; un pánico común, en 18 s (k3s deja `kernel.panic=10`) |
 | 🟡 | Parte 4: subir `results/` a GitHub | 10 % | 13/11: en vez de la llave de despliegue, John baja un `.tar.gz` con `scp` a la Lenovo y lo adjunta en el chat; el equipo revisa que no tenga datos privados de la red y lo sube |
@@ -91,7 +91,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Paso 5: generar y cargar las 1.000 actas; tablero de Grafana | 100 % | 1.000 de 1.000 |
 | ✅ | Paso 6: jornada de caos (E1, E3 y E4) con las sondas | 100 % | 13/11: E4 y E3 de 14:40 a 14:51; E1 con un nodo y con dos de 15:23 a 15:36. Después de cada uno, 1.000 de 1.000 |
 | ✅ | Paso 7: verificación final de los 1.000 hashes | 100 % | 13/11, 15:38: 1.000 de 1.000 con los 4 nodos y los 3 miembros de etcd (`results/verificacion_final.csv`). Antes, 1.000 de 1.000 después del incidente, en la restauración y después de cada experimento |
-| 🟡 | Capturas de evidencia (Grafana y terminal) | 75 % | 28 capturas en `docs/capturas/` (4 de E1) y texto en `results/evidencias/`. Cuatro capturas de la terminal esperan que John recorte el nombre del equipo y la IP de la casa antes de ir al informe |
+| ✅ | Capturas de evidencia (Grafana y terminal) | 100 % | 33 capturas en `docs/capturas/` y texto en `results/evidencias/` (en el repo desde el 13/11). Las cuatro de la terminal, con el prompt y la barra de tmux tapados, ya están en el informe (figuras 2, 8, 20 y 22) |
 
 ## D. Informe (Google Doc): 91 %
 
@@ -104,8 +104,8 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | 4. Herramientas | 100 % | Con las decisiones 8 y 12: Docker en el anfitrión, sin Chaos Mesh, rendimiento con scripts propios |
 | 🟡 | 5. Organización del equipo | 20 % | Faltan nombres, roles y autoevaluación |
 | ✅ | 6. Materiales y métodos | 100 % | Con el diagrama de arquitectura (Figura 1, `docs/figuras/arquitectura.dot`) y la decisión del watchdog |
-| 🟡 | 7. Implementación práctica | 90 % | Con las salidas reales de los pasos 1 a 5, los apartados "Operación del servidor y registro de evidencias" y "Problemas encontrados y soluciones" (14 problemas). Falta una captura recortada (Figura 2) y acortar las líneas largas de los bloques de código de los pasos 2 a 4 y de E3, que se cortan en el PDF |
-| 🟡 | 8. Resultados | 97 % | E2 (8.1), E5, E4, E3 y E1 (8.2, figuras 9 a 15), integridad y verificación final (8.3), rendimiento y capacidad (8.4) y el incidente de vm3 (8.5); nota sobre el origen de los datos al comienzo. Faltan tres capturas recortadas (figuras 8, 20 y 22) |
+| 🟡 | 7. Implementación práctica | 90 % | Con las salidas reales de los pasos 1 a 5, los apartados "Operación del servidor y registro de evidencias" y "Problemas encontrados y soluciones" (14 problemas). Falta acortar las líneas largas de los bloques de código de los pasos 2 a 4 y de E3, que se cortan en el PDF |
+| ✅ | 8. Resultados | 100 % | E2 (8.1), E5, E4, E3 y E1 (8.2, figuras 9 a 15), integridad y verificación final (8.3), rendimiento y capacidad (8.4) y el incidente de vm3 (8.5); nota sobre el origen de los datos al comienzo. Completo |
 | ✅ | 9. Discusión y 10. Conclusiones | 100 % | Con E1 a E5, el incidente (fallas grises), las escrituras ambiguas y las lecciones de operación. E1 refutó en parte su hipótesis: con dos nodos caídos, MinIO no sirvió lecturas |
 | 🟡 | Referencias APA | 90 % | Revisar al final |
 | ✅ | Política de respaldo | 100 % | Sección 6.4: regla 3-2-1, versionado y bloqueo de objetos, réplica a otra sede e instantáneas de etcd. El resultado de la prueba de restauración está en la 8.3 |
