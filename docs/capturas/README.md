@@ -29,3 +29,7 @@ informe; ninguna muestra direcciones ni nombres de la red de la casa.
 | `2026-11-13_1447_tablero-recursos-e4.png` | Recursos durante E4 |
 | `2026-11-13_1452_tablero-e4-y-e3.png` | E4 y E3 (partición de vm3, 14:49:28 a 14:50:29): el p95 de MinIO llega a 10 s durante la partición; el líder sigue en vm1 |
 | `2026-11-13_1452_tablero-recursos-e4-y-e3.png` | Recursos durante E4 y E3: al reunificar, MinIO repara unos 65 objetos |
+| `2026-11-13_1530_tablero-e1-uno.png` | E1 con un nodo: vm4 apagada de golpe (15:24:40 a 15:27:11); en el primer minuto el p95 de MinIO llega a 10 s; el servicio de metadatos sigue sin errores y el líder de etcd, en vm1 |
+| `2026-11-13_1530_tablero-recursos-e1-uno.png` | Recursos durante E1 con un nodo: con vm4 apagada, el anfitrión tiene 1,5 GB más libres; al volver vm4, MinIO repara unos 420 objetos |
+| `2026-11-13_1537_tablero-e1-dos.png` | E1 con dos nodos: vm4 (15:32:32) y vm3 (15:32:52) apagadas hasta las 15:35:12; MinIO no responde (p50 y p95 de 10 s, sin errores 4xx ni 5xx), el servicio de metadatos sigue con 2 de 3 miembros de etcd y el líder sigue en vm1 |
+| `2026-11-13_1538_tablero-recursos-e1-dos.png` | Recursos durante las dos partes de E1 (15:23 a 15:38) |
