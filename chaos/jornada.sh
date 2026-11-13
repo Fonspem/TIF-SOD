@@ -322,6 +322,7 @@ e1_uno() {
   muestra e1-uno 90 60
   log "lectura de las 1.000 actas con vm4 apagada (máx. 90 s)"
   timeout --foreground 90 python -u verify.py 2>&1 | tail -n 6
+  [ "${PIPESTATUS[0]}" -eq 124 ] && log "lectura de las 1.000 actas: no terminó en 90 s"
   esperar_hasta "$tf" "$T_FALLA"
   log "E1: prendo vm4"
   revertir
@@ -349,6 +350,7 @@ e1_dos() {
   sleep "$T_PAUSA"
   log "lectura de las 1.000 actas con vm3 y vm4 apagadas (máx. 90 s): se espera que funcione"
   timeout --foreground 90 python -u verify.py 2>&1 | tail -n 6
+  [ "${PIPESTATUS[0]}" -eq 124 ] && log "lectura de las 1.000 actas: no terminó en 90 s"
   log "escritura con 2 de 4 discos: se espera que falle"
   muestra e1-dos 30 30
   esperar_hasta "$tf" "$T_FALLA"

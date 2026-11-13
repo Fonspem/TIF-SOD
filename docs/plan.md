@@ -6,7 +6,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 
 ## Dónde estamos
 
-- **Avance general: alrededor del 83 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
+- **Avance general: alrededor del 84 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
 - **Ya está hecho:**
   - Todo el código y las herramientas de medición, probados en local y en el clúster.
   - La política de respaldo (sección 6.4 del informe), el runbook de la jornada de caos y la plantilla de post-mortem.
@@ -20,19 +20,19 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 - **Incidente no planificado (12/11, de 11:28 a 15:48):** vm3 se congeló sola; el sistema siguió andando con 2 de 3 en etcd y 3 de 4 en MinIO. Se recuperó con un reinicio forzado. Acción correctiva: un watchdog en cada VM, probado: una VM congelada vuelve sola en 35 s. Post-mortem: [docs/postmortems/2026-11-12-vm3.md](postmortems/2026-11-12-vm3.md).
 - **Sigue:** cerrar el informe y armar la defensa. La jornada de caos terminó el 13/11. La Parte 3 (acceso de los compañeros) y la Parte 4 (subir `results/` al repositorio) siguen pendientes.
 - **Falta:**
-  - La capacidad usable de MinIO para la 8.4 (`minio_cluster_capacity_usable_total_bytes` en Prometheus); si no está, se saca esa frase.
   - Recortar cuatro capturas de la terminal (figuras 2, 8, 20 y 22) y actualizar el índice.
-  - Subir `results/` (evidencias, CSV y figuras de `analyze.py`) al repositorio.
-  - Nombres y roles, bitácoras, video y ensayo de la demo.
+  - Subir `results/` al repositorio: John lo baja a la Lenovo y lo adjunta en el chat; el equipo lo revisa y lo sube.
+  - Al final: nombres y roles, bitácoras y ensayo de la demo. El video no hace falta (lo dijo la profesora el 13/11).
+  - Decisión del 13/11: el informe queda largo y completo; la versión para la facultad se arma después, aparte.
 
 | Área | Avance | Peso en el total |
 |---|---|---|
 | A. Servidor (laptop EXO) | 80 % | 10 % |
 | B. Código y herramientas | 99 % | 25 % |
-| C. Ejecución y mediciones | 92 % | 25 % |
-| D. Informe | 90 % | 25 % |
-| E. Defensa y entregables | 33 % | 15 % |
-| **Total** | **≈ 83 %** | |
+| C. Ejecución y mediciones | 97 % | 25 % |
+| D. Informe | 91 % | 25 % |
+| E. Defensa y entregables | 30 % | 15 % |
+| **Total** | **≈ 84 %** | |
 
 ## Decisiones tomadas el 11/11
 
@@ -60,7 +60,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | 🟡 | Parte 3: acceso de los compañeros | 20 % | Guía escrita (12/11): se simula un compañero desde la PC Windows de John; la invitación de Tailscale queda para la clase. Hay una guía aparte para los compañeros, sin datos privados. John la empezó el 12/11 a la noche |
 | ✅ | Incidente de vm3: diagnóstico y recuperación | 100 % | 12/11. Post-mortem en `docs/postmortems/` |
 | ✅ | Watchdog en las 4 VMs | 100 % | 12/11. Aplicado con Ansible (`--tags watchdog`) y `scripts/watchdog_vms.sh`. Probado con `scripts/probar_watchdog.sh`: una VM congelada vuelve sola en 35 s; un pánico común, en 18 s (k3s deja `kernel.panic=10`) |
-| ⬜ | Parte 4: subir los resultados a GitHub desde la EXO (llave de despliegue) | 0 % | Después de la Parte 3. Antes de subir `results/evidencias/`, revisar que no tenga datos privados de la red |
+| 🟡 | Parte 4: subir `results/` a GitHub | 10 % | 13/11: en vez de la llave de despliegue, John baja un `.tar.gz` con `scp` a la Lenovo y lo adjunta en el chat; el equipo revisa que no tenga datos privados de la red y lo sube |
 
 ## B. Código y herramientas: 99 %
 
@@ -80,20 +80,20 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Respaldo: `verify.py --copia` (actas) y `respaldo.sh` (instantánea de etcd y prueba de restauración) | 100 % | 12/11, en el clúster: la instantánea tiene las 1.000 actas y la copia restaurada dio 1.000 de 1.000. `respaldo.sh` cuenta solo las claves `/docs/acta-` (las sondas también registran documentos) |
 | 🟡 | README probado desde cero | 85 % | La Parte 2 siguió sus pasos; falta revisarlo entero al final |
 
-## C. Ejecución y mediciones: 92 %
+## C. Ejecución y mediciones: 97 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
 | ✅ | Paso 1: levantar las 4 VM y aprovisionarlas | 100 % | 12/11 |
 | ✅ | Paso 2: etcd de 3 miembros, más E2 con 10 corridas por modo | 100 % | 12/11. Con `kill -9`, nuevo líder en 1.485 ms de mediana (1.024 a 1.673 ms); con `stop`, en 62 ms (36 a 87 ms). Las sondas no tuvieron errores (2.269 pedidos con `kill -9`, recortados con `--hasta 12:00`, y 2.491 con `stop`). Con `kill -9`, las escrituras durante la elección tardan unos 2 s: el primer miembro consultado no responde dentro de `ETCD_TIMEOUT` y el servicio pasa al siguiente |
-| 🟡 | Paso 3: MinIO y rendimiento base | 70 % | Escritura 6,7 MB/s y lectura 62,8 MB/s; falta la latencia con la sonda |
+| ✅ | Paso 3: MinIO y rendimiento base | 100 % | Escritura 6,7 MB/s y lectura 62,8 MB/s. Latencia p95 en estado estable (sonda, antes de E4): API 53 ms; MinIO 21 ms en lectura y 96 ms en escritura. Capacidad: 42,7 GB brutos y 21,3 GB usables |
 | ✅ | Paso 4: servicio de metadatos, demo con dos clientes y E5 | 100 % | 12/11, de 21:08 a 21:11. Bloqueo huérfano: 11,85 s de mediana (11,26 a 12,74 s, cinco corridas); liberado por el dueño: 0,07 s |
 | ✅ | Paso 5: generar y cargar las 1.000 actas; tablero de Grafana | 100 % | 1.000 de 1.000 |
 | ✅ | Paso 6: jornada de caos (E1, E3 y E4) con las sondas | 100 % | 13/11: E4 y E3 de 14:40 a 14:51; E1 con un nodo y con dos de 15:23 a 15:36. Después de cada uno, 1.000 de 1.000 |
 | ✅ | Paso 7: verificación final de los 1.000 hashes | 100 % | 13/11, 15:38: 1.000 de 1.000 con los 4 nodos y los 3 miembros de etcd (`results/verificacion_final.csv`). Antes, 1.000 de 1.000 después del incidente, en la restauración y después de cada experimento |
 | 🟡 | Capturas de evidencia (Grafana y terminal) | 75 % | 28 capturas en `docs/capturas/` (4 de E1) y texto en `results/evidencias/`. Cuatro capturas de la terminal esperan que John recorte el nombre del equipo y la IP de la casa antes de ir al informe |
 
-## D. Informe (Google Doc): 90 %
+## D. Informe (Google Doc): 91 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
@@ -105,26 +105,26 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | 🟡 | 5. Organización del equipo | 20 % | Faltan nombres, roles y autoevaluación |
 | ✅ | 6. Materiales y métodos | 100 % | Con el diagrama de arquitectura (Figura 1, `docs/figuras/arquitectura.dot`) y la decisión del watchdog |
 | 🟡 | 7. Implementación práctica | 90 % | Con las salidas reales de los pasos 1 a 5, los apartados "Operación del servidor y registro de evidencias" y "Problemas encontrados y soluciones" (14 problemas). Falta una captura recortada (Figura 2) y acortar las líneas largas de los bloques de código de los pasos 2 a 4 y de E3, que se cortan en el PDF |
-| 🟡 | 8. Resultados | 92 % | E2 (8.1), E5, E4, E3 y E1 (8.2, figuras 9 a 15), integridad y verificación final (8.3), rendimiento (8.4) y el incidente de vm3 (8.5). Faltan la capacidad usable de MinIO en la 8.4 ([medir]) y tres capturas recortadas (figuras 8, 20 y 22) |
+| 🟡 | 8. Resultados | 97 % | E2 (8.1), E5, E4, E3 y E1 (8.2, figuras 9 a 15), integridad y verificación final (8.3), rendimiento y capacidad (8.4) y el incidente de vm3 (8.5); nota sobre el origen de los datos al comienzo. Faltan tres capturas recortadas (figuras 8, 20 y 22) |
 | ✅ | 9. Discusión y 10. Conclusiones | 100 % | Con E1 a E5, el incidente (fallas grises), las escrituras ambiguas y las lecciones de operación. E1 refutó en parte su hipótesis: con dos nodos caídos, MinIO no sirvió lecturas |
 | 🟡 | Referencias APA | 90 % | Revisar al final |
 | ✅ | Política de respaldo | 100 % | Sección 6.4: regla 3-2-1, versionado y bloqueo de objetos, réplica a otra sede e instantáneas de etcd. El resultado de la prueba de restauración está en la 8.3 |
 | ✅ | Runbook de la jornada de caos | 100 % | `docs/runbook.md`: controles, criterios para abortar, reversión, respaldo y restauración. El Paso 6 del informe lo cita |
-| 🟡 | Post-mortem de cada experimento | 20 % | Plantilla lista (`docs/postmortem-plantilla.md`). Primero escrito: el incidente de vm3 (`docs/postmortems/2026-11-12-vm3.md`), cerrado con la prueba del watchdog. Va al informe (resultados y discusión) |
+| 🟡 | Post-mortem de cada experimento | 40 % | Plantilla lista (`docs/postmortem-plantilla.md`). Escritos: el incidente de vm3 (`docs/postmortems/2026-11-12-vm3.md`) y E1 (`docs/postmortems/2026-11-13-e1.md`, la hipótesis refutada en parte). Faltan E2 a E5 |
 | ✅ | Figuras: arquitectura y resultados de E1 a E5 | 100 % | 28 figuras en el informe. E1 tiene dos capturas del tablero (figuras 14 y 15); las antiguas 14 a 26 pasaron a ser 16 a 28 |
 | ⬜ | Anexo A: bitácoras | 0 % | Plantilla lista (Tabla A1) |
 | ✅ | Anexos C, D y E: decisiones, cronología y evidencias | 100 % | Al día con la jornada de caos completa (13/11) |
 | ✅ | Anexo B: variante VirtualBox | 100 % | |
 | ⬜ | Exportar a PDF y revisar el formato APA | 0 % | Al final |
 
-## E. Defensa y entregables: 33 %
+## E. Defensa y entregables: 30 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
 | ⬜ | Acta de roles y autoevaluación (Paso 0) | 0 % | Necesita los nombres |
 | ⬜ | Bitácoras individuales | 0 % | |
 | 🟡 | Presentación para la defensa | 80 % | 18 diapositivas (13/11) con E1 a E5, el incidente, la integridad y la verificación final; faltan los nombres |
-| 🟡 | Video de 5 a 8 minutos | 15 % | Guion de 7 minutos (13/11). Conviene grabar los tramos de caos durante la jornada |
+| — | Video de 5 a 8 minutos | — | No hace falta, según la profesora (13/11). El guion queda en el proyecto por si acaso |
 | 🟡 | Demo en vivo: guion y ensayo | 40 % | Guion de 5 minutos con comandos, plan B y preguntas probables (13/11); falta ensayarla |
 
 ## Orden de trabajo
@@ -134,7 +134,7 @@ El camino crítico:
 2. ✅ clúster arriba con las actas cargadas (Parte 2);
 3. ✅ E2 y E5 (12/11);
 4. ✅ jornada de caos: E4, E3, E1 y la verificación final (13/11);
-5. 🟡 resultados en el informe: falta la capacidad de MinIO (8.4); después, el recorte;
+5. 🟡 resultados en el informe: completos (13/11); siguen los post-mortem de E2 a E5 y `results/` en el repositorio;
 6. defensa.
 
 Mientras John prepara la laptop, el equipo:
