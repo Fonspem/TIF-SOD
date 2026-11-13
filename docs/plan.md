@@ -6,7 +6,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 
 ## Dónde estamos
 
-- **Avance general: alrededor del 84 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
+- **Avance general: alrededor del 86 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
 - **Ya está hecho:**
   - Todo el código y las herramientas de medición, probados en local y en el clúster.
   - La política de respaldo (sección 6.4 del informe), el runbook de la jornada de caos y la plantilla de post-mortem.
@@ -18,21 +18,20 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
   - **E1 y verificación final (13/11, parte B de la jornada):** con un nodo caído no se perdieron datos, pero MinIO pasó 58 s sin completar una lectura y después leyó unas seis veces más lento (9,7 MB/s contra 62,8). Con dos nodos caídos, etcd siguió con quórum y el servicio de metadatos no tuvo errores, y MinIO no aceptó escrituras, como se esperaba, pero tampoco sirvió lecturas: los pedidos quedaron esperando, sin errores. La hipótesis esperaba lecturas, así que se refutó en parte: con 4 nodos, el sistema tolera la caída de uno, no la de dos. Verificación final (15:38): 1.000 de 1.000. El reanálisis de E4 sumó la sonda de MinIO: p95 de escritura de 96 a 4.542 ms.
   - **Informe (13/11):** cargados todos los resultados, con 28 figuras, 11 tablas y los anexos C (decisiones), D (cronología) y E (evidencias). El resumen quedó en 248 palabras.
 - **Incidente no planificado (12/11, de 11:28 a 15:48):** vm3 se congeló sola; el sistema siguió andando con 2 de 3 en etcd y 3 de 4 en MinIO. Se recuperó con un reinicio forzado. Acción correctiva: un watchdog en cada VM, probado: una VM congelada vuelve sola en 35 s. Post-mortem: [docs/postmortems/2026-11-12-vm3.md](postmortems/2026-11-12-vm3.md).
-- **Sigue:** cerrar el informe y armar la defensa. La jornada de caos terminó el 13/11. La Parte 3 (acceso de los compañeros) y la Parte 4 (subir `results/` al repositorio) siguen pendientes.
+- **Sigue:** cerrar el informe y armar la defensa. La jornada de caos terminó el 13/11. La Parte 3 se probó desde Windows y `results/` ya está en el repositorio (13/11).
 - **Falta:**
   - Actualizar el índice al final (John ya lo actualizó una vez el 13/11).
-  - Subir `results/` al repositorio: John lo baja a la Lenovo y lo adjunta en el chat; el equipo lo revisa y lo sube.
   - Al final: nombres y roles, bitácoras y ensayo de la demo. El video no hace falta (lo dijo la profesora el 13/11).
   - Decisión del 13/11: el informe queda largo y completo; la versión para la facultad se arma después, aparte.
 
 | Área | Avance | Peso en el total |
 |---|---|---|
-| A. Servidor (laptop EXO) | 80 % | 10 % |
+| A. Servidor (laptop EXO) | 90 % | 10 % |
 | B. Código y herramientas | 99 % | 25 % |
 | C. Ejecución y mediciones | 97 % | 25 % |
-| D. Informe | 91 % | 25 % |
+| D. Informe | 93 % | 25 % |
 | E. Defensa y entregables | 30 % | 15 % |
-| **Total** | **≈ 84 %** | |
+| **Total** | **≈ 86 %** | |
 
 ## Decisiones tomadas el 11/11
 
@@ -49,7 +48,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | — | 12/11, después del incidente de vm3: cada VM lleva un watchdog virtual (`i6300esb`, acción `reset`) que systemd atiende cada 15 s; si la VM se congela, QEMU la reinicia sola |
 | — | Desde el 12/11, el resto del trabajo lo hacen John y el equipo; John hace de los demás integrantes cuando hace falta (por ejemplo, el compañero que entra desde Windows). Los compañeros podrán probar todo en clase con su guía |
 
-## A. Servidor (laptop EXO): 80 %
+## A. Servidor (laptop EXO): 90 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
@@ -57,10 +56,10 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Qué se apaga en modo TIF: todo el homelab salvo Tailscale | 100 % | Lo hace el comando `tif` |
 | ✅ | Parte 1: KVM/libvirt, Vagrant, Ansible, kubectl, UFW y prueba R12 | 100 % | 11/11: todo bien |
 | ✅ | Parte 2: usuario `tif`, comando `tif`, primer arranque del clúster y carga de las actas | 100 % | 12/11. Evidencias en `results/evidencias/` y capturas de los pasos 6, 8 y 9 |
-| 🟡 | Parte 3: acceso de los compañeros | 70 % | 13/11: simulado desde la PC Windows de John (cliente OpenSSH instalado, llave `companero-windows` en `tif`): entra por SSH, corre `chaos/jornada.sh estado`, no tiene sudo y ve Grafana. Falta la regla de sudoers para que `tif` use el comando `tif` (hoy pide contraseña) y, en clase, compartir la EXO por Tailscale |
+| ✅ | Parte 3: acceso de los compañeros | 95 % | 13/11: probado desde la PC Windows de John (cliente OpenSSH, llave `companero-windows` en `tif`): entra por SSH, `tif estado` anda sin contraseña por la regla `/etc/sudoers.d/tif-comando` (solo `/usr/local/bin/tif`), no tiene otro sudo y ve Grafana. En el informe (sección 7 y Anexo D). Queda compartir la EXO por Tailscale en clase |
 | ✅ | Incidente de vm3: diagnóstico y recuperación | 100 % | 12/11. Post-mortem en `docs/postmortems/` |
 | ✅ | Watchdog en las 4 VMs | 100 % | 12/11. Aplicado con Ansible (`--tags watchdog`) y `scripts/watchdog_vms.sh`. Probado con `scripts/probar_watchdog.sh`: una VM congelada vuelve sola en 35 s; un pánico común, en 18 s (k3s deja `kernel.panic=10`) |
-| 🟡 | Parte 4: subir `results/` a GitHub | 10 % | 13/11: en vez de la llave de despliegue, John baja un `.tar.gz` con `scp` a la Lenovo y lo adjunta en el chat; el equipo revisa que no tenga datos privados de la red y lo sube |
+| ✅ | Parte 4: subir `results/` a GitHub | 100 % | 13/11: John bajó un `.tar.gz` con `scp` y lo adjuntó en el chat; el equipo lo revisó (solo direcciones de la red de las VM) y lo subió (94 archivos). Para resultados nuevos se repite lo mismo |
 
 ## B. Código y herramientas: 99 %
 
@@ -93,7 +92,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Paso 7: verificación final de los 1.000 hashes | 100 % | 13/11, 15:38: 1.000 de 1.000 con los 4 nodos y los 3 miembros de etcd (`results/verificacion_final.csv`). Antes, 1.000 de 1.000 después del incidente, en la restauración y después de cada experimento |
 | ✅ | Capturas de evidencia (Grafana y terminal) | 100 % | 33 capturas en `docs/capturas/` y texto en `results/evidencias/` (en el repo desde el 13/11). Las cuatro de la terminal, con el prompt y la barra de tmux tapados, ya están en el informe (figuras 2, 8, 20 y 22) |
 
-## D. Informe (Google Doc): 91 %
+## D. Informe (Google Doc): 93 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
@@ -110,7 +109,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | 🟡 | Referencias APA | 90 % | Revisar al final |
 | ✅ | Política de respaldo | 100 % | Sección 6.4: regla 3-2-1, versionado y bloqueo de objetos, réplica a otra sede e instantáneas de etcd. El resultado de la prueba de restauración está en la 8.3 |
 | ✅ | Runbook de la jornada de caos | 100 % | `docs/runbook.md`: controles, criterios para abortar, reversión, respaldo y restauración. El Paso 6 del informe lo cita |
-| 🟡 | Post-mortem de cada experimento | 40 % | Plantilla lista (`docs/postmortem-plantilla.md`). Escritos: el incidente de vm3 (`docs/postmortems/2026-11-12-vm3.md`) y E1 (`docs/postmortems/2026-11-13-e1.md`, la hipótesis refutada en parte). Faltan E2 a E5 |
+| ✅ | Post-mortem de cada experimento | 100 % | En `docs/postmortems/`: el incidente de vm3 y E1 a E5 (13/11), con la plantilla. Falta citarlos en el informe |
 | ✅ | Figuras: arquitectura y resultados de E1 a E5 | 100 % | 28 figuras en el informe. E1 tiene dos capturas del tablero (figuras 14 y 15); las antiguas 14 a 26 pasaron a ser 16 a 28 |
 | ⬜ | Anexo A: bitácoras | 0 % | Plantilla lista (Tabla A1) |
 | ✅ | Anexos C, D y E: decisiones, cronología y evidencias | 100 % | Al día con la jornada de caos completa (13/11) |
@@ -134,7 +133,7 @@ El camino crítico:
 2. ✅ clúster arriba con las actas cargadas (Parte 2);
 3. ✅ E2 y E5 (12/11);
 4. ✅ jornada de caos: E4, E3, E1 y la verificación final (13/11);
-5. 🟡 resultados en el informe: completos (13/11); siguen los post-mortem de E2 a E5 y `results/` en el repositorio;
+5. 🟡 resultados en el informe: completos (13/11); falta citar los post-mortem y acortar las líneas largas de código;
 6. defensa.
 
 Mientras John prepara la laptop, el equipo:
