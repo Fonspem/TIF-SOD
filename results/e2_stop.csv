@@ -1,0 +1,11 @@
+corrida,modo,lider_caido,lider_nuevo,t_lider_ms,t_escritura_ms
+1,stop,vm3,vm2,78,94
+2,stop,vm2,vm1,63,119
+3,stop,vm1,vm3,56,76
+4,stop,vm3,vm2,36,68
+5,stop,vm2,vm1,62,74
+6,stop,vm1,vm3,56,72
+7,stop,vm3,vm2,63,81
+8,stop,vm2,vm1,59,74
+9,stop,vm1,vm3,87,104
+10,stop,vm3,vm2,61,82

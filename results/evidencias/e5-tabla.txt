@@ -1,0 +1,8 @@
+Tiempo hasta que otro cliente obtiene el bloqueo:
+
+| Modo | Corridas | TTL (s) | Liberación: mediana (s) | Mín–máx (s) |
+|---|---|---|---|---|
+| kill -9 | 5 | 15 | 11,85 | 11,26–12,74 |
+| ordenado | 5 | 15 | 0,07 | 0,05–0,19 |
+
+Figura: ../results/figuras/e5.png

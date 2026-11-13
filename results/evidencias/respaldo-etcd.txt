@@ -1,0 +1,1 @@
+Instantánea de etcd: ../respaldo/etcd-20261112-1438.db (400K)

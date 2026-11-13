@@ -1,0 +1,11 @@
+corrida,modo,lider_caido,lider_nuevo,t_lider_ms,t_escritura_ms
+1,kill,vm1,vm2,1167,1192
+2,kill,vm2,vm1,1467,1487
+3,kill,vm1,vm3,1024,1055
+4,kill,vm3,vm1,1438,1463
+5,kill,vm1,vm3,1394,1424
+6,kill,vm3,vm1,1510,1532
+7,kill,vm1,vm2,1509,1522
+8,kill,vm2,vm1,1673,1698
+9,kill,vm1,vm3,1503,1532
+10,kill,vm3,vm1,1588,1614

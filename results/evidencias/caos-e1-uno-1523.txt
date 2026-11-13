@@ -1,0 +1,99 @@
+15:23:37 Experimento e1-uno (salida en results/evidencias/caos-e1-uno-1523.txt)
+15:23:37 Controles de estado estable
+  ✓ VMs en running: 4 de 4
+  ✓ nodos Ready: 4 de 4
+  ✓ pods de MinIO en Running: 4 de 4
+  ✓ miembros de etcd sanos: 3 de 3
+  ✓ VMs con MinIO listo: 4 de 4
+  ✓ MinIO con quórum de escritura
+  ✓ servicio de metadatos (/health)
+  ✓ sin restos de experimentos anteriores (netem, reglas de E3)
+  ✓ actas originales en dataset/ (para la muestra de rendimiento)
+  · objetivos de Prometheus: 17 up de 17
+  · memoria del anfitrión: 3278 MB disponibles
+15:23:40 ✓ estado estable
+15:23:40 sonda s3 (e1-uno-s3) en marcha → results/e1_uno_sonda_s3_1523.csv
+15:23:40 sonda meta (e1-uno-meta) en marcha → results/e1_uno_sonda_meta_1523.csv
+15:24:00 muestra e1-antes: subo 20 actas (máx. 60 s)
+  20/20 procesadas, 0 con error
+Subidas: 20 de 20 (7 MB en 1 s, 8.0 MB/s). Manifiesto: ../results/manifest-e1-antes.csv
+15:24:02 muestra e1-antes: leo y verifico (máx. 60 s)
+OK: 20 / 20  fallas: 0
+Lectura: 7 MB en 0 s (32.8 MB/s)
+15:24:40 E1: apago vm4 de golpe (virsh destroy) durante 150 s
+Domain 'tif_vm4' destroyed
+
+15:25:01 muestra e1-uno: subo 20 actas (máx. 90 s)
+  20/20 procesadas, 0 con error
+Subidas: 20 de 20 (7 MB en 24 s, 0.3 MB/s). Manifiesto: ../results/manifest-e1-uno.csv
+15:25:43 muestra e1-uno: leo y verifico (máx. 60 s)
+OK: 20 / 20  fallas: 0
+Lectura: 7 MB en 20 s (0.4 MB/s)
+15:26:04 lectura de las 1.000 actas con vm4 apagada (máx. 90 s)
+OK: 1000 / 1000  fallas: 0
+Lectura: 390 MB en 40 s (9.7 MB/s)
+15:27:11 E1: prendo vm4
+Domain 'tif_vm4' started
+
+15:27:12 espero a que el clúster esté completo (etcd 3 de 3, 4 nodos Ready y MinIO listo en las 4 VM)…
+15:27:29 ✓ clúster completo, 17 s después de revertir la falla
+15:28:00 apago las sondas
+--- caos-e1-uno-1523-sonda-e1-uno-meta-meta.txt
+Resumen (meta, e1-uno-meta, 259 s):
+  lectura    519 pedidos, 519 ok (100.0 %), p50 28 ms, p95 45 ms, corte más largo 0.0 s
+  escritura  519 pedidos, 519 ok (100.0 %), p50 30 ms, p95 45 ms, corte más largo 0.0 s
+CSV: ../results/e1_uno_sonda_meta_1523.csv
+--- caos-e1-uno-1523-sonda-e1-uno-s3-s3.txt
+Resumen (s3, e1-uno-s3, 259 s):
+  lectura    396 pedidos, 393 ok (99.2 %), p50 13 ms, p95 19 ms, corte más largo 58.1 s
+  escritura  463 pedidos, 462 ok (99.8 %), p50 40 ms, p95 85 ms, corte más largo 23.0 s
+CSV: ../results/e1_uno_sonda_s3_1523.csv
+15:28:00 verify.py: ¿las 1.000 actas siguen bien?
+OK: 1000 / 1000  fallas: 0
+Lectura: 390 MB en 6 s (69.5 MB/s)
+15:28:05 analyze.py: results/e1_uno_sonda_s3_1523.csv results/e1_uno_sonda_meta_1523.csv
+Disponibilidad y latencia por tramo (latencias de los pedidos exitosos):
+
+| Serie | Operación | Tramo | Pedidos | Disponibilidad | p50 (ms) | p95 (ms) | Corte más largo (s) |
+|---|---|---|---|---|---|---|---|
+| e1-uno-s3 | lectura | antes | 119 | 100,0 % | 15 | 20 | 0,0 |
+| e1-uno-s3 | lectura | apagar vm4 | 180 | 98,3 % | 12 | 16 | 58,1 |
+| e1-uno-s3 | lectura | encender vm4 | 37 | 100,0 % | 10 | 21 | 0,0 |
+| e1-uno-s3 | lectura | completo | 60 | 100,0 % | 14 | 19 | 0,0 |
+| e1-uno-s3 | lectura | total | 396 | 99,2 % | 13 | 19 | 58,1 |
+| e1-uno-s3 | escritura | antes | 119 | 100,0 % | 43 | 72 | 0,0 |
+| e1-uno-s3 | escritura | apagar vm4 | 247 | 99,6 % | 39 | 137 | 23,0 |
+| e1-uno-s3 | escritura | encender vm4 | 37 | 100,0 % | 34 | 120 | 0,0 |
+| e1-uno-s3 | escritura | completo | 60 | 100,0 % | 40 | 56 | 0,0 |
+| e1-uno-s3 | escritura | total | 463 | 99,8 % | 40 | 85 | 23,0 |
+| e1-uno-meta | lectura | antes | 120 | 100,0 % | 29 | 41 | 0,0 |
+| e1-uno-meta | lectura | apagar vm4 | 302 | 100,0 % | 27 | 42 | 0,0 |
+| e1-uno-meta | lectura | encender vm4 | 37 | 100,0 % | 23 | 63 | 0,0 |
+| e1-uno-meta | lectura | completo | 60 | 100,0 % | 32 | 50 | 0,0 |
+| e1-uno-meta | lectura | total | 519 | 100,0 % | 28 | 45 | 0,0 |
+| e1-uno-meta | escritura | antes | 120 | 100,0 % | 32 | 44 | 0,0 |
+| e1-uno-meta | escritura | apagar vm4 | 302 | 100,0 % | 29 | 43 | 0,0 |
+| e1-uno-meta | escritura | encender vm4 | 37 | 100,0 % | 26 | 68 | 0,0 |
+| e1-uno-meta | escritura | completo | 60 | 100,0 % | 33 | 48 | 0,0 |
+| e1-uno-meta | escritura | total | 519 | 100,0 % | 30 | 45 | 0,0 |
+
+Respuesta a cada evento (segundos desde el evento hasta el siguiente):
+
+| Serie | Operación | Evento | Primer error (s) | Recuperación (s) | Pedidos fallidos | Latencia máx. (ms) |
+|---|---|---|---|---|---|---|
+| e1-uno-s3 | lectura | apagar vm4 | 0,1 | 58,3 | 3 | 20.041 |
+| e1-uno-s3 | lectura | encender vm4 | sin fallas | – | 0 | 25 |
+| e1-uno-s3 | lectura | completo | sin fallas | – | 0 | 22 |
+| e1-uno-s3 | escritura | apagar vm4 | 0,1 | 23,2 | 1 | 23.040 |
+| e1-uno-s3 | escritura | encender vm4 | sin fallas | – | 0 | 349 |
+| e1-uno-s3 | escritura | completo | sin fallas | – | 0 | 390 |
+| e1-uno-meta | lectura | apagar vm4 | sin fallas | – | 0 | 173 |
+| e1-uno-meta | lectura | encender vm4 | sin fallas | – | 0 | 106 |
+| e1-uno-meta | lectura | completo | sin fallas | – | 0 | 193 |
+| e1-uno-meta | escritura | apagar vm4 | sin fallas | – | 0 | 174 |
+| e1-uno-meta | escritura | encender vm4 | sin fallas | – | 0 | 104 |
+| e1-uno-meta | escritura | completo | sin fallas | – | 0 | 190 |
+
+Figura: ../results/figuras/e1-uno-1523.png
+15:28:07 ✓ E1 con un nodo terminado
+15:28:07 salida guardada en results/evidencias/caos-e1-uno-1523.txt

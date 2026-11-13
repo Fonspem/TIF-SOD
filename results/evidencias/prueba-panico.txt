@@ -1,0 +1,7 @@
+16:38:59 Controles bien: clúster completo y watchdog activo en vm4
+16:39:00 Cuelgo el núcleo de vm4
+  esperando a que vuelva sola (sin virsh ni nada)…
+16:39:18 ✓ vm4 volvió sola en 18 s, con un arranque nuevo
+  ⚠️ libvirt no registró el disparo del watchdog: la VM volvió por otro motivo. Revisá el registro de libvirt.
+16:39:24 ✓ clúster completo otra vez, 24 s después de colgarla
+    Using hardware watchdog 'i6300ESB timer', version 0, device /dev/watchdog0

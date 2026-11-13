@@ -1,0 +1,7 @@
+16:45:33 Controles bien: clúster completo y watchdog activo en vm4
+16:45:34 Cuelgo el núcleo de vm4, sin reinicio automático (kernel.panic=0)
+  esperando a que vuelva sola (sin virsh ni nada)…
+16:46:09 ✓ vm4 volvió sola en 35 s, con un arranque nuevo
+  ✓ libvirt registró el disparo del watchdog (hora UTC): 2026-11-12 19:46:02.287+0000: event 'watchdog' for domain 'tif_vm4': reset
+16:46:15 ✓ clúster completo otra vez, 41 s después de colgarla
+    Using hardware watchdog 'i6300ESB timer', version 0, device /dev/watchdog

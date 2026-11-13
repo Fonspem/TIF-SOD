@@ -1,0 +1,23 @@
+ 18:58:31 up 10 min,  1 user,  load average: 0.29, 0.12, 0.03
+6.8.0-64-generic
+BOOT_IMAGE=/vmlinuz-6.8.0-64-generic root=/dev/mapper/ubuntu--vg-ubuntu--lv ro net.ifnames=0 biosdevname=0 autoinstall ds=nocloud-net
+ -1 aee59d6a9bb648b38d254e6510677393 Thu 2026-11-12 12:46:56 UTC Thu 2026-11-12 14:25:01 UTC
+  0 0713725f50a2482995e30e2e8c76e114 Thu 2026-11-12 18:48:01 UTC Thu 2026-11-12 18:58:31 UTC
+2026-11-12T14:17:02+00:00 vm3 systemd[1]: Starting prometheus-node-exporter-nvme.service - Collect NVMe metrics for prometheus-node-exporter...
+2026-11-12T14:17:02+00:00 vm3 systemd[1]: prometheus-node-exporter-nvme.service: Deactivated successfully.
+2026-11-12T14:17:02+00:00 vm3 systemd[1]: Finished prometheus-node-exporter-nvme.service - Collect NVMe metrics for prometheus-node-exporter.
+2026-11-12T14:17:03+00:00 vm3 systemd[1]: prometheus-node-exporter-apt.service: Deactivated successfully.
+2026-11-12T14:17:03+00:00 vm3 systemd[1]: Finished prometheus-node-exporter-apt.service - Collect apt metrics for prometheus-node-exporter.
+2026-11-12T14:17:03+00:00 vm3 systemd[1]: prometheus-node-exporter-apt.service: Consumed 1.052s CPU time.
+2026-11-12T14:20:02+00:00 vm3 systemd[1]: Starting sysstat-collect.service - system activity accounting tool...
+2026-11-12T14:20:02+00:00 vm3 systemd[1]: sysstat-collect.service: Deactivated successfully.
+2026-11-12T14:20:02+00:00 vm3 systemd[1]: Finished sysstat-collect.service - system activity accounting tool.
+2026-11-12T14:25:01+00:00 vm3 CRON[5542]: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)
+2026-11-12T14:25:01+00:00 vm3 CRON[5543]: (root) CMD (command -v debian-sa1 > /dev/null && debian-sa1 1 1)
+2026-11-12T14:25:01+00:00 vm3 CRON[5542]: pam_unix(cron:session): session closed for user root
+2026-11-12T12:46:56+00:00 vm3 kernel: platform eisa.0: Cannot allocate resource for EISA slot 6
+2026-11-12T12:46:56+00:00 vm3 kernel: platform eisa.0: Cannot allocate resource for EISA slot 7
+2026-11-12T12:46:56+00:00 vm3 kernel: platform eisa.0: Cannot allocate resource for EISA slot 8
+2026-11-12T12:46:59+00:00 vm3 kernel: platform regulatory.0: Direct firmware load for regulatory.db failed with error -2
+2026-11-12T12:47:02+00:00 vm3 kernel: ipmi_si: Unable to find any System Interface(s)
+2026-11-12T12:47:32+00:00 vm3 kernel: kauditd_printk_skb: 113 callbacks suppressed

@@ -1,0 +1,14 @@
+Modo stop, 10 repeticiones
+  corrida  1: cayó vm3, nuevo líder vm2: 78 ms hasta el líder, 94 ms hasta la primera escritura
+  corrida  2: cayó vm2, nuevo líder vm1: 63 ms hasta el líder, 119 ms hasta la primera escritura
+  corrida  3: cayó vm1, nuevo líder vm3: 56 ms hasta el líder, 76 ms hasta la primera escritura
+  corrida  4: cayó vm3, nuevo líder vm2: 36 ms hasta el líder, 68 ms hasta la primera escritura
+  corrida  5: cayó vm2, nuevo líder vm1: 62 ms hasta el líder, 74 ms hasta la primera escritura
+  corrida  6: cayó vm1, nuevo líder vm3: 56 ms hasta el líder, 72 ms hasta la primera escritura
+  corrida  7: cayó vm3, nuevo líder vm2: 63 ms hasta el líder, 81 ms hasta la primera escritura
+  corrida  8: cayó vm2, nuevo líder vm1: 59 ms hasta el líder, 74 ms hasta la primera escritura
+  corrida  9: cayó vm1, nuevo líder vm3: 87 ms hasta el líder, 104 ms hasta la primera escritura
+  corrida 10: cayó vm3, nuevo líder vm2: 61 ms hasta el líder, 82 ms hasta la primera escritura
+Nuevo líder: mediana 62 ms, mínimo 36 ms, máximo 87 ms (10 corridas)
+Primera escritura: mediana 78 ms, mínimo 68 ms, máximo 119 ms (10 corridas)
+Resultados en ../results/e2_stop.csv

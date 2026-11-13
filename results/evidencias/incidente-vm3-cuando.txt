@@ -1,0 +1,17 @@
+Caídas de vm3: 11:28
+Vueltas de vm3: 09:01
+Ahora: vm3 sigue sin responder
+
+Última caída (11:28), minuto a minuto:
+hora  ·    libre · fallos/s · OOM · libre EXO
+11:18 ·  1373 MB ·        0 ·   0 · 3632 MB
+11:19 ·  1373 MB ·        0 ·   0 · 3889 MB
+11:20 ·  1373 MB ·        0 ·   0 · 3904 MB
+11:21 ·  1374 MB ·        0 ·   0 · 3983 MB
+11:22 ·  1374 MB ·        0 ·   0 · 3984 MB
+11:23 ·  1397 MB ·        0 ·   0 · 3984 MB
+11:24 ·  1399 MB ·        0 ·   0 · 3988 MB
+11:25 ·  1400 MB ·        0 ·   0 · 3988 MB
+11:26 ·  1399 MB ·        0 ·   0 · 3989 MB
+11:27 ·  1399 MB ·        0 ·   0 · 3991 MB
+11:28 ·     – MB ·        0 ·   – · 3992 MB

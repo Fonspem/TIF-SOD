@@ -1,0 +1,3 @@
+OK: 1000 / 1000  fallas: 0
+Lectura: 390 MB en 40 s (9.7 MB/s)
+Copia: 1000 actas en /home/tif/TIF-SOD/respaldo/actas

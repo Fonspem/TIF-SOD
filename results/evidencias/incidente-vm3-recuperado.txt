@@ -1,0 +1,13 @@
+192.168.56.11:2379 is healthy: successfully committed proposal: took = 5.662671m
+192.168.56.12:2379 is healthy: successfully committed proposal: took = 7.090313m
+192.168.56.13:2379 is healthy: successfully committed proposal: took = 6.902525m
+NAME   STATUS   ROLES           AGE     VERSION
+vm1    Ready    control-plane   6h55m   v1.36.6+k3s1
+vm2    Ready    <none>          6h55m   v1.36.6+k3s1
+vm3    Ready    <none>          6h55m   v1.36.6+k3s1
+vm4    Ready    <none>          6h55m   v1.36.6+k3s1
+POD       FASE      NODO
+minio-0   Running   vm4
+minio-1   Running   vm3
+minio-2   Running   vm2
+minio-3   Running   vm1

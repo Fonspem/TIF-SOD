@@ -1,0 +1,7 @@
+Sonda etcd contra 192.168.56.13:2379: un pedido de cada tipo cada 0.5 s. Ctrl+C para terminar.
+CSV: ../results/e3_etcd_vm3_1448.csv
+
+Resumen (etcd, e3-vm3, 139 s):
+  lectura    162 pedidos, 123 ok (75.9 %), p50 19 ms, p95 47 ms, corte más largo 78.2 s
+  escritura  162 pedidos, 123 ok (75.9 %), p50 18 ms, p95 45 ms, corte más largo 78.2 s
+CSV: ../results/e3_etcd_vm3_1448.csv

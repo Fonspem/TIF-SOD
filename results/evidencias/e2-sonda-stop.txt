@@ -1,0 +1,59 @@
+Disponibilidad y latencia por tramo (latencias de los pedidos exitosos):
+
+| Serie | Operación | Tramo | Pedidos | Disponibilidad | p50 (ms) | p95 (ms) | Corte más largo (s) |
+|---|---|---|---|---|---|---|---|
+| e2-stop | lectura | antes | 58 | 100,0 % | 31 | 44 | 0,0 |
+| e2-stop | lectura | detener | 104 | 100,0 % | 23 | 44 | 0,0 |
+| e2-stop | lectura | iniciar | 1085 | 100,0 % | 22 | 44 | 0,0 |
+| e2-stop | lectura | total | 1247 | 100,0 % | 22 | 44 | 0,0 |
+| e2-stop | escritura | antes | 58 | 100,0 % | 33 | 42 | 0,0 |
+| e2-stop | escritura | detener | 105 | 100,0 % | 29 | 44 | 0,0 |
+| e2-stop | escritura | iniciar | 1081 | 100,0 % | 29 | 50 | 0,0 |
+| e2-stop | escritura | total | 1244 | 100,0 % | 30 | 49 | 0,0 |
+
+Respuesta a cada evento (segundos desde el evento hasta el siguiente):
+
+| Serie | Operación | Evento | Primer error (s) | Recuperación (s) | Pedidos fallidos | Latencia máx. (ms) |
+|---|---|---|---|---|---|---|
+| e2-stop | lectura | detener vm3 | sin fallas | – | 0 | 57 |
+| e2-stop | lectura | iniciar vm3 | sin fallas | – | 0 | 150 |
+| e2-stop | lectura | detener vm2 | sin fallas | – | 0 | 76 |
+| e2-stop | lectura | iniciar vm2 | sin fallas | – | 0 | 174 |
+| e2-stop | lectura | detener vm1 | sin fallas | – | 0 | 60 |
+| e2-stop | lectura | iniciar vm1 | sin fallas | – | 0 | 121 |
+| e2-stop | lectura | detener vm3 | sin fallas | – | 0 | 33 |
+| e2-stop | lectura | iniciar vm3 | sin fallas | – | 0 | 98 |
+| e2-stop | lectura | detener vm2 | sin fallas | – | 0 | 50 |
+| e2-stop | lectura | iniciar vm2 | sin fallas | – | 0 | 95 |
+| e2-stop | lectura | detener vm1 | sin fallas | – | 0 | 20 |
+| e2-stop | lectura | iniciar vm1 | sin fallas | – | 0 | 47 |
+| e2-stop | lectura | detener vm3 | sin fallas | – | 0 | 33 |
+| e2-stop | lectura | iniciar vm3 | sin fallas | – | 0 | 143 |
+| e2-stop | lectura | detener vm2 | sin fallas | – | 0 | 21 |
+| e2-stop | lectura | iniciar vm2 | sin fallas | – | 0 | 139 |
+| e2-stop | lectura | detener vm1 | sin fallas | – | 0 | 22 |
+| e2-stop | lectura | iniciar vm1 | sin fallas | – | 0 | 179 |
+| e2-stop | lectura | detener vm3 | sin fallas | – | 0 | 55 |
+| e2-stop | lectura | iniciar vm3 | sin fallas | – | 0 | 181 |
+| e2-stop | escritura | detener vm3 | sin fallas | – | 0 | 55 |
+| e2-stop | escritura | iniciar vm3 | sin fallas | – | 0 | 146 |
+| e2-stop | escritura | detener vm2 | sin fallas | – | 0 | 82 |
+| e2-stop | escritura | iniciar vm2 | sin fallas | – | 0 | 171 |
+| e2-stop | escritura | detener vm1 | sin fallas | – | 0 | 57 |
+| e2-stop | escritura | iniciar vm1 | sin fallas | – | 0 | 201 |
+| e2-stop | escritura | detener vm3 | sin fallas | – | 0 | 38 |
+| e2-stop | escritura | iniciar vm3 | sin fallas | – | 0 | 116 |
+| e2-stop | escritura | detener vm2 | sin fallas | – | 0 | 42 |
+| e2-stop | escritura | iniciar vm2 | sin fallas | – | 0 | 124 |
+| e2-stop | escritura | detener vm1 | sin fallas | – | 0 | 44 |
+| e2-stop | escritura | iniciar vm1 | sin fallas | – | 0 | 94 |
+| e2-stop | escritura | detener vm3 | sin fallas | – | 0 | 37 |
+| e2-stop | escritura | iniciar vm3 | sin fallas | – | 0 | 145 |
+| e2-stop | escritura | detener vm2 | sin fallas | – | 0 | 30 |
+| e2-stop | escritura | iniciar vm2 | sin fallas | – | 0 | 134 |
+| e2-stop | escritura | detener vm1 | sin fallas | – | 0 | 45 |
+| e2-stop | escritura | iniciar vm1 | sin fallas | – | 0 | 246 |
+| e2-stop | escritura | detener vm3 | sin fallas | – | 0 | 69 |
+| e2-stop | escritura | iniciar vm3 | sin fallas | – | 0 | 239 |
+
+Figura: ../results/figuras/e2_meta_stop.png

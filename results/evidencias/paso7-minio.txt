@@ -1,0 +1,6 @@
+NAME      READY   STATUS    RESTARTS   AGE   IP          NODE   NOMINATED NODE   READINESS GATES
+minio-0   1/1     Running   0          32s   10.42.1.3   vm4    <none>           <none>
+minio-1   1/1     Running   0          31s   10.42.2.3   vm3    <none>           <none>
+minio-2   1/1     Running   0          31s   10.42.3.3   vm2    <none>           <none>
+minio-3   1/1     Running   0          32s   10.42.0.6   vm1    <none>           <none>
+Quórum de escritura: 503

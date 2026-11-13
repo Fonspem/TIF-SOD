@@ -1,0 +1,5 @@
+A obtuvo el bloqueo con token 4162 y se pausa sin renovarlo
+B obtuvo el bloqueo con token 4164
+A se despierta y quiere firmar con su token viejo: 409 {'error': 'bloqueo perdido o token vencido'}
+B firma con su token: 200 {'estado': 'firmada', 'token': 4164}
+OK: el fencing token rechazó al dueño viejo

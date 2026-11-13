@@ -1,0 +1,6 @@
+  corrida 1: el segundo cliente obtuvo el bloqueo a los 11.85 s (TTL 15 s)
+  corrida 2: el segundo cliente obtuvo el bloqueo a los 11.26 s (TTL 15 s)
+  corrida 3: el segundo cliente obtuvo el bloqueo a los 12.63 s (TTL 15 s)
+  corrida 4: el segundo cliente obtuvo el bloqueo a los 11.31 s (TTL 15 s)
+  corrida 5: el segundo cliente obtuvo el bloqueo a los 12.74 s (TTL 15 s)
+Liberación: mediana 11.85 s, mínimo 11.26 s, máximo 12.74 s

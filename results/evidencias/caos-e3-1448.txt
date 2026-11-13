@@ -1,0 +1,161 @@
+14:48:55 Experimento e3 (salida en results/evidencias/caos-e3-1448.txt)
+14:48:55 Controles de estado estable
+  ✓ VMs en running: 4 de 4
+  ✓ nodos Ready: 4 de 4
+  ✓ pods de MinIO en Running: 4 de 4
+  ✓ miembros de etcd sanos: 3 de 3
+  ✓ VMs con MinIO listo: 4 de 4
+  ✓ MinIO con quórum de escritura
+  ✓ servicio de metadatos (/health)
+  ✓ sin restos de experimentos anteriores (netem, reglas de E3)
+  ✓ actas originales en dataset/ (para la muestra de rendimiento)
+  · objetivos de Prometheus: 17 up de 17
+  · memoria del anfitrión: 3918 MB disponibles
+14:48:58 ✓ estado estable
+14:48:58 sonda etcd (e3-vm1) en marcha → results/e3_etcd_vm1_1448.csv
+14:48:58 sonda etcd (e3-vm3) en marcha → results/e3_etcd_vm3_1448.csv
+14:48:58 sonda s3 (e3-vm1) en marcha → results/e3_s3_vm1_1448.csv
+14:48:58 sonda s3 (e3-vm3) en marcha → results/e3_s3_vm3_1448.csv
+14:49:28 E3: aíslo vm3 de vm1, vm2 y vm4 durante 60 s (el anfitrión sigue llegando a todas)
+aislar vm3 (otras VM: 192.168.56.12 192.168.56.11 192.168.56.14 )
+14:50:29 E3: reunifico
+revertir vm3 (otras VM: 192.168.56.12 192.168.56.11 192.168.56.14 )
+14:50:34 ✓ sin reglas de E3 en ninguna VM
+14:50:34 espero a que el clúster esté completo (etcd 3 de 3, 4 nodos Ready y MinIO listo en las 4 VM)…
+14:50:48 ✓ clúster completo, 14 s después de revertir la falla
+14:51:18 apago las sondas
+--- caos-e3-1448-sonda-e3-vm1-etcd.txt
+Resumen (etcd, e3-vm1, 139 s):
+  lectura    279 pedidos, 279 ok (100.0 %), p50 7 ms, p95 22 ms, corte más largo 0.0 s
+  escritura  279 pedidos, 279 ok (100.0 %), p50 15 ms, p95 29 ms, corte más largo 0.0 s
+CSV: ../results/e3_etcd_vm1_1448.csv
+--- caos-e3-1448-sonda-e3-vm1-s3.txt
+Resumen (s3, e3-vm1, 139 s):
+  lectura    170 pedidos, 158 ok (92.9 %), p50 16 ms, p95 41 ms, corte más largo 60.1 s
+  escritura  226 pedidos, 221 ok (97.8 %), p50 52 ms, p95 174 ms, corte más largo 29.1 s
+CSV: ../results/e3_s3_vm1_1448.csv
+--- caos-e3-1448-sonda-e3-vm3-etcd.txt
+Resumen (etcd, e3-vm3, 139 s):
+  lectura    162 pedidos, 123 ok (75.9 %), p50 19 ms, p95 47 ms, corte más largo 78.2 s
+  escritura  162 pedidos, 123 ok (75.9 %), p50 18 ms, p95 45 ms, corte más largo 78.2 s
+CSV: ../results/e3_etcd_vm3_1448.csv
+--- caos-e3-1448-sonda-e3-vm3-s3.txt
+Resumen (s3, e3-vm3, 139 s):
+  lectura    170 pedidos, 158 ok (92.9 %), p50 14 ms, p95 23 ms, corte más largo 60.1 s
+  escritura  166 pedidos, 156 ok (94.0 %), p50 50 ms, p95 117 ms, corte más largo 59.1 s
+CSV: ../results/e3_s3_vm3_1448.csv
+14:51:18 consistencia final: ¿todos los nodos ven las escrituras confirmadas?
+441 escrituras en los CSV: 402 confirmadas al cliente y 39 fallidas.
+
+| Nodo | Confirmadas presentes | Confirmadas que faltan | Fallidas que igual se aplicaron | Valor distinto |
+|---|---|---|---|---|
+| 192.168.56.11:2379 | 402 | 0 | 4 | 0 |
+| 192.168.56.12:2379 | 402 | 0 | 4 | 0 |
+| 192.168.56.13:2379 | 402 | 0 | 4 | 0 |
+
+Revisión de etcd por miembro: 192.168.56.11:2379 5123, 192.168.56.12:2379 5123, 192.168.56.13:2379 5123
+
+OK: todos los nodos tienen todas las escrituras confirmadas, con el valor correcto, y ven el mismo conjunto de claves.
+392 escrituras en los CSV: 377 confirmadas al cliente y 15 fallidas.
+
+| Nodo | Confirmadas presentes | Confirmadas que faltan | Fallidas que igual se aplicaron | Valor distinto |
+|---|---|---|---|---|
+| http://192.168.56.11:9000 | 377 | 0 | 2 | 0 |
+| http://192.168.56.12:9000 | 377 | 0 | 2 | 0 |
+| http://192.168.56.13:9000 | 377 | 0 | 2 | 0 |
+| http://192.168.56.14:9000 | 377 | 0 | 2 | 0 |
+
+OK: todos los nodos tienen todas las escrituras confirmadas, con el valor correcto, y ven el mismo conjunto de claves.
+14:51:19 verify.py: ¿las 1.000 actas siguen bien?
+OK: 1000 / 1000  fallas: 0
+Lectura: 390 MB en 5 s (72.7 MB/s)
+14:51:25 analyze.py: results/e3_etcd_vm1_1448.csv results/e3_etcd_vm3_1448.csv
+Disponibilidad y latencia por tramo (latencias de los pedidos exitosos):
+
+| Serie | Operación | Tramo | Pedidos | Disponibilidad | p50 (ms) | p95 (ms) | Corte más largo (s) |
+|---|---|---|---|---|---|---|---|
+| e3-vm1 | lectura | antes | 60 | 100,0 % | 8 | 25 | 0,0 |
+| e3-vm1 | lectura | aislar vm3 | 121 | 100,0 % | 7 | 15 | 0,0 |
+| e3-vm1 | lectura | revertir vm3 | 38 | 100,0 % | 7 | 26 | 0,0 |
+| e3-vm1 | lectura | completo | 60 | 100,0 % | 9 | 24 | 0,0 |
+| e3-vm1 | lectura | total | 279 | 100,0 % | 7 | 22 | 0,0 |
+| e3-vm1 | escritura | antes | 60 | 100,0 % | 19 | 41 | 0,0 |
+| e3-vm1 | escritura | aislar vm3 | 121 | 100,0 % | 12 | 24 | 0,0 |
+| e3-vm1 | escritura | revertir vm3 | 38 | 100,0 % | 15 | 40 | 0,0 |
+| e3-vm1 | escritura | completo | 60 | 100,0 % | 16 | 26 | 0,0 |
+| e3-vm1 | escritura | total | 279 | 100,0 % | 15 | 29 | 0,0 |
+| e3-vm3 | lectura | antes | 60 | 100,0 % | 24 | 52 | 0,0 |
+| e3-vm3 | lectura | aislar vm3 | 31 | 3,2 % | 21 | 21 | 78,2 |
+| e3-vm3 | lectura | revertir vm3 | 11 | 18,2 % | 287 | 530 | 0,0 |
+| e3-vm3 | lectura | completo | 60 | 100,0 % | 10 | 22 | 0,0 |
+| e3-vm3 | lectura | total | 162 | 75,9 % | 19 | 47 | 78,2 |
+| e3-vm3 | escritura | antes | 60 | 100,0 % | 21 | 46 | 0,0 |
+| e3-vm3 | escritura | aislar vm3 | 31 | 3,2 % | 20 | 20 | 78,2 |
+| e3-vm3 | escritura | revertir vm3 | 11 | 18,2 % | 236 | 399 | 0,0 |
+| e3-vm3 | escritura | completo | 60 | 100,0 % | 17 | 23 | 0,0 |
+| e3-vm3 | escritura | total | 162 | 75,9 % | 18 | 45 | 78,2 |
+
+Respuesta a cada evento (segundos desde el evento hasta el siguiente):
+
+| Serie | Operación | Evento | Primer error (s) | Recuperación (s) | Pedidos fallidos | Latencia máx. (ms) |
+|---|---|---|---|---|---|---|
+| e3-vm1 | lectura | aislar vm3 | sin fallas | – | 0 | 26 |
+| e3-vm1 | lectura | revertir vm3 | sin fallas | – | 0 | 105 |
+| e3-vm1 | lectura | completo | sin fallas | – | 0 | 38 |
+| e3-vm1 | escritura | aislar vm3 | sin fallas | – | 0 | 110 |
+| e3-vm1 | escritura | revertir vm3 | sin fallas | – | 0 | 104 |
+| e3-vm1 | escritura | completo | sin fallas | – | 0 | 135 |
+| e3-vm3 | lectura | aislar vm3 | 0,7 | 78,9 | 30 | 2.011 |
+| e3-vm3 | lectura | revertir vm3 | 0,4 | 18,4 | 9 | 2.009 |
+| e3-vm3 | lectura | completo | sin fallas | – | 0 | 58 |
+| e3-vm3 | escritura | aislar vm3 | 0,7 | 78,9 | 30 | 2.008 |
+| e3-vm3 | escritura | revertir vm3 | 0,4 | 18,4 | 9 | 2.007 |
+| e3-vm3 | escritura | completo | sin fallas | – | 0 | 111 |
+
+Figura: ../results/figuras/e3-etcd-1448.png
+14:51:26 analyze.py: results/e3_s3_vm1_1448.csv results/e3_s3_vm3_1448.csv
+Disponibilidad y latencia por tramo (latencias de los pedidos exitosos):
+
+| Serie | Operación | Tramo | Pedidos | Disponibilidad | p50 (ms) | p95 (ms) | Corte más largo (s) |
+|---|---|---|---|---|---|---|---|
+| e3-vm1 | lectura | antes | 60 | 100,0 % | 31 | 43 | 0,0 |
+| e3-vm1 | lectura | aislar vm3 | 13 | 7,7 % | 22 | 22 | 60,1 |
+| e3-vm1 | lectura | revertir vm3 | 37 | 100,0 % | 13 | 31 | 0,0 |
+| e3-vm1 | lectura | completo | 60 | 100,0 % | 15 | 21 | 0,0 |
+| e3-vm1 | lectura | total | 170 | 92,9 % | 16 | 41 | 60,1 |
+| e3-vm1 | escritura | antes | 60 | 100,0 % | 66 | 304 | 0,0 |
+| e3-vm1 | escritura | aislar vm3 | 68 | 92,6 % | 41 | 53 | 29,1 |
+| e3-vm1 | escritura | revertir vm3 | 38 | 100,0 % | 51 | 82 | 0,0 |
+| e3-vm1 | escritura | completo | 60 | 100,0 % | 56 | 88 | 0,0 |
+| e3-vm1 | escritura | total | 226 | 97,8 % | 52 | 174 | 29,1 |
+| e3-vm3 | lectura | antes | 60 | 100,0 % | 17 | 25 | 0,0 |
+| e3-vm3 | lectura | aislar vm3 | 13 | 7,7 % | 9 | 9 | 60,1 |
+| e3-vm3 | lectura | revertir vm3 | 37 | 100,0 % | 14 | 19 | 0,0 |
+| e3-vm3 | lectura | completo | 60 | 100,0 % | 14 | 17 | 0,0 |
+| e3-vm3 | lectura | total | 170 | 92,9 % | 14 | 23 | 60,1 |
+| e3-vm3 | escritura | antes | 60 | 100,0 % | 68 | 171 | 0,0 |
+| e3-vm3 | escritura | aislar vm3 | 11 | 9,1 % | 2.843 | 2.843 | 59,1 |
+| e3-vm3 | escritura | revertir vm3 | 35 | 100,0 % | 46 | 91 | 0,0 |
+| e3-vm3 | escritura | completo | 60 | 100,0 % | 47 | 67 | 0,0 |
+| e3-vm3 | escritura | total | 166 | 94,0 % | 50 | 117 | 59,1 |
+
+Respuesta a cada evento (segundos desde el evento hasta el siguiente):
+
+| Serie | Operación | Evento | Primer error (s) | Recuperación (s) | Pedidos fallidos | Latencia máx. (ms) |
+|---|---|---|---|---|---|---|
+| e3-vm1 | lectura | aislar vm3 | 0,9 | 61,0 | 12 | 5.010 |
+| e3-vm1 | lectura | revertir vm3 | sin fallas | – | 0 | 798 |
+| e3-vm1 | lectura | completo | sin fallas | – | 0 | 32 |
+| e3-vm1 | escritura | aislar vm3 | 0,4 | 29,5 | 5 | 6.010 |
+| e3-vm1 | escritura | revertir vm3 | sin fallas | – | 0 | 236 |
+| e3-vm1 | escritura | completo | sin fallas | – | 0 | 232 |
+| e3-vm3 | lectura | aislar vm3 | 0,9 | 61,0 | 12 | 5.009 |
+| e3-vm3 | lectura | revertir vm3 | sin fallas | – | 0 | 684 |
+| e3-vm3 | lectura | completo | sin fallas | – | 0 | 20 |
+| e3-vm3 | escritura | aislar vm3 | 0,4 | 59,5 | 10 | 6.010 |
+| e3-vm3 | escritura | revertir vm3 | sin fallas | – | 0 | 155 |
+| e3-vm3 | escritura | completo | sin fallas | – | 0 | 178 |
+
+Figura: ../results/figuras/e3-s3-1448.png
+14:51:28 ✓ E3 terminado
+14:51:28 salida guardada en results/evidencias/caos-e3-1448.txt

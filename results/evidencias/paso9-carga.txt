@@ -1,0 +1,12 @@
+  100/1000 procesadas, 0 con error
+  200/1000 procesadas, 0 con error
+  300/1000 procesadas, 0 con error
+  400/1000 procesadas, 0 con error
+  500/1000 procesadas, 0 con error
+  600/1000 procesadas, 0 con error
+  700/1000 procesadas, 0 con error
+  800/1000 procesadas, 0 con error
+  900/1000 procesadas, 0 con error
+  1000/1000 procesadas, 0 con error
+Subidas: 1000 de 1000 (390 MB en 58 s, 6.7 MB/s). Manifiesto: ../results/manifest.csv
+Servicio de metadatos: alta: 1000

@@ -1,0 +1,43 @@
+Disponibilidad y latencia por tramo (latencias de los pedidos exitosos):
+
+| Serie | Operación | Tramo | Pedidos | Disponibilidad | p50 (ms) | p95 (ms) | Corte más largo (s) |
+|---|---|---|---|---|---|---|---|
+| e4_sonda_s3_1439 | lectura | antes | 120 | 100,0 % | 16 | 21 | 0,0 |
+| e4_sonda_s3_1439 | lectura | aplicar | 280 | 100,0 % | 1.053 | 1.272 | 0,0 |
+| e4_sonda_s3_1439 | lectura | revertir | 5 | 100,0 % | 12 | 2.167 | 0,0 |
+| e4_sonda_s3_1439 | lectura | completo | 120 | 100,0 % | 12 | 30 | 0,0 |
+| e4_sonda_s3_1439 | lectura | total | 525 | 100,0 % | 1.023 | 1.083 | 0,0 |
+| e4_sonda_s3_1439 | escritura | antes | 120 | 100,0 % | 46 | 96 | 0,0 |
+| e4_sonda_s3_1439 | escritura | aplicar | 84 | 100,0 % | 3.566 | 4.542 | 0,0 |
+| e4_sonda_s3_1439 | escritura | revertir | 5 | 100,0 % | 48 | 64 | 0,0 |
+| e4_sonda_s3_1439 | escritura | completo | 121 | 100,0 % | 52 | 84 | 0,0 |
+| e4_sonda_s3_1439 | escritura | total | 330 | 100,0 % | 55 | 3.917 | 0,0 |
+| e4_sonda_meta_1439 | lectura | antes | 121 | 100,0 % | 21 | 53 | 0,0 |
+| e4_sonda_meta_1439 | lectura | aplicar | 299 | 100,0 % | 1.010 | 1.050 | 0,0 |
+| e4_sonda_meta_1439 | lectura | revertir | 9 | 100,0 % | 11 | 645 | 0,0 |
+| e4_sonda_meta_1439 | lectura | completo | 120 | 100,0 % | 19 | 34 | 0,0 |
+| e4_sonda_meta_1439 | lectura | total | 549 | 100,0 % | 976 | 1.043 | 0,0 |
+| e4_sonda_meta_1439 | escritura | antes | 121 | 100,0 % | 21 | 54 | 0,0 |
+| e4_sonda_meta_1439 | escritura | aplicar | 299 | 100,0 % | 1.013 | 1.060 | 0,0 |
+| e4_sonda_meta_1439 | escritura | revertir | 9 | 100,0 % | 25 | 681 | 0,0 |
+| e4_sonda_meta_1439 | escritura | completo | 120 | 100,0 % | 24 | 35 | 0,0 |
+| e4_sonda_meta_1439 | escritura | total | 549 | 100,0 % | 978 | 1.047 | 0,0 |
+
+Respuesta a cada evento (segundos desde el evento hasta el siguiente):
+
+| Serie | Operación | Evento | Primer error (s) | Recuperación (s) | Pedidos fallidos | Latencia máx. (ms) |
+|---|---|---|---|---|---|---|
+| e4_sonda_s3_1439 | lectura | aplicar | sin fallas | – | 0 | 2.471 |
+| e4_sonda_s3_1439 | lectura | revertir | sin fallas | – | 0 | 2.350 |
+| e4_sonda_s3_1439 | lectura | completo | sin fallas | – | 0 | 50 |
+| e4_sonda_s3_1439 | escritura | aplicar | sin fallas | – | 0 | 4.751 |
+| e4_sonda_s3_1439 | escritura | revertir | sin fallas | – | 0 | 66 |
+| e4_sonda_s3_1439 | escritura | completo | sin fallas | – | 0 | 314 |
+| e4_sonda_meta_1439 | lectura | aplicar | sin fallas | – | 0 | 2.042 |
+| e4_sonda_meta_1439 | lectura | revertir | sin fallas | – | 0 | 1.059 |
+| e4_sonda_meta_1439 | lectura | completo | sin fallas | – | 0 | 38 |
+| e4_sonda_meta_1439 | escritura | aplicar | sin fallas | – | 0 | 1.637 |
+| e4_sonda_meta_1439 | escritura | revertir | sin fallas | – | 0 | 1.060 |
+| e4_sonda_meta_1439 | escritura | completo | sin fallas | – | 0 | 174 |
+
+Figura: ../results/figuras/e4-1439.png

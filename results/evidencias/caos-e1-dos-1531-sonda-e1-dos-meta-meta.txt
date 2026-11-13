@@ -1,0 +1,7 @@
+Sonda meta contra http://localhost:8000: un pedido de cada tipo cada 0.5 s. Ctrl+C para terminar.
+CSV: ../results/e1_dos_sonda_meta_1531.csv
+
+Resumen (meta, e1-dos-meta, 290 s):
+  lectura    580 pedidos, 580 ok (100.0 %), p50 25 ms, p95 38 ms, corte más largo 0.0 s
+  escritura  580 pedidos, 580 ok (100.0 %), p50 25 ms, p95 39 ms, corte más largo 0.0 s
+CSV: ../results/e1_dos_sonda_meta_1531.csv

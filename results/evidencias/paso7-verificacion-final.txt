@@ -1,0 +1,2 @@
+OK: 1000 / 1000  fallas: 0
+Lectura: 390 MB en 5 s (74.9 MB/s)

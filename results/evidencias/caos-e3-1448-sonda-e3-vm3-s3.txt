@@ -1,0 +1,7 @@
+Sonda s3 contra http://192.168.56.13:9000: un pedido de cada tipo cada 0.5 s. Ctrl+C para terminar.
+CSV: ../results/e3_s3_vm3_1448.csv
+
+Resumen (s3, e3-vm3, 139 s):
+  lectura    170 pedidos, 158 ok (92.9 %), p50 14 ms, p95 23 ms, corte más largo 60.1 s
+  escritura  166 pedidos, 156 ok (94.0 %), p50 50 ms, p95 117 ms, corte más largo 59.1 s
+CSV: ../results/e3_s3_vm3_1448.csv

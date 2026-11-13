@@ -1,0 +1,3 @@
+cliente-1: 409 {'error': 'documento bloqueado por otro cliente'}
+cliente-2: 200 {'lease': '2915132779254162222', 'token': 4119, 'ttl': 15}
+OK: exactamente un cliente obtuvo el bloqueo

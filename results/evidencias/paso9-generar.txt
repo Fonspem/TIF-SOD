@@ -1,0 +1,1 @@
+1000 actas en ../dataset/actas: 701 PDF y 299 de texto, 390 MB en total (semilla 2026).

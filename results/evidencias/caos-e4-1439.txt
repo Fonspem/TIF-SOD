@@ -1,0 +1,87 @@
+14:39:54 Experimento e4 (salida en results/evidencias/caos-e4-1439.txt)
+14:39:54 Controles de estado estable
+  ✓ VMs en running: 4 de 4
+  ✓ nodos Ready: 4 de 4
+  ✓ pods de MinIO en Running: 4 de 4
+  ✓ miembros de etcd sanos: 3 de 3
+  ✓ VMs con MinIO listo: 4 de 4
+  ✓ MinIO con quórum de escritura
+  ✓ servicio de metadatos (/health)
+  ✓ sin restos de experimentos anteriores (netem, reglas de E3)
+  ✓ actas originales en dataset/ (para la muestra de rendimiento)
+  · objetivos de Prometheus: 17 up de 17
+  · memoria del anfitrión: 4711 MB disponibles
+14:39:57 ✓ estado estable
+14:39:57 sonda s3 (e4) en marcha → results/e4_sonda_s3_1439.csv
+14:39:57 sonda meta (e4) en marcha → results/e4_sonda_meta_1439.csv
+sort: error al escribir: 'salida estándar': Tubería rota
+sort: write error
+14:40:17 muestra e4-antes: subo 20 actas (máx. 60 s)
+  20/20 procesadas, 0 con error
+Subidas: 20 de 20 (7 MB en 1 s, 5.6 MB/s). Manifiesto: ../results/manifest-e4-antes.csv
+14:40:19 muestra e4-antes: leo y verifico (máx. 60 s)
+OK: 20 / 20  fallas: 0
+Lectura: 7 MB en 0 s (31.1 MB/s)
+14:40:57 E4: aplico netem en las 4 VM (200 ms ± 20 ms y 5 % de pérdida) durante 300 s
+aplicar en vm1
+aplicar en vm2
+aplicar en vm3
+aplicar en vm4
+14:41:20 muestra e4-durante: subo 20 actas (máx. 150 s)
+  20/20 procesadas, 0 con error
+Subidas: 20 de 20 (7 MB en 31 s, 0.2 MB/s). Manifiesto: ../results/manifest-e4-durante.csv
+14:42:00 muestra e4-durante: leo y verifico (máx. 90 s)
+OK: 20 / 20  fallas: 0
+Lectura: 7 MB en 9 s (0.8 MB/s)
+14:46:00 E4: revierto netem
+revertir en vm1
+revertir en vm2
+revertir en vm3
+revertir en vm4
+14:46:05 ✓ sin netem en ninguna VM
+14:46:05 espero a que el clúster esté completo (etcd 3 de 3, 4 nodos Ready y MinIO listo en las 4 VM)…
+14:46:06 ✓ clúster completo, 1 s después de revertir la falla
+14:47:06 apago las sondas
+--- caos-e4-1439-sonda-e4-meta.txt
+Resumen (meta, e4, 428 s):
+  lectura    549 pedidos, 549 ok (100.0 %), p50 976 ms, p95 1043 ms, corte más largo 0.0 s
+  escritura  549 pedidos, 549 ok (100.0 %), p50 978 ms, p95 1047 ms, corte más largo 0.0 s
+CSV: ../results/e4_sonda_meta_1439.csv
+--- caos-e4-1439-sonda-e4-s3.txt
+Resumen (s3, e4, 428 s):
+  lectura    525 pedidos, 525 ok (100.0 %), p50 1023 ms, p95 1083 ms, corte más largo 0.0 s
+  escritura  330 pedidos, 330 ok (100.0 %), p50 55 ms, p95 3917 ms, corte más largo 0.0 s
+CSV: ../results/e4_sonda_s3_1439.csv
+14:47:06 verify.py: ¿las 1.000 actas siguen bien?
+OK: 1000 / 1000  fallas: 0
+Lectura: 390 MB en 7 s (59.0 MB/s)
+14:47:13 analyze.py: results/e4_sonda_s3_1439.csv results/e4_sonda_meta_1439.csv
+Disponibilidad y latencia por tramo (latencias de los pedidos exitosos):
+
+| Serie | Operación | Tramo | Pedidos | Disponibilidad | p50 (ms) | p95 (ms) | Corte más largo (s) |
+|---|---|---|---|---|---|---|---|
+| e4 | lectura | antes | 121 | 100,0 % | 21 | 53 | 0,0 |
+| e4 | lectura | aplicar | 299 | 100,0 % | 1.010 | 1.050 | 0,0 |
+| e4 | lectura | revertir | 9 | 100,0 % | 11 | 645 | 0,0 |
+| e4 | lectura | completo | 120 | 100,0 % | 19 | 34 | 0,0 |
+| e4 | lectura | total | 549 | 100,0 % | 976 | 1.043 | 0,0 |
+| e4 | escritura | antes | 121 | 100,0 % | 21 | 54 | 0,0 |
+| e4 | escritura | aplicar | 299 | 100,0 % | 1.013 | 1.060 | 0,0 |
+| e4 | escritura | revertir | 9 | 100,0 % | 25 | 681 | 0,0 |
+| e4 | escritura | completo | 120 | 100,0 % | 24 | 35 | 0,0 |
+| e4 | escritura | total | 549 | 100,0 % | 978 | 1.047 | 0,0 |
+
+Respuesta a cada evento (segundos desde el evento hasta el siguiente):
+
+| Serie | Operación | Evento | Primer error (s) | Recuperación (s) | Pedidos fallidos | Latencia máx. (ms) |
+|---|---|---|---|---|---|---|
+| e4 | lectura | aplicar | sin fallas | – | 0 | 2.042 |
+| e4 | lectura | revertir | sin fallas | – | 0 | 1.059 |
+| e4 | lectura | completo | sin fallas | – | 0 | 38 |
+| e4 | escritura | aplicar | sin fallas | – | 0 | 1.637 |
+| e4 | escritura | revertir | sin fallas | – | 0 | 1.060 |
+| e4 | escritura | completo | sin fallas | – | 0 | 174 |
+
+Figura: ../results/figuras/e4-1439.png
+14:47:14 ✓ E4 terminado
+14:47:14 salida guardada en results/evidencias/caos-e4-1439.txt

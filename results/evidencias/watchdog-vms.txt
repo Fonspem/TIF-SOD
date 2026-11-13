@@ -1,0 +1,35 @@
+16:14:13 Antes de empezar
+  ✓ clúster completo (0 s)
+16:14:13 vm4
+  ✓ watchdog agregado a la configuración (rige desde el próximo arranque)
+  ✓ vm4 apagada en orden (5 s)
+  ✓ vm4 contesta por ssh (5 s)
+  ✓ watchdog activo en vm4 (0 s)
+    Using hardware watchdog 'i6300ESB timer', version 0, device /dev/watchdog0
+    Watchdog running with a timeout of 30s.
+  ✓ clúster completo (5 s)
+16:14:37 vm3
+  ✓ watchdog agregado a la configuración (rige desde el próximo arranque)
+  ✓ vm3 apagada en orden (5 s)
+  ✓ vm3 contesta por ssh (0 s)
+  ✓ watchdog activo en vm3 (0 s)
+    Using hardware watchdog 'i6300ESB timer', version 0, device /dev/watchdog0
+    Watchdog running with a timeout of 30s.
+  ✓ clúster completo (0 s)
+16:14:52 vm2
+  ✓ watchdog agregado a la configuración (rige desde el próximo arranque)
+  ✓ vm2 apagada en orden (5 s)
+  ✓ vm2 contesta por ssh (5 s)
+  ✓ watchdog activo en vm2 (0 s)
+    Using hardware watchdog 'i6300ESB timer', version 0, device /dev/watchdog
+    Watchdog running with a timeout of 30s.
+  ✓ clúster completo (0 s)
+16:15:09 vm1
+  ✓ watchdog agregado a la configuración (rige desde el próximo arranque)
+  ✓ vm1 apagada en orden (5 s)
+  ✓ vm1 contesta por ssh (5 s)
+  ✓ watchdog activo en vm1 (0 s)
+    Using hardware watchdog 'i6300ESB timer', version 0, device /dev/watchdog0
+    Watchdog running with a timeout of 30s.
+  ✓ clúster completo (0 s)
+16:15:26 Listo: vm4 vm3 vm2 vm1 con watchdog, y el clúster completo.

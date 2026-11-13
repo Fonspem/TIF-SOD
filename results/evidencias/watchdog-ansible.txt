@@ -1,0 +1,64 @@
+
+PLAY [Base de todas las VM] ****************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [vm1]
+ok: [vm4]
+ok: [vm3]
+ok: [vm2]
+
+TASK [Watchdog: driver i6300esb disponible (en algunas imágenes viene en linux-modules-extra)] ***
+ok: [vm2]
+ok: [vm4]
+ok: [vm1]
+ok: [vm3]
+
+TASK [Watchdog: servicio que carga el driver en cada arranque] *****************
+changed: [vm2]
+changed: [vm3]
+changed: [vm1]
+changed: [vm4]
+
+TASK [Watchdog: servicio habilitado (corre en el próximo arranque)] ************
+changed: [vm4]
+changed: [vm3]
+changed: [vm2]
+changed: [vm1]
+
+TASK [Watchdog: carpeta de configuración de systemd] ***************************
+changed: [vm4]
+changed: [vm2]
+changed: [vm1]
+changed: [vm3]
+
+TASK [Watchdog: systemd lo atiende; 30 s sin atenderlo = VM congelada] *********
+changed: [vm4]
+changed: [vm1]
+changed: [vm2]
+changed: [vm3]
+
+PLAY [Clúster etcd de 3 miembros (systemd, fuera de k3s)] **********************
+
+TASK [Gathering Facts] *********************************************************
+ok: [vm3]
+ok: [vm2]
+ok: [vm1]
+
+PLAY [Servidor k3s] ************************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [vm1]
+
+PLAY [Agentes k3s] *************************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [vm4]
+ok: [vm3]
+ok: [vm2]
+
+PLAY RECAP *********************************************************************
+vm1                        : ok=8    changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+vm2                        : ok=8    changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+vm3                        : ok=8    changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+vm4                        : ok=7    changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

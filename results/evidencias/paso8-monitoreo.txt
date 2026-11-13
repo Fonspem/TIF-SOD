@@ -1,0 +1,19 @@
+{"ok":true}
+
+anfitrion	127.0.0.1:9100	up
+api	127.0.0.1:8000	up
+etcd	192.168.56.11:2379	up
+etcd	192.168.56.12:2379	up
+etcd	192.168.56.13:2379	up
+minio-cluster	192.168.56.11:9000	up
+minio-cluster	192.168.56.12:9000	up
+minio-cluster	192.168.56.13:9000	up
+minio-cluster	192.168.56.14:9000	up
+minio-nodo	192.168.56.11:9000	up
+minio-nodo	192.168.56.12:9000	up
+minio-nodo	192.168.56.13:9000	up
+minio-nodo	192.168.56.14:9000	up
+nodos	192.168.56.11:9100	up
+nodos	192.168.56.12:9100	up
+nodos	192.168.56.13:9100	up
+nodos	192.168.56.14:9100	up

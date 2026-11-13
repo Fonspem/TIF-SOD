@@ -1,0 +1,59 @@
+Disponibilidad y latencia por tramo (latencias de los pedidos exitosos):
+
+| Serie | Operación | Tramo | Pedidos | Disponibilidad | p50 (ms) | p95 (ms) | Corte más largo (s) |
+|---|---|---|---|---|---|---|---|
+| e2-kill | lectura | antes | 59 | 100,0 % | 31 | 48 | 0,0 |
+| e2-kill | lectura | detener | 22 | 100,0 % | 24 | 1.576 | 0,0 |
+| e2-kill | lectura | iniciar | 1087 | 100,0 % | 18 | 35 | 0,0 |
+| e2-kill | lectura | total | 1168 | 100,0 % | 18 | 39 | 0,0 |
+| e2-kill | escritura | antes | 59 | 100,0 % | 33 | 47 | 0,0 |
+| e2-kill | escritura | detener | 12 | 100,0 % | 2.034 | 2.056 | 0,0 |
+| e2-kill | escritura | iniciar | 1030 | 100,0 % | 27 | 47 | 0,0 |
+| e2-kill | escritura | total | 1101 | 100,0 % | 28 | 48 | 0,0 |
+
+Respuesta a cada evento (segundos desde el evento hasta el siguiente):
+
+| Serie | Operación | Evento | Primer error (s) | Recuperación (s) | Pedidos fallidos | Latencia máx. (ms) |
+|---|---|---|---|---|---|---|
+| e2-kill | lectura | detener vm1 | sin fallas | – | 0 | 1.143 |
+| e2-kill | lectura | iniciar vm1 | sin fallas | – | 0 | 70 |
+| e2-kill | lectura | detener vm2 | sin fallas | – | 0 | 1.360 |
+| e2-kill | lectura | iniciar vm2 | sin fallas | – | 0 | 65 |
+| e2-kill | lectura | detener vm1 | sin fallas | – | 0 | 972 |
+| e2-kill | lectura | iniciar vm1 | sin fallas | – | 0 | 45 |
+| e2-kill | lectura | detener vm3 | sin fallas | – | 0 | 1.354 |
+| e2-kill | lectura | iniciar vm3 | sin fallas | – | 0 | 127 |
+| e2-kill | lectura | detener vm1 | sin fallas | – | 0 | 1.301 |
+| e2-kill | lectura | iniciar vm1 | sin fallas | – | 0 | 131 |
+| e2-kill | lectura | detener vm3 | sin fallas | – | 0 | 1.443 |
+| e2-kill | lectura | iniciar vm3 | sin fallas | – | 0 | 68 |
+| e2-kill | lectura | detener vm1 | sin fallas | – | 0 | 1.487 |
+| e2-kill | lectura | iniciar vm1 | sin fallas | – | 0 | 108 |
+| e2-kill | lectura | detener vm2 | sin fallas | – | 0 | 1.646 |
+| e2-kill | lectura | iniciar vm2 | sin fallas | – | 0 | 27 |
+| e2-kill | lectura | detener vm1 | sin fallas | – | 0 | 1.430 |
+| e2-kill | lectura | iniciar vm1 | sin fallas | – | 0 | 45 |
+| e2-kill | lectura | detener vm3 | sin fallas | – | 0 | 1.580 |
+| e2-kill | lectura | iniciar vm3 | sin fallas | – | 0 | 35 |
+| e2-kill | escritura | detener vm1 | sin fallas | – | 0 | 2.028 |
+| e2-kill | escritura | iniciar vm1 | sin fallas | – | 0 | 83 |
+| e2-kill | escritura | detener vm2 | sin fallas | – | 0 | 2.038 |
+| e2-kill | escritura | iniciar vm2 | sin fallas | – | 0 | 98 |
+| e2-kill | escritura | detener vm1 | sin fallas | – | 0 | 2.038 |
+| e2-kill | escritura | iniciar vm1 | sin fallas | – | 0 | 59 |
+| e2-kill | escritura | detener vm3 | sin fallas | – | 0 | 2.028 |
+| e2-kill | escritura | iniciar vm3 | sin fallas | – | 0 | 202 |
+| e2-kill | escritura | detener vm1 | sin fallas | – | 0 | 2.048 |
+| e2-kill | escritura | iniciar vm1 | sin fallas | – | 0 | 97 |
+| e2-kill | escritura | detener vm3 | sin fallas | – | 0 | 2.034 |
+| e2-kill | escritura | iniciar vm3 | sin fallas | – | 0 | 68 |
+| e2-kill | escritura | detener vm1 | sin fallas | – | 0 | 2.036 |
+| e2-kill | escritura | iniciar vm1 | sin fallas | – | 0 | 117 |
+| e2-kill | escritura | detener vm2 | sin fallas | – | 0 | 2.034 |
+| e2-kill | escritura | iniciar vm2 | sin fallas | – | 0 | 49 |
+| e2-kill | escritura | detener vm1 | sin fallas | – | 0 | 2.032 |
+| e2-kill | escritura | iniciar vm1 | sin fallas | – | 0 | 80 |
+| e2-kill | escritura | detener vm3 | sin fallas | – | 0 | 2.064 |
+| e2-kill | escritura | iniciar vm3 | sin fallas | – | 0 | 73 |
+
+Figura: ../results/figuras/e2_meta_kill.png

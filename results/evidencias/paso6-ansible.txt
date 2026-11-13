@@ -1,0 +1,150 @@
+
+PLAY [Base de todas las VM] ****************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [vm3]
+ok: [vm4]
+ok: [vm1]
+ok: [vm2]
+
+TASK [Paquetes base (prometheus-node-exporter publica CPU, RAM y red de la VM en el puerto 9100)] ***
+changed: [vm2]
+changed: [vm1]
+changed: [vm4]
+changed: [vm3]
+
+TASK [Hora sincronizada (los experimentos comparan tiempos entre nodos)] *******
+ok: [vm2]
+ok: [vm1]
+ok: [vm3]
+ok: [vm4]
+
+TASK [node_exporter prendido (lo lee el Prometheus del anfitrión)] *************
+ok: [vm2]
+ok: [vm1]
+ok: [vm4]
+ok: [vm3]
+
+TASK [Módulo netem para E4 (en algunas imágenes viene en linux-modules-extra)] ***
+ok: [vm2]
+ok: [vm1]
+ok: [vm4]
+ok: [vm3]
+
+TASK [Interfaz de la red privada (la que tiene la IP del inventario)] **********
+ok: [vm1]
+ok: [vm2]
+ok: [vm3]
+ok: [vm4]
+
+TASK [¿Hay disco de datos?] ****************************************************
+ok: [vm3]
+ok: [vm4]
+ok: [vm1]
+ok: [vm2]
+
+TASK [Formatear el disco de datos en XFS (sólo si está vacío)] *****************
+changed: [vm2]
+changed: [vm3]
+changed: [vm4]
+changed: [vm1]
+
+TASK [Directorio de datos de MinIO] ********************************************
+changed: [vm1]
+changed: [vm3]
+changed: [vm4]
+changed: [vm2]
+
+TASK [Montar el disco de datos en el arranque] *********************************
+[WARNING]: Module remote_tmp /root/.ansible/tmp did not exist and was created with a mode of 0700, this may cause issues when running as another user. To avoid this, create the remote_tmp dir with the correct permissions manually
+changed: [vm4]
+changed: [vm2]
+changed: [vm3]
+changed: [vm1]
+
+TASK [Montar el disco de datos ahora] ******************************************
+ok: [vm2]
+ok: [vm4]
+ok: [vm3]
+ok: [vm1]
+
+PLAY [Clúster etcd de 3 miembros (systemd, fuera de k3s)] **********************
+
+TASK [Gathering Facts] *********************************************************
+ok: [vm2]
+ok: [vm3]
+ok: [vm1]
+
+TASK [Descargar etcd] **********************************************************
+changed: [vm3]
+changed: [vm2]
+changed: [vm1]
+
+TASK [Instalar binarios] *******************************************************
+changed: [vm3] => (item=etcd)
+changed: [vm1] => (item=etcd)
+changed: [vm2] => (item=etcd)
+changed: [vm3] => (item=etcdctl)
+changed: [vm1] => (item=etcdctl)
+changed: [vm2] => (item=etcdctl)
+changed: [vm3] => (item=etcdutl)
+changed: [vm1] => (item=etcdutl)
+changed: [vm2] => (item=etcdutl)
+
+TASK [Directorio de configuración] *********************************************
+changed: [vm2]
+changed: [vm3]
+changed: [vm1]
+
+TASK [Configuración del miembro] ***********************************************
+changed: [vm2]
+changed: [vm1]
+changed: [vm3]
+
+TASK [Unidad systemd (Restart=no: los experimentos deciden cuándo vuelve)] *****
+changed: [vm3]
+changed: [vm2]
+changed: [vm1]
+
+TASK [Arrancar etcd (los tres a la vez, para formar el quórum inicial)] ********
+changed: [vm1]
+changed: [vm2]
+changed: [vm3]
+
+RUNNING HANDLER [Reiniciar etcd] ***********************************************
+changed: [vm3]
+changed: [vm1]
+changed: [vm2]
+
+PLAY [Servidor k3s] ************************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [vm1]
+
+TASK [Instalar k3s server] *****************************************************
+changed: [vm1]
+
+TASK [Copiar el kubeconfig al anfitrión] ***************************************
+changed: [vm1]
+
+TASK [Apuntar el kubeconfig a la IP del servidor] ******************************
+changed: [vm1 -> localhost]
+
+PLAY [Agentes k3s] *************************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [vm4]
+ok: [vm3]
+ok: [vm2]
+
+TASK [Instalar k3s agent] ******************************************************
+changed: [vm4]
+changed: [vm3]
+changed: [vm2]
+
+PLAY RECAP *********************************************************************
+vm1                        : ok=23   changed=14   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+vm2                        : ok=21   changed=12   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+vm3                        : ok=21   changed=12   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+vm4                        : ok=13   changed=5    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

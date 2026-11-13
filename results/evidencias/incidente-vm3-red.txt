@@ -1,0 +1,6 @@
+jue 12 nov 2026 15:03:44 -03
+3 packets transmitted, 0 received, +2 errors, 100% packet loss, time 2003ms
+pipe 2
+ssh: connect to host 192.168.121.151 port 22: No route to host
+ssh terminó con código 255
+vm3 en 10 s · CPU: 111% (máx. 200) · lectura de disco: 0 MB/s

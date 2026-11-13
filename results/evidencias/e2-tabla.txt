@@ -1,0 +1,8 @@
+Tiempo hasta un nuevo líder y hasta la primera escritura aceptada:
+
+| Modo | Corridas | Nuevo líder: mediana (ms) | Mín–máx (ms) | Primera escritura: mediana (ms) | Mín–máx (ms) | Sin líder a los 30 s |
+|---|---|---|---|---|---|---|
+| kill | 10 | 1.485 | 1.024–1.673 | 1.504 | 1.055–1.698 | 0 |
+| stop | 10 | 62 | 36–87 | 78 | 68–119 | 0 |
+
+Figura: ../results/figuras/e2.png

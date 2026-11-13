@@ -1,0 +1,7 @@
+Sonda s3 contra http://192.168.56.11:9000, http://192.168.56.12:9000, http://192.168.56.13:9000, http://192.168.56.14:9000: un pedido de cada tipo cada 0.5 s. Ctrl+C para terminar.
+CSV: ../results/e1_uno_sonda_s3_1523.csv
+
+Resumen (s3, e1-uno-s3, 259 s):
+  lectura    396 pedidos, 393 ok (99.2 %), p50 13 ms, p95 19 ms, corte más largo 58.1 s
+  escritura  463 pedidos, 462 ok (99.8 %), p50 40 ms, p95 85 ms, corte más largo 23.0 s
+CSV: ../results/e1_uno_sonda_s3_1523.csv
