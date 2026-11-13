@@ -141,7 +141,7 @@ muestra() {  # muestra <bucket> <segundos máximos para subir> <segundos máximo
   [ -d "$DATASET" ] || { log "muestra $bucket: salteada (no está $DATASET)"; return 0; }
   if [ ! -d "$dir" ]; then
     mkdir -p "$dir" &&
-      find "$(cd "$DATASET" && pwd)" -maxdepth 1 -type f | sort | head -n "$MUESTRA" | xargs -r ln -sf -t "$dir"
+      find "$(cd "$DATASET" && pwd)" -maxdepth 1 -type f | sort | sed -n "1,${MUESTRA}p" | xargs -r ln -sf -t "$dir"
   fi
   rm -f "$man"
   log "muestra $bucket: subo $MUESTRA actas (máx. $2 s)"
@@ -247,8 +247,8 @@ e4() {
   T_ANTES=${T_ANTES:-60} T_FALLA=${T_FALLA:-300} T_DESPUES=${T_DESPUES:-60}
   empezar "$RES/e4_eventos.csv"
   t0=$(date +%s)
-  sonda s3 e4 "$RES/e4_sonda_s3_$HORA.csv"
-  sonda meta e4 "$RES/e4_sonda_meta_$HORA.csv"
+  sonda s3 e4-s3 "$RES/e4_sonda_s3_$HORA.csv"
+  sonda meta e4-meta "$RES/e4_sonda_meta_$HORA.csv"
   sleep "$T_PAUSA"
   muestra e4-antes 60 60
   esperar_hasta "$t0" "$T_ANTES"
@@ -310,8 +310,8 @@ e1_uno() {
   T_ANTES=${T_ANTES:-60} T_FALLA=${T_FALLA:-150} T_DESPUES=${T_DESPUES:-30}
   empezar "$RES/e1_eventos.csv"
   t0=$(date +%s)
-  sonda s3 e1-uno "$RES/e1_uno_sonda_s3_$HORA.csv"
-  sonda meta e1-uno "$RES/e1_uno_sonda_meta_$HORA.csv"
+  sonda s3 e1-uno-s3 "$RES/e1_uno_sonda_s3_$HORA.csv"
+  sonda meta e1-uno-meta "$RES/e1_uno_sonda_meta_$HORA.csv"
   sleep "$T_PAUSA"
   muestra e1-antes 60 60
   esperar_hasta "$t0" "$T_ANTES"
@@ -337,8 +337,8 @@ e1_dos() {
   T_ANTES=${T_ANTES:-60} T_FALLA=${T_FALLA:-120} T_DESPUES=${T_DESPUES:-30}
   empezar "$RES/e1_eventos.csv"
   t0=$(date +%s)
-  sonda s3 e1-dos "$RES/e1_dos_sonda_s3_$HORA.csv"
-  sonda meta e1-dos "$RES/e1_dos_sonda_meta_$HORA.csv"
+  sonda s3 e1-dos-s3 "$RES/e1_dos_sonda_s3_$HORA.csv"
+  sonda meta e1-dos-meta "$RES/e1_dos_sonda_meta_$HORA.csv"
   esperar_hasta "$t0" "$T_ANTES"
   log "E1: apago vm4 de golpe"
   apagar vm4

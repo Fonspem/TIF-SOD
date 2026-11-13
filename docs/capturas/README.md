@@ -25,3 +25,7 @@ informe; ninguna muestra direcciones ni nombres de la red de la casa.
 | `2026-11-12_2111_tablero-recursos-e5.png` | Recursos durante E5 |
 | `2026-11-12_2116_tablero-e5-y-restauracion.png` | E5 y, después, la prueba de restauración: la copia de las actas se sube a un bucket nuevo y se verifica (21:13 a 21:15) |
 | `2026-11-12_2116_tablero-recursos-e5-y-restauracion.png` | Recursos durante E5 y la restauración: la CPU del anfitrión llega al 80 % |
+| `2026-11-13_1447_tablero-e4.png` | E4, red degradada (14:40:57 a 14:46:00): la latencia de MinIO y de la API sube a cerca de 1 s (p95 de MinIO hasta 8 s) sin errores ni cambio de líder |
+| `2026-11-13_1447_tablero-recursos-e4.png` | Recursos durante E4 |
+| `2026-11-13_1452_tablero-e4-y-e3.png` | E4 y E3 (partición de vm3, 14:49:28 a 14:50:29): el p95 de MinIO llega a 10 s durante la partición; el líder sigue en vm1 |
+| `2026-11-13_1452_tablero-recursos-e4-y-e3.png` | Recursos durante E4 y E3: al reunificar, MinIO repara unos 65 objetos |

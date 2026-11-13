@@ -164,7 +164,7 @@ def hora_del_dia(hhmm, referencia):
 
 
 def cmd_sonda(args):
-    series = {}
+    series, origen = {}, {}
     for ruta in args.csv:
         filas = leer_sonda(ruta)
         if filas and (args.desde or args.hasta):
@@ -174,7 +174,15 @@ def cmd_sonda(args):
             filas = [f for f in filas if desde <= f["t"] <= hasta]
         if not filas:
             sys.exit(f"{ruta} no tiene pedidos")
-        series[nombre_de_serie(ruta, filas)] = filas
+        nombre = nombre_de_serie(ruta, filas)
+        if nombre in series:
+            # Dos sondas con la misma etiqueta (por ejemplo, s3 y meta de un mismo
+            # experimento): cada una queda con el nombre de su archivo, sin pisarse.
+            otra = origen.pop(nombre)
+            series[Path(otra).stem] = series.pop(nombre)
+            origen[Path(otra).stem] = otra
+            nombre = Path(ruta).stem
+        series[nombre], origen[nombre] = filas, ruta
     eventos = leer_eventos(args.eventos) if args.eventos else []
     # Sólo los eventos ocurridos mientras corría la sonda: el mismo archivo de eventos
     # puede acumular varias corridas (por ejemplo, E2 en modo kill y en modo stop).
