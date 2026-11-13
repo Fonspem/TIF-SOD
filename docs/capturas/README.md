@@ -21,3 +21,7 @@ informe; ninguna muestra direcciones ni nombres de la red de la casa.
 | `2026-11-12_1647_tablero-recursos-prueba-watchdog.png` | Recursos durante la prueba del watchdog; MinIO repara 6 objetos |
 | `2026-11-12_1659_tablero-e2-stop.png` | E2 con `systemctl stop`: el líder rota entre los tres miembros, sin errores en el servicio de metadatos |
 | `2026-11-12_1659_tablero-recursos-e2-stop.png` | Recursos durante E2 con `systemctl stop` |
+| `2026-11-12_2111_tablero-e5.png` | E5: el segundo cliente recibe 409 mientras espera el bloqueo (21:08 a 21:11); el líder de etcd no cambia |
+| `2026-11-12_2111_tablero-recursos-e5.png` | Recursos durante E5 |
+| `2026-11-12_2116_tablero-e5-y-restauracion.png` | E5 y, después, la prueba de restauración: la copia de las actas se sube a un bucket nuevo y se verifica (21:13 a 21:15) |
+| `2026-11-12_2116_tablero-recursos-e5-y-restauracion.png` | Recursos durante E5 y la restauración: la CPU del anfitrión llega al 80 % |
