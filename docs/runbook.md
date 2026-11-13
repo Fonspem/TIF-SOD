@@ -14,6 +14,16 @@ SSH="ssh -F ../ansible/ssh_config"
 
 Varios pasos usan dos terminales: una para la sonda y otra para la falla. En tmux, `Ctrl+b c` abre una ventana nueva y `Ctrl+b w` elige entre las abiertas.
 
+**Forma recomendada: `chaos/jornada.sh`.** Corre E1, E3 y E4 de punta a punta con un solo comando y en una sola terminal: controla el estado estable (sección 2) y, si algo no está bien, no toca nada; prende las sondas, inyecta la falla, la revierte, espera a que el clúster vuelva a estar completo, corre `verify.py` y `analyze.py`, y guarda toda la salida en `results/evidencias/`. Si se corta en el medio (Ctrl+C o un error), revierte la falla y apaga las sondas igual. Los comandos de las secciones 5 a 7 quedan como referencia de lo que hace.
+
+```bash
+../chaos/jornada.sh estado     # sólo controles; no cambia nada
+../chaos/jornada.sh e4         # unos 8 minutos
+../chaos/jornada.sh e3         # unos 3 minutos
+../chaos/jornada.sh e1-uno     # unos 5 minutos
+../chaos/jornada.sh e1-dos     # unos 5 minutos
+```
+
 ## 1. Reglas de la jornada
 
 - **Una falla por vez.** No se inyecta la siguiente hasta que el sistema vuelva al estado estable (sección 2).
