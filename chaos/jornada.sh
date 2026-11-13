@@ -9,6 +9,10 @@
 #   chaos/jornada.sh e1-uno    caída de un nodo: vm4 apagada de golpe durante 150 s
 #   chaos/jornada.sh e1-dos    caída de dos nodos: vm4 y vm3 apagadas de golpe; vuelve vm3 y después vm4
 #
+# Variantes de E1 (para entender por qué MinIO no sirvió lecturas con dos nodos caídos):
+#   APAGADO=ordenado chaos/jornada.sh e1-dos    las VM se apagan de forma ordenada, no de golpe
+#   T_FALLA=300 chaos/jornada.sh e1-dos         la falla dura 5 minutos en vez de 2
+#
 # Cada experimento:
 #   1. controla el estado estable y, si algo no está bien, no toca nada;
 #   2. prende las sondas (probe.py) y deja un tramo «antes»;
@@ -302,7 +306,11 @@ e3() {
 apagar() {  # apagar <vm>: E1, como un corte de luz
   APAGADAS+=("$1")
   FALLA=vm
-  ../chaos/e1_caida_nodo.sh apagar "$1"
+  if [ "${APAGADO:-golpe}" = ordenado ]; then
+    ../chaos/e1_caida_nodo.sh apagar-ordenado "$1"
+  else
+    ../chaos/e1_caida_nodo.sh apagar "$1"
+  fi
 }
 
 e1_uno() {
@@ -341,10 +349,10 @@ e1_dos() {
   sonda s3 e1-dos-s3 "$RES/e1_dos_sonda_s3_$HORA.csv"
   sonda meta e1-dos-meta "$RES/e1_dos_sonda_meta_$HORA.csv"
   esperar_hasta "$t0" "$T_ANTES"
-  log "E1: apago vm4 de golpe"
+  log "E1: apago vm4 (${APAGADO:-golpe})"
   apagar vm4
   sleep "$T_PAUSA"
-  log "E1: apago vm3 de golpe: quedan 2 de 4 discos de MinIO y 2 de 3 miembros de etcd, durante $T_FALLA s"
+  log "E1: apago vm3 (${APAGADO:-golpe}): quedan 2 de 4 discos de MinIO y 2 de 3 miembros de etcd, durante $T_FALLA s"
   apagar vm3
   tf=$(date +%s)
   sleep "$T_PAUSA"
