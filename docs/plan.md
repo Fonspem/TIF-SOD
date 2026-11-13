@@ -6,7 +6,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 
 ## Dónde estamos
 
-- **Avance general: alrededor del 70 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
+- **Avance general: alrededor del 74 %.** Es una estimación a ojo, ponderada por área según la tabla de abajo.
 - **Ya está hecho:**
   - Todo el código y las herramientas de medición, probados en local y en el clúster.
   - La política de respaldo (sección 6.4 del informe), el runbook de la jornada de caos y la plantilla de post-mortem.
@@ -16,7 +16,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
   - **Prueba de restauración (12/11):** la instantánea de etcd tiene las 1.000 actas, y la copia de las actas, subida a un bucket nuevo, dio 1.000 de 1.000 en 57 s.
   - **Informe (12/11):** cargados todos los resultados hasta hoy, con 23 figuras, 11 tablas y los anexos C (decisiones), D (cronología) y E (evidencias).
 - **Incidente no planificado (12/11, de 11:28 a 15:48):** vm3 se congeló sola; el sistema siguió andando con 2 de 3 en etcd y 3 de 4 en MinIO. Se recuperó con un reinicio forzado. Acción correctiva: un watchdog en cada VM, probado: una VM congelada vuelve sola en 35 s. Post-mortem: [docs/postmortems/2026-11-12-vm3.md](postmortems/2026-11-12-vm3.md).
-- **Sigue:** la Parte 3 (acceso de los compañeros), que John empezó el 12/11 a la noche; después, la jornada de caos (E1, E3 y E4).
+- **Sigue (13/11):** la jornada de caos con `chaos/jornada.sh`: parte A (E4 y E3) y, después de revisarla, parte B (E1 y verificación final). La Parte 3 (acceso de los compañeros) puede ir antes o después.
 - **Falta:**
   - La jornada de caos (E1, E3 y E4) y la verificación final.
   - Completar el informe con esos resultados, recortar cuatro capturas de la terminal y actualizar el índice.
@@ -28,8 +28,8 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | B. Código y herramientas | 97 % | 25 % |
 | C. Ejecución y mediciones | 65 % | 25 % |
 | D. Informe | 85 % | 25 % |
-| E. Defensa y entregables | 0 % | 15 % |
-| **Total** | **≈ 70 %** | |
+| E. Defensa y entregables | 25 % | 15 % |
+| **Total** | **≈ 74 %** | |
 
 ## Decisiones tomadas el 11/11
 
@@ -114,15 +114,15 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Anexo B: variante VirtualBox | 100 % | |
 | ⬜ | Exportar a PDF y revisar el formato APA | 0 % | Al final |
 
-## E. Defensa y entregables: 0 %
+## E. Defensa y entregables: 25 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
 | ⬜ | Acta de roles y autoevaluación (Paso 0) | 0 % | Necesita los nombres |
 | ⬜ | Bitácoras individuales | 0 % | |
-| ⬜ | Presentación para la defensa | 0 % | Cuando haya resultados |
-| ⬜ | Video de 5 a 8 minutos | 0 % | Conviene grabar tramos durante la jornada de caos |
-| ⬜ | Demo en vivo: guion y ensayo | 0 % | Carga, caída de un nodo y del líder, partición y verificación |
+| 🟡 | Presentación para la defensa | 60 % | Borrador de 17 diapositivas (13/11) con E2, E5, el incidente y la integridad; faltan E1, E3, E4 y los nombres |
+| 🟡 | Video de 5 a 8 minutos | 15 % | Guion de 7 minutos (13/11). Conviene grabar los tramos de caos durante la jornada |
+| 🟡 | Demo en vivo: guion y ensayo | 40 % | Guion de 5 minutos con comandos, plan B y preguntas probables (13/11); falta ensayarla |
 
 ## Orden de trabajo
 
