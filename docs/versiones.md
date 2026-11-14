@@ -25,7 +25,7 @@ Lo que dice "completar" se anota cuando se instale.
 | k3s | v1.36.6+k3s1 |
 | etcd | v3.6.16 |
 | MinIO | `docker.io/pgsty/minio:RELEASE.2026-08-04T00-00-00Z`, fork comunitario de Pigsty (quay.io dejó de permitir descargas anónimas de `quay.io/minio/minio` el 24/09/2026) |
-| node_exporter de las VM | paquete `prometheus-node-exporter` de Ubuntu 24.04 (completar la versión) |
+| node_exporter de las VM | 1.7.0 (paquete `prometheus-node-exporter` 1.7.0-1ubuntu0.3 de Ubuntu 24.04) |
 
 ## Monitoreo y servicio de metadatos (Docker, en el anfitrión)
 

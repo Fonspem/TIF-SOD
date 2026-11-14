@@ -38,3 +38,7 @@ informe; ninguna muestra direcciones ni nombres de la red de la casa.
 | `2026-11-12_1547_terminal-teclado-vm3.png` | Prueba del teclado: después de un Enter con `virsh send-key`, la pantalla de vm3 no cambia (prompt y barra de tmux sacados) |
 | `2026-11-12_1659_terminal-e2-stop.png` | Salida de E2 con `systemctl stop`: 10 corridas, medianas de 62 y 78 ms y la sonda sin errores (prompt tapado) |
 | `2026-11-13_1723_tablero-desde-windows.png` | Parte 3: el tablero abierto desde la PC Windows que simula a un compañero (sin la barra de direcciones) |
+| `2026-11-13_1947_tablero-e1-ordenado.png` | E1-bis con apagado ordenado: vm4 (19:43:08) y vm3 (19:43:31) se apagan avisando; MinIO sigue sirviendo lecturas (p95 del primer byte por debajo de 8 s solo en picos) y rechaza escrituras; etcd sin cambios de líder |
+| `2026-11-13_1947_tablero-recursos-e1-ordenado.png` | Recursos durante E1-bis con apagado ordenado; MinIO repara objetos al volver los nodos |
+| `2026-11-13_1958_tablero-e1-largo.png` | E1-bis de golpe durante 5 minutos (19:49:43 a 19:55:03): el p95 de MinIO queda en 10 s y el p50 en unos 7,5 s toda la falla; MinIO nunca vuelve a servir lecturas a tiempo |
+| `2026-11-13_1958_tablero-recursos-e1-largo.png` | Recursos durante las dos corridas de E1-bis (19:45 a 19:58) |

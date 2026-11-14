@@ -15,7 +15,7 @@ Todo corrió en una laptop (4 hilos, 12 GB de RAM) con 4 VM, el 12 y el 13/11/20
 | E4 · red degradada (200 ms, 5 % de pérdida, 5 min) | Funciona, más lento | ✅ 0 errores en 1.953 pedidos; latencia de la API de 53 a 1.050 ms (p95) |
 | E3 · partición (vm3 aislada 60 s) | La minoría rechaza escrituras; sin divergencia | ✅ en etcd; en MinIO, en parte (la mayoría también se demoró) |
 | E1 · un nodo caído | Lee y escribe | ✅ sin pérdida de datos, con 58 s sin lecturas al principio |
-| E1 · dos nodos caídos | Solo lecturas | ⚠️ etcd siguió sin errores, pero MinIO no sirvió ni lecturas ni escrituras |
+| E1 · dos nodos caídos | Solo lecturas | ⚠️ apagados de golpe, MinIO no sirvió ni lecturas ni escrituras; ✅ apagados en orden, leyó todo (1.000 actas en 4 s). La causa es que MinIO tarda en detectar a un nodo que muere sin avisar |
 | Integridad (SHA-256 de 1.000 actas) | 1.000 de 1.000 siempre | ✅ en cada verificación, también la final |
 
 Además, el 12/11 una VM se congeló sola durante más de 4 horas; el sistema la toleró y por eso nadie lo notó. Se agregó un *watchdog* que la reinicia en 35 s ([post-mortem](docs/postmortems/2026-11-12-vm3.md)).
@@ -50,7 +50,7 @@ Además, el 12/11 una VM se congeló sola durante más de 4 horas; el sistema la
 ![Arquitectura](docs/figuras/arquitectura.png)
 
 - etcd corre como servicio systemd, separado del almacén interno de k3s, para poder detener a su líder sin afectar a Kubernetes.
-- MinIO forma un único conjunto de borrado de 4 unidades (EC:2): en teoría lee con 2 unidades y escribe con 3. En la práctica, con 2 nodos apagados de golpe no sirvió lecturas (E1).
+- MinIO forma un único conjunto de borrado de 4 unidades (EC:2): lee con 2 unidades y escribe con 3. Con 2 nodos apagados en orden leyó sin problemas; apagados de golpe, no: cada pedido espera a los nodos muertos más que el límite del cliente (E1).
 - Cada pod de MinIO expone el puerto 9000 en su nodo (`hostPort`), para hablarle a una unidad concreta. Kubernetes elige qué pod va en cada VM: en el clúster del TIF quedaron `minio-0` en vm4, `minio-1` en vm3, `minio-2` en vm2 y `minio-3` en vm1.
 - Cada VM tiene un *watchdog* virtual (`i6300esb`, acción `reset`): si el sistema se congela, QEMU la reinicia.
 
@@ -216,7 +216,7 @@ ETCD_BIN=/ruta/a/etcd python -m pytest -q metadata-service/tests
 | Los pods de MinIO quedan en `ImagePullBackOff` | Desde el 24/09/2026, quay.io no permite descargas anónimas de `minio/minio` | Se usa el fork `pgsty/minio` (misma API y métricas) |
 | Ansible no dice por qué no conecta | El `ssh_config` de Vagrant trae `LogLevel FATAL` | Generarlo con `LogLevel ERROR` (paso 1) |
 | Una VM queda `running` pero no responde | Falla gris del sistema invitado | El *watchdog* la reinicia ([post-mortem](docs/postmortems/2026-11-12-vm3.md)) |
-| Con un nodo apagado de golpe, MinIO tarda casi un minuto en volver a responder | MinIO espera al nodo caído hasta darlo por perdido | Esperar un minuto antes de medir ([post-mortem de E1](docs/postmortems/2026-11-13-e1.md)) |
+| Con un nodo apagado de golpe, MinIO tarda casi un minuto en volver a responder; con dos, no vuelve a leer a tiempo | MinIO espera a los nodos que desaparecen sin cerrar sus conexiones | Con uno, esperar un minuto antes de medir; con dos, prender uno ([post-mortem de E1](docs/postmortems/2026-11-13-e1.md)) |
 
 ## Estado del trabajo
 
