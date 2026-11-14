@@ -101,6 +101,8 @@ python verify.py                  # baja todo y compara los hashes (MB/s de lect
 cd .. && chaos/jornada.sh estado
 ```
 
+**Atajo para el día a día:** `scripts/tif prender`, `scripts/tif estado` y `scripts/tif apagar` hacen los pasos 1 y 4 (y el apagado ordenado) con un comando; instalado en `/usr/local/bin` con una regla de sudoers, un integrante puede ver el estado sin tener otros permisos de administrador. El encabezado del script explica cómo instalarlo y los ganchos para frenar otros servicios del anfitrión y liberar memoria.
+
 Si las VM ya estaban creadas antes de agregar el *watchdog* al Vagrantfile: `ansible-playbook site.yml --tags watchdog` y después `scripts/watchdog_vms.sh`, que se lo agrega y las reinicia de a una.
 
 **Cuidado con el firewall del anfitrión:** Docker publica los puertos saltando las reglas de UFW. Por eso el monitoreo usa la red del anfitrión (`network_mode: host`) y queda bajo el firewall: abrir 3000, 8000 y 9090 solo para la red local o la VPN.
@@ -195,6 +197,7 @@ python verify.py --copia ../respaldo/actas           # verifica las actas y guar
 
 | Script | Para qué |
 |---|---|
+| `scripts/tif estado` | VMs, contenedores, memoria, disco y temperatura del anfitrión |
 | `scripts/caidas.py --vm vm3 --horas 8` | Cuándo dejó de responder una VM, según Prometheus, y cómo estaba la memoria antes |
 | `scripts/probar_watchdog.sh vm4` | Cuelga a propósito el núcleo de una VM y mide cuánto tarda en volver sola |
 | `scripts/watchdog_vms.sh` | Agrega el *watchdog* a las VM ya creadas y las reinicia de a una |

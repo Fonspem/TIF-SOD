@@ -2,7 +2,6 @@
 
 Las versiones fijas están en el repositorio (`ansible/group_vars/all.yml`, `k8s/minio.yaml` y
 `monitoring/compose.yaml`). Las del anfitrión salen del relevamiento de la laptop del 11/11/2026.
-Lo que dice "completar" se anota cuando se instale.
 
 ## Anfitrión
 
@@ -35,4 +34,4 @@ Lo que dice "completar" se anota cuando se instale.
 | Grafana | 13.2.6 |
 | node_exporter del anfitrión | v1.12.1 |
 | Imagen base del servicio de metadatos | `python:3.13-slim` |
-| etcd3gw | completar (`pip show etcd3gw` en la imagen `tif-api:local`) |
+| etcd3gw | 2.7.0 (`pip show etcd3gw` en la imagen `tif-api:local`, 13/11/2026) |

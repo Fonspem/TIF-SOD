@@ -1,0 +1,111 @@
+19:42:06 Experimento e1-dos (salida en results/evidencias/caos-e1-dos-1942.txt)
+19:42:06 Controles de estado estable
+  ✓ VMs en running: 4 de 4
+  ✓ nodos Ready: 4 de 4
+  ✓ pods de MinIO en Running: 4 de 4
+  ✓ miembros de etcd sanos: 3 de 3
+  ✓ VMs con MinIO listo: 4 de 4
+  ✓ MinIO con quórum de escritura
+  ✓ servicio de metadatos (/health)
+  ✓ sin restos de experimentos anteriores (netem, reglas de E3)
+  ✓ actas originales en dataset/ (para la muestra de rendimiento)
+  · objetivos de Prometheus: 17 up de 17
+  · memoria del anfitrión: 3220 MB disponibles
+19:42:08 ✓ estado estable
+19:42:08 sonda s3 (e1-dos-s3) en marcha → results/e1_dos_sonda_s3_1942.csv
+19:42:08 sonda meta (e1-dos-meta) en marcha → results/e1_dos_sonda_meta_1942.csv
+19:43:08 E1: apago vm4 (ordenado)
+Domain 'tif_vm4' is being shutdown
+
+19:43:31 E1: apago vm3 (ordenado): quedan 2 de 4 discos de MinIO y 2 de 3 miembros de etcd, durante 120 s
+Domain 'tif_vm3' is being shutdown
+
+19:43:54 lectura de las 1.000 actas con vm3 y vm4 apagadas (máx. 90 s): se espera que funcione
+OK: 1000 / 1000  fallas: 0
+Lectura: 390 MB en 4 s (109.3 MB/s)
+19:43:58 escritura con 2 de 4 discos: se espera que falle
+19:43:58 muestra e1-dos: subo 20 actas (máx. 30 s)
+19:44:28 muestra e1-dos: la subida no terminó en 30 s
+19:45:34 E1: prendo vm3 y, 20 s después, vm4
+Domain 'tif_vm3' started
+
+Domain 'tif_vm4' started
+
+19:45:56 espero a que el clúster esté completo (etcd 3 de 3, 4 nodos Ready y MinIO listo en las 4 VM)…
+19:46:14 ✓ clúster completo, 18 s después de revertir la falla
+19:46:44 apago las sondas
+--- caos-e1-dos-1942-sonda-e1-dos-meta-meta.txt
+Resumen (meta, e1-dos-meta, 275 s):
+  lectura    551 pedidos, 551 ok (100.0 %), p50 25 ms, p95 44 ms, corte más largo 0.0 s
+  escritura  551 pedidos, 551 ok (100.0 %), p50 27 ms, p95 47 ms, corte más largo 0.0 s
+CSV: ../results/e1_dos_sonda_meta_1942.csv
+--- caos-e1-dos-1942-sonda-e1-dos-s3-s3.txt
+Resumen (s3, e1-dos-s3, 275 s):
+  lectura    550 pedidos, 550 ok (100.0 %), p50 10 ms, p95 20 ms, corte más largo 0.0 s
+  escritura  290 pedidos, 276 ok (95.2 %), p50 44 ms, p95 194 ms, corte más largo 137.2 s
+CSV: ../results/e1_dos_sonda_s3_1942.csv
+19:46:44 verify.py: ¿las 1.000 actas siguen bien?
+OK: 1000 / 1000  fallas: 0
+Lectura: 390 MB en 6 s (64.8 MB/s)
+19:46:50 analyze.py: results/e1_dos_sonda_s3_1942.csv results/e1_dos_sonda_meta_1942.csv
+Disponibilidad y latencia por tramo (latencias de los pedidos exitosos):
+
+| Serie | Operación | Tramo | Pedidos | Disponibilidad | p50 (ms) | p95 (ms) | Corte más largo (s) |
+|---|---|---|---|---|---|---|---|
+| e1-dos-s3 | lectura | antes | 120 | 100,0 % | 18 | 25 | 0,0 |
+| e1-dos-s3 | lectura | apagar-ordenado vm4 | 44 | 100,0 % | 14 | 19 | 0,0 |
+| e1-dos-s3 | lectura | apagar-ordenado vm3 | 247 | 100,0 % | 10 | 11 | 0,0 |
+| e1-dos-s3 | lectura | encender vm3 | 42 | 100,0 % | 8 | 12 | 0,0 |
+| e1-dos-s3 | lectura | encender vm4 | 37 | 100,0 % | 9 | 16 | 0,0 |
+| e1-dos-s3 | lectura | completo | 60 | 100,0 % | 13 | 15 | 0,0 |
+| e1-dos-s3 | lectura | total | 550 | 100,0 % | 10 | 20 | 0,0 |
+| e1-dos-s3 | escritura | antes | 120 | 100,0 % | 48 | 76 | 0,0 |
+| e1-dos-s3 | escritura | apagar-ordenado vm4 | 44 | 100,0 % | 43 | 241 | 0,0 |
+| e1-dos-s3 | escritura | apagar-ordenado vm3 | 14 | 7,1 % | 49 | 49 | 137,2 |
+| e1-dos-s3 | escritura | encender vm3 | 15 | 93,3 % | 38 | 132 | 0,0 |
+| e1-dos-s3 | escritura | encender vm4 | 37 | 100,0 % | 36 | 262 | 0,0 |
+| e1-dos-s3 | escritura | completo | 60 | 100,0 % | 45 | 193 | 0,0 |
+| e1-dos-s3 | escritura | total | 290 | 95,2 % | 44 | 194 | 137,2 |
+| e1-dos-meta | lectura | antes | 121 | 100,0 % | 30 | 42 | 0,0 |
+| e1-dos-meta | lectura | apagar-ordenado vm4 | 44 | 100,0 % | 26 | 36 | 0,0 |
+| e1-dos-meta | lectura | apagar-ordenado vm3 | 246 | 100,0 % | 24 | 37 | 0,0 |
+| e1-dos-meta | lectura | encender vm3 | 43 | 100,0 % | 22 | 52 | 0,0 |
+| e1-dos-meta | lectura | encender vm4 | 37 | 100,0 % | 24 | 54 | 0,0 |
+| e1-dos-meta | lectura | completo | 60 | 100,0 % | 32 | 51 | 0,0 |
+| e1-dos-meta | lectura | total | 551 | 100,0 % | 25 | 44 | 0,0 |
+| e1-dos-meta | escritura | antes | 121 | 100,0 % | 31 | 50 | 0,0 |
+| e1-dos-meta | escritura | apagar-ordenado vm4 | 44 | 100,0 % | 27 | 36 | 0,0 |
+| e1-dos-meta | escritura | apagar-ordenado vm3 | 246 | 100,0 % | 24 | 40 | 0,0 |
+| e1-dos-meta | escritura | encender vm3 | 43 | 100,0 % | 28 | 41 | 0,0 |
+| e1-dos-meta | escritura | encender vm4 | 37 | 100,0 % | 31 | 140 | 0,0 |
+| e1-dos-meta | escritura | completo | 60 | 100,0 % | 33 | 75 | 0,0 |
+| e1-dos-meta | escritura | total | 551 | 100,0 % | 27 | 47 | 0,0 |
+
+Respuesta a cada evento (segundos desde el evento hasta el siguiente):
+
+| Serie | Operación | Evento | Primer error (s) | Recuperación (s) | Pedidos fallidos | Latencia máx. (ms) |
+|---|---|---|---|---|---|---|
+| e1-dos-s3 | lectura | apagar-ordenado vm4 | sin fallas | – | 0 | 20 |
+| e1-dos-s3 | lectura | apagar-ordenado vm3 | sin fallas | – | 0 | 21 |
+| e1-dos-s3 | lectura | encender vm3 | sin fallas | – | 0 | 14 |
+| e1-dos-s3 | lectura | encender vm4 | sin fallas | – | 0 | 27 |
+| e1-dos-s3 | lectura | completo | sin fallas | – | 0 | 16 |
+| e1-dos-s3 | escritura | apagar-ordenado vm4 | sin fallas | – | 0 | 387 |
+| e1-dos-s3 | escritura | apagar-ordenado vm3 | 0,5 | 137,7 | 13 | 15.044 |
+| e1-dos-s3 | escritura | encender vm3 | 6,5 | 14,6 | 1 | 8.096 |
+| e1-dos-s3 | escritura | encender vm4 | sin fallas | – | 0 | 377 |
+| e1-dos-s3 | escritura | completo | sin fallas | – | 0 | 338 |
+| e1-dos-meta | lectura | apagar-ordenado vm4 | sin fallas | – | 0 | 45 |
+| e1-dos-meta | lectura | apagar-ordenado vm3 | sin fallas | – | 0 | 185 |
+| e1-dos-meta | lectura | encender vm3 | sin fallas | – | 0 | 228 |
+| e1-dos-meta | lectura | encender vm4 | sin fallas | – | 0 | 135 |
+| e1-dos-meta | lectura | completo | sin fallas | – | 0 | 342 |
+| e1-dos-meta | escritura | apagar-ordenado vm4 | sin fallas | – | 0 | 51 |
+| e1-dos-meta | escritura | apagar-ordenado vm3 | sin fallas | – | 0 | 189 |
+| e1-dos-meta | escritura | encender vm3 | sin fallas | – | 0 | 224 |
+| e1-dos-meta | escritura | encender vm4 | sin fallas | – | 0 | 232 |
+| e1-dos-meta | escritura | completo | sin fallas | – | 0 | 336 |
+
+Figura: ../results/figuras/e1-dos-1942.png
+19:46:52 ✓ E1 con dos nodos terminado
+19:46:52 salida guardada en results/evidencias/caos-e1-dos-1942.txt

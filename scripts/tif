@@ -1,0 +1,100 @@
+#!/bin/bash
+# tif: prende, apaga y muestra el estado del sistema del TIF en el anfitrión.
+#   tif estado    VMs, contenedores, memoria, disco y temperatura
+#   tif prender   prende las 4 VMs (las crea la primera vez), el monitoreo y la API
+#   tif apagar    apaga el monitoreo y la API, y las VMs en orden
+#
+# Instalación (opcional; desde la raíz del repo):
+#   sudo install -m 755 scripts/tif /usr/local/bin/tif
+#   # para que un usuario (acá, tif) lo corra sin contraseña, y solo esto:
+#   echo 'tif ALL=(root) NOPASSWD: /usr/local/bin/tif' | sudo tee /etc/sudoers.d/tif-comando
+#   sudo chmod 440 /etc/sudoers.d/tif-comando && sudo visudo -c
+#
+# Variables (con sus valores por omisión):
+#   TIF_USUARIO=tif              dueño del repo y de las VMs de Vagrant
+#   TIF_REPO=<carpeta del repo>  si se instala en /usr/local/bin, poner la ruta en REPO_POR_OMISION
+#   TIF_PROVEEDOR=libvirt        o virtualbox
+#   TIF_ESPERA_VM=240            segundos para que las VMs se apaguen solas
+# Ganchos opcionales (por ejemplo, para frenar otros servicios del anfitrión y liberar memoria):
+#   TIF_ANTES_DE_PRENDER  comando que se corre antes de prender
+#   TIF_DESPUES_DE_APAGAR comando que se corre después de apagar
+set -uo pipefail
+
+REPO_POR_OMISION=/home/tif/TIF-SOD
+SCRIPT="$(readlink -f "$0")"
+DIR_REPO="$(cd "$(dirname "$SCRIPT")/.." && pwd)"
+[ -f "$DIR_REPO/vagrant/Vagrantfile" ] || DIR_REPO="$REPO_POR_OMISION"
+
+USUARIO="${TIF_USUARIO:-tif}"
+REPO="${TIF_REPO:-$DIR_REPO}"
+PROVEEDOR="${TIF_PROVEEDOR:-libvirt}"
+ESPERA_VM="${TIF_ESPERA_VM:-240}"
+
+# Docker y libvirt piden root. Las variables TIF_* solo pasan si están definidas (una regla de sudoers sin SETENV
+# rechazaría --preserve-env).
+if [ "$(id -u)" -ne 0 ]; then
+  vars=$(compgen -e | grep '^TIF_' | paste -sd, -)
+  if [ -n "$vars" ]; then exec sudo --preserve-env="$vars" "$SCRIPT" "$@"; else exec sudo "$SCRIPT" "$@"; fi
+fi
+
+vms_prendidas() {
+  if [ "$PROVEEDOR" = libvirt ]; then
+    virsh -c qemu:///system list --name --state-running 2>/dev/null | grep '^tif_' || true
+  else
+    sudo -u "$USUARIO" -H VBoxManage list runningvms 2>/dev/null | grep -o '"tif_[^"]*"' | tr -d '"' || true
+  fi
+}
+vagrant_tif() { sudo -u "$USUARIO" -H bash -c "cd '$REPO/vagrant' && VAGRANT_DEFAULT_PROVIDER=$PROVEEDOR vagrant $*"; }
+compose_tif() { (cd "$REPO/monitoring" && docker compose "$@"); }
+
+prender() {
+  if [ -n "${TIF_ANTES_DE_PRENDER:-}" ]; then
+    echo "== Antes de prender: $TIF_ANTES_DE_PRENDER"
+    bash -c "$TIF_ANTES_DE_PRENDER" || { echo "Falló el comando previo; no prendo nada."; return 1; }
+  fi
+  echo "== VMs (la primera vez se crean: tarda varios minutos)"
+  vagrant_tif up || { echo "Falló 'vagrant up'. Revisá la salida y repetí 'tif prender'."; return 1; }
+  echo "== Monitoreo y API"
+  compose_tif up -d --build || { echo "Falló 'docker compose up'. Revisá la salida y repetí 'tif prender'."; return 1; }
+  echo
+  estado
+}
+
+apagar() {
+  local t
+  echo "== Monitoreo y API"
+  compose_tif stop
+  if [ -n "$(vms_prendidas)" ]; then
+    echo "== VMs (apagado ordenado)"
+    vagrant_tif halt
+    for ((t = 0; t < ESPERA_VM; t += 5)); do
+      [ -z "$(vms_prendidas)" ] && break
+      sleep 5
+    done
+    if [ -n "$(vms_prendidas)" ]; then
+      echo "Siguen prendidas: $(vms_prendidas | paste -sd' '). Revisalas y repetí 'tif apagar'."
+      return 1
+    fi
+  fi
+  if [ -n "${TIF_DESPUES_DE_APAGAR:-}" ]; then
+    echo "== Después de apagar: $TIF_DESPUES_DE_APAGAR"
+    bash -c "$TIF_DESPUES_DE_APAGAR" || { echo "Falló el comando posterior."; return 1; }
+  fi
+  echo "Apagado."
+}
+
+estado() {
+  echo "== VMs"
+  if [ "$PROVEEDOR" = libvirt ]; then virsh -c qemu:///system list --all; else vms_prendidas; fi
+  echo "== Contenedores prendidos"; docker ps --format '   {{.Names}}  ({{.Status}})'
+  echo "== Memoria"; free -h
+  echo "== Disco"; df -h / /var/lib/libvirt/images 2>/dev/null
+  echo "== Temperatura"; sensors 2>/dev/null | grep -E '^(Package|Core)' || echo "   sin datos"
+}
+
+case "${1:-}" in
+  estado) estado ;;
+  prender) prender ;;
+  apagar) apagar ;;
+  *) sed -n '2,5p' "$SCRIPT" | cut -c3-; exit 1 ;;
+esac

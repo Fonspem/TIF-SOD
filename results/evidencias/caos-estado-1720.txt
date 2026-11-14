@@ -1,0 +1,26 @@
+17:20:05 Controles de estado estable
+  ✓ VMs en running: 4 de 4
+  ✓ nodos Ready: 4 de 4
+  ✓ pods de MinIO en Running: 4 de 4
+  ✓ miembros de etcd sanos: 3 de 3
+  ✓ VMs con MinIO listo: 4 de 4
+  ✓ MinIO con quórum de escritura
+  ✓ servicio de metadatos (/health)
+  ✓ sin restos de experimentos anteriores (netem, reglas de E3)
+  ✓ actas originales en dataset/ (para la muestra de rendimiento)
+  · objetivos de Prometheus: 17 up de 17
+  · memoria del anfitrión: 3263 MB disponibles
+17:20:09 ✓ estado estable
++--------------------+------------------+---------+-----------------+---------+--------+-----------------------+--------+-----------+------------+-----------+------------+--------------------+--------+--------------------------+-------------------+
+|      ENDPOINT      |        ID        | VERSION | STORAGE VERSION | DB SIZE | IN USE | PERCENTAGE NOT IN USE | QUOTA  | IS LEADER | IS LEARNER | RAFT TERM | RAFT INDEX | RAFT APPLIED INDEX | ERRORS | DOWNGRADE TARGET VERSION | DOWNGRADE ENABLED |
++--------------------+------------------+---------+-----------------+---------+--------+-----------------------+--------+-----------+------------+-----------+------------+--------------------+--------+--------------------------+-------------------+
+| 192.168.56.11:2379 | cdf622ce5f248252 |  3.6.16 |           3.6.0 |  942 kB | 942 kB |                    0% | 2.1 GB |      true |      false |        29 |       9803 |               9803 |        |                          |             false |
+| 192.168.56.12:2379 | e16b6a914410a874 |  3.6.16 |           3.6.0 |  942 kB | 942 kB |                    0% | 2.1 GB |     false |      false |        29 |       9803 |               9803 |        |                          |             false |
+| 192.168.56.13:2379 | b7494a6349108d1e |  3.6.16 |           3.6.0 |  942 kB | 942 kB |                    0% | 2.1 GB |     false |      false |        29 |       9803 |               9803 |        |                          |             false |
++--------------------+------------------+---------+-----------------+---------+--------+-----------------------+--------+-----------+------------+-----------+------------+--------------------+--------+--------------------------+-------------------+
+POD       FASE      NODO
+minio-0   Running   vm4
+minio-1   Running   vm3
+minio-2   Running   vm2
+minio-3   Running   vm1
+17:20:09 salida guardada en results/evidencias/caos-estado-1720.txt

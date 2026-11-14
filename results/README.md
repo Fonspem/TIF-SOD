@@ -7,7 +7,7 @@ Datos crudos de las corridas del 12 y el 13/11/2026 en la laptop del TIF. Las ta
 | Archivo | Columnas |
 |---|---|
 | Sondas (`*_sonda_*.csv`, `e3_etcd_*.csv`, `e3_s3_*.csv`) | `t` (epoch), `objetivo` (`meta`, `s3` o `etcd`), `etiqueta`, `nodo` que respondió, `op` (`lectura` o `escritura`), `ok` (1 o 0), `ms`, `clave`, `error`. Una fila por pedido; la sonda hace una lectura y una escritura cada 0,5 s |
-| Eventos (`eN_eventos.csv`, `watchdog_eventos.csv`) | epoch, evento (`apagar`, `encender`, `detener`, `iniciar`, `aislar`, …) y VM. `analyze.py` los usa para partir las sondas en tramos |
+| Eventos (`eN_eventos.csv`, `watchdog_eventos.csv`) | epoch, evento (`apagar`, `apagar-ordenado`, `encender`, `detener`, `iniciar`, `aislar`, …) y VM. `analyze.py` los usa para partir las sondas en tramos |
 | Elecciones (`e2_kill.csv`, `e2_stop.csv`) | `corrida`, `modo`, `lider_caido`, `lider_nuevo`, `t_lider_ms` (hasta el nuevo líder), `t_escritura_ms` (hasta la primera escritura confirmada) |
 | Bloqueos (`e5_kill.csv`, `e5_ordenado.csv`) | `corrida`, `modo`, `ttl_s`, `t_liberacion_s` (hasta que otro cliente obtiene el bloqueo) |
 | Manifiestos (`manifest*.csv`) | `key`, `sha256`, `bytes`: lo que se subió y su hash |
@@ -23,11 +23,13 @@ Datos crudos de las corridas del 12 y el 13/11/2026 en la laptop del TIF. Las ta
 | Incidente de vm3 (12/11) | — | `incidente-vm3-*.txt` y `incidente-vm3-pantalla*.png`, `verificacion-post-incidente.txt` | — |
 | *Watchdog* (12/11) | `watchdog_eventos.csv` | `watchdog-ansible.txt`, `watchdog-vms.txt`, `prueba-panico.txt`, `prueba-watchdog.txt` | — |
 | Respaldo y restauración (12/11) | `manifest-restaurado.csv` | `respaldo-actas.txt`, `respaldo-etcd.txt`, `restauracion-actas.txt`, `restauracion-etcd.txt` | — |
-| Estado estable antes y después de cada parte de la jornada (13/11) | — | `caos-estado-1437.txt`, `-1521`, `-1522`, `-1538`; `caos-respaldo-etcd.txt` | — |
+| Estado estable antes y después de cada parte de la jornada (13/11) | — | `caos-estado-1437.txt`, `-1521`, `-1522`, `-1538`, `-1720` (antes de la prueba desde Windows); `caos-respaldo-etcd.txt` | — |
 | E4 · red degradada (13/11, 14:39) | `e4_sonda_s3_1439.csv`, `e4_sonda_meta_1439.csv`, `e4_eventos.csv`, `manifest-e4-antes.csv`, `manifest-e4-durante.csv` | `caos-e4-1439.txt` (corrida), `caos-e4-1439-analisis.txt` (reanálisis), `caos-e4-1439-sonda-*.txt` | `e4-1439.png` |
 | E3 · partición (13/11, 14:48) | `e3_etcd_vm1_1448.csv`, `e3_etcd_vm3_1448.csv`, `e3_s3_vm1_1448.csv`, `e3_s3_vm3_1448.csv`, `e3_eventos.csv` | `caos-e3-1448.txt`, `caos-e3-1448-sonda-*.txt` | `e3-etcd-1448.png`, `e3-s3-1448.png` |
 | E1 · un nodo (13/11, 15:23) | `e1_uno_sonda_s3_1523.csv`, `e1_uno_sonda_meta_1523.csv`, `e1_eventos.csv`, `manifest-e1-antes.csv`, `manifest-e1-uno.csv` | `caos-e1-uno-1523.txt`, `caos-e1-uno-1523-sonda-*.txt` | `e1-uno-1523.png` |
 | E1 · dos nodos (13/11, 15:31) | `e1_dos_sonda_s3_1531.csv`, `e1_dos_sonda_meta_1531.csv`, `e1_eventos.csv` | `caos-e1-dos-1531.txt`, `caos-e1-dos-1531-sonda-*.txt` | `e1-dos-1531.png` |
+| E1-bis · dos nodos, apagado ordenado (13/11, 19:42) | `e1_dos_sonda_s3_1942.csv`, `e1_dos_sonda_meta_1942.csv`, `e1_eventos.csv` | `caos-estado-1941.txt`, `caos-e1-dos-1942.txt`, `caos-e1-dos-1942-sonda-*.txt` | `e1-dos-1942.png` |
+| E1-bis · dos nodos de golpe, 5 min (13/11, 19:48) | `e1_dos_sonda_s3_1948.csv`, `e1_dos_sonda_meta_1948.csv`, `e1_eventos.csv` | `caos-e1-dos-1948.txt`, `caos-e1-dos-1948-sonda-*.txt` | `e1-dos-1948.png` |
 | Verificación final (13/11, 15:38) | `verificacion_final.csv` | `paso7-verificacion-final.txt` | — |
 
 Los archivos `paso6-*`, `paso7-minio.txt`, `paso8-*` y `paso9-*` son del primer arranque del clúster (12/11): toman el nombre de los pasos de la guía de instalación del servidor, no de los pasos del informe.
