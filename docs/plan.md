@@ -93,7 +93,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Paso 7: verificación final de los 1.000 hashes | 100 % | 13/11, 15:38: 1.000 de 1.000 con los 4 nodos y los 3 miembros de etcd (`results/verificacion_final.csv`). Antes, 1.000 de 1.000 después del incidente, en la restauración y después de cada experimento |
 | ✅ | Capturas de evidencia (Grafana y terminal) | 100 % | 33 capturas en `docs/capturas/` y texto en `results/evidencias/` (en el repo desde el 13/11). Las cuatro de la terminal, con el prompt y la barra de tmux tapados, ya están en el informe (figuras 2, 8, 20 y 22) |
 
-## D. Informe (Google Doc): 93 %
+## D. Informe (Google Doc): 97 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
@@ -117,7 +117,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Anexo B: variante VirtualBox | 100 % | |
 | ⬜ | Exportar a PDF y revisar el formato APA | 0 % | Al final |
 
-## E. Defensa y entregables: 30 %
+## E. Defensa y entregables: 70 %
 
 | | Actividad | % | Nota |
 |---|---|---|---|
