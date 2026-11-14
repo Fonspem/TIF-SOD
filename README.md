@@ -4,6 +4,18 @@ Prototipo de repositorio documental para una universidad con varias sedes. El co
 
 Trabajo Integrador Final de Sistemas Operativos Distribuidos, Facultad de Ingeniería, Tecnología y Arquitectura.
 
+## Empezar por acá
+
+| Quiero… | Dónde |
+|---|---|
+| Ver qué se probó y qué dio | [Resultados en una tabla](#resultados-en-una-tabla) y [`docs/postmortems/`](docs/postmortems/) |
+| Armar todo desde cero | [Requisitos](#requisitos) y [Cómo levantarlo](#cómo-levantarlo) |
+| Prender, apagar o ver el estado del sistema ya armado | `scripts/tif prender`, `scripts/tif apagar`, `scripts/tif estado` |
+| Mostrarlo funcionando y fallando delante de alguien | [`demo/`](demo/README.md): cada paso es un comando |
+| Correr un experimento de caos completo | [`chaos/`](chaos/README.md): `chaos/jornada.sh e1-uno`, `e3`, `e4`… |
+| Saber qué hace cada script | El README de cada carpeta (tabla de abajo) |
+| Ver los datos crudos y las salidas de la terminal | [`results/`](results/README.md) |
+
 ## Resultados en una tabla
 
 Todo corrió en una laptop (4 hilos, 12 GB de RAM) con 4 VM, el 12 y el 13/11/2026. El detalle de cada experimento está en su [post-mortem](docs/postmortems/) y los datos crudos, en [`results/`](results/).
@@ -22,17 +34,20 @@ Además, el 12/11 una VM se congeló sola durante más de 4 horas; el sistema la
 
 ## Qué hay en cada carpeta
 
+Cada carpeta tiene su propio README con qué hace cada archivo y cómo se usa.
+
 | Carpeta | Contenido |
 |---|---|
-| [`vagrant/`](vagrant/) | Vagrantfile de las 4 VM: KVM/libvirt (principal) o VirtualBox (alternativa) |
-| [`ansible/`](ansible/) | Aprovisionamiento: paquetes, disco de datos, etcd (systemd), k3s, node_exporter, módulo netem y *watchdog* |
-| [`k8s/`](k8s/) | Manifiesto de MinIO distribuido |
-| [`metadata-service/`](metadata-service/) | API REST de metadatos con bloqueos (Flask + etcd3gw), sus pruebas y su imagen Docker |
-| [`monitoring/`](monitoring/) | Prometheus, Grafana (con el tablero del TIF), node_exporter del anfitrión y la API, con Docker Compose |
-| [`scripts/`](scripts/) | Actas de prueba (generar, cargar, verificar), mediciones (E2, E5), sonda de estado estable, análisis, respaldo y herramientas de diagnóstico. Detalle abajo |
-| [`chaos/`](chaos/) | Inyección de fallas (E1, E3, E4) y `jornada.sh`, que corre cada experimento completo con un comando |
-| [`results/`](results/) | Datos crudos (CSV), salidas de la terminal y figuras de los experimentos. Ver su [README](results/README.md) |
-| [`docs/`](docs/) | Runbook, post-mortems, capturas, figuras del informe, versiones y plan. Ver su [README](docs/README.md) |
+| [`vagrant/`](vagrant/README.md) | Las 4 VM: KVM/libvirt (principal) o VirtualBox (alternativa) |
+| [`ansible/`](ansible/README.md) | Aprovisionamiento de las VM: paquetes, disco de datos, etcd, k3s, node_exporter, netem y *watchdog* |
+| [`k8s/`](k8s/README.md) | MinIO distribuido (4 pods, uno por VM) |
+| [`metadata-service/`](metadata-service/README.md) | API de metadatos con bloqueos (Flask + etcd), sus pruebas y su imagen Docker |
+| [`monitoring/`](monitoring/README.md) | Prometheus, Grafana (con el tablero del TIF), node_exporter del anfitrión y la API, con Docker Compose |
+| [`scripts/`](scripts/README.md) | Actas de prueba (generar, cargar, verificar), mediciones (E2, E5), sonda, análisis, respaldo, diagnóstico y el comando `tif` |
+| [`chaos/`](chaos/README.md) | Inyección de fallas (E1, E3, E4) y `jornada.sh`, que corre cada experimento completo con un comando |
+| [`demo/`](demo/README.md) | La demo en vivo: subir un archivo real, tirar el líder, un nodo y la red, y comprobar que nada se perdió |
+| [`results/`](results/README.md) | Datos crudos (CSV), salidas de la terminal y figuras de los experimentos |
+| [`docs/`](docs/README.md) | Runbook, post-mortems, capturas, figuras del informe, versiones y plan |
 
 ## Arquitectura
 
@@ -202,18 +217,9 @@ python verify.py --copia ../respaldo/actas           # verifica las actas y guar
 | `scripts/probar_watchdog.sh vm4` | Cuelga a propósito el núcleo de una VM y mide cuánto tarda en volver sola |
 | `scripts/watchdog_vms.sh` | Agrega el *watchdog* a las VM ya creadas y las reinicia de a una |
 
-## Un archivo suelto (demo)
+## Demo en vivo
 
-Para mostrar el sistema con un archivo cualquiera, no solo con las actas generadas:
-
-```bash
-cd scripts
-python archivo.py subir foto.jpg               # sube a MinIO (prefijo demo/) y registra el SHA-256 en etcd
-python archivo.py ver foto                     # estado, hash, tamaño y objeto según el servicio de metadatos
-python archivo.py bajar foto --salida /tmp/    # baja, recalcula el hash y lo compara con el de etcd
-```
-
-Con un nodo apagado, `bajar` sigue funcionando: el cliente prueba los demás nodos. Los objetos de `demo/` no entran en `verify.py`, que trabaja con el manifiesto de las actas.
+[`demo/`](demo/README.md) tiene la demostración paso a paso: `demo/demo.sh <paso>` dice antes qué tiene que verse y, si rompe algo, lo arregla al terminar. Hay un recorrido completo (carga de un archivo real, caída del líder y de un nodo, partición y verificación) y uno corto de 5 minutos.
 
 ## Pruebas del servicio de metadatos
 

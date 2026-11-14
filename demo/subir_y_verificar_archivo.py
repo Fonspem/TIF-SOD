@@ -1,8 +1,9 @@
-"""Sube, baja y verifica un archivo suelto: para la demo con un archivo real.
+"""Sube un archivo cualquiera al repositorio, muestra lo que quedó registrado y lo baja comprobando que
+llegó intacto. Sirve para la demo con un archivo real (una foto o un PDF traído en el momento).
 
-    python archivo.py subir foto.jpg               # lo sube a MinIO y registra su SHA-256 en etcd
-    python archivo.py ver foto                     # qué guarda el servicio de metadatos (estado, hash, tamaño)
-    python archivo.py bajar foto --salida /tmp/    # lo baja, recalcula el hash y lo compara con el de etcd
+    python subir_y_verificar_archivo.py subir foto.jpg              # a MinIO, y su SHA-256 a etcd
+    python subir_y_verificar_archivo.py ver foto                    # qué guarda etcd: hash, tamaño, estado
+    python subir_y_verificar_archivo.py bajar foto --salida /tmp/   # lo baja y compara el hash con el de etcd
 
 El identificador es el nombre del archivo sin la extensión (o el que se pase con --id), con letras,
 números, guiones y guiones bajos. El objeto queda en el mismo bucket que las actas, con el prefijo
@@ -16,8 +17,9 @@ from pathlib import Path
 
 import requests
 
-import common
-from common import BUCKET, NODES, sha256, with_failover
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))   # usa el cliente S3 de scripts/common.py
+import common  # noqa: E402
+from common import BUCKET, NODES, sha256, with_failover  # noqa: E402
 
 
 def miles(n):

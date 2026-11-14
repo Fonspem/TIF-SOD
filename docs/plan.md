@@ -19,7 +19,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
   - **E1-bis (13/11, 19:42 a 19:56):** con los dos nodos apagados en orden, MinIO leyó todo (las 1.000 actas en 4 s); de golpe durante 5 minutos, no leyó nunca. La causa del límite de E1 es la detección de un nodo que muere sin avisar, no el quórum.
   - **Informe (13 y 14/11):** cargados todos los resultados, con 29 figuras; organización del equipo con nombres provisorios («Alumno John», «Alumno 2», «Alumno 3»), bitácoras en borrador (Anexo A), acta de roles (Anexo F), post-mortem citados y bloques de código en 9 pt, sin líneas que se partan.
 - **Incidente no planificado (12/11, de 11:28 a 15:48):** vm3 se congeló sola; el sistema siguió andando con 2 de 3 en etcd y 3 de 4 en MinIO. Se recuperó con un reinicio forzado. Acción correctiva: un watchdog en cada VM, probado: una VM congelada vuelve sola en 35 s. Post-mortem: [docs/postmortems/2026-11-12-vm3.md](postmortems/2026-11-12-vm3.md).
-- **Sigue:** ensayar la defensa (`guion-defensa.md`, con la demo de un archivo real y `scripts/archivo.py`) y cerrar el informe: nombres, puntajes de la autoevaluación, bitácoras completadas por cada uno, índice y PDF.
+- **Sigue:** ensayar la defensa (`guion-defensa.md`, con la demo de `demo/`) y cerrar el informe: nombres, puntajes de la autoevaluación, bitácoras completadas por cada uno, índice y PDF.
 - **Falta:**
   - Actualizar el índice al final (John ya lo actualizó una vez el 13/11).
   - Al final: reemplazar los nombres provisorios y completar los puntajes `[__]`; cada integrante revisa su bitácora; ensayo de la demo. El video no hace falta (lo dijo la profesora el 13/11).
@@ -78,7 +78,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Sonda de estado estable y análisis (tablas y figuras) | 100 % | 12/11: `analyze.py` sacó las tablas de E2 y E5; `--hasta` recorta la corrida abortada de las 14:40. Las figuras salen de `docs/figuras/graficos.py` |
 | ✅ | Comando `tif` (prender, apagar y estado, con modo TIF) | 100 % | En la guía de la Parte 2; probado con comandos simulados |
 | ✅ | Respaldo: `verify.py --copia` (actas) y `respaldo.sh` (instantánea de etcd y prueba de restauración) | 100 % | 12/11, en el clúster: la instantánea tiene las 1.000 actas y la copia restaurada dio 1.000 de 1.000. `respaldo.sh` cuenta solo las claves `/docs/acta-` (las sondas también registran documentos) |
-| ✅ | README para un tercero | 95 % | 13/11: reescrito (resultados, requisitos, `jornada.sh`, respaldo, diagnóstico, problemas conocidos). 14/11: `scripts/tif` genérico y `scripts/archivo.py` (subir y bajar un archivo suelto con su hash, para la demo) |
+| ✅ | README para un tercero | 95 % | 13/11: reescrito (resultados, requisitos, `jornada.sh`, respaldo, diagnóstico, problemas conocidos). 14/11: `scripts/tif` genérico y `demo/` (la demo en vivo paso a paso: `demo.sh` y `subir_y_verificar_archivo.py`) y un README en cada carpeta |
 
 ## C. Ejecución y mediciones: 97 %
 
@@ -125,7 +125,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | 🟡 | Bitácoras individuales | 70 % | En el Anexo A |
 | 🟡 | Presentación para la defensa | 90 % | 18 diapositivas con E1 a E5, E1-bis, el incidente, la integridad y la recomendación; faltan los nombres |
 | — | Video de 5 a 8 minutos | — | No hace falta, según la profesora (13/11). El guion queda en el proyecto por si acaso |
-| 🟡 | Defensa: pitch, guion y demo | 75 % | 14/11: `guion-defensa.md`: pitch de 40 s, reparto de diapositivas por rol, demo de 5 min con un archivo real (`scripts/archivo.py`), caída del líder y de un nodo, y preguntas probables. Falta ensayarla |
+| 🟡 | Defensa: pitch, guion y demo | 75 % | 14/11: `guion-defensa.md`: pitch de 40 s, reparto de diapositivas por rol, dos recorridos de demo (el completo del enunciado, con partición, y uno corto de 5 min) con `demo/demo.sh`, y preguntas probables. Falta ensayarla |
 
 ## Orden de trabajo
 
