@@ -46,7 +46,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | — | Versiones fijas: k3s v1.36.6+k3s1, etcd v3.6.16, Prometheus v3.15.1, Grafana 13.2.6, node_exporter v1.12.1 |
 | — | MinIO (12/11): `pgsty/minio:RELEASE.2026-08-04T00-00-00Z`, el fork comunitario, porque quay.io dejó de permitir descargas anónimas el 24/09/2026 |
 | — | 12/11, después del incidente de vm3: cada VM lleva un watchdog virtual (`i6300esb`, acción `reset`) que systemd atiende cada 15 s; si la VM se congela, QEMU la reinicia sola |
-| — | Desde el 12/11, el resto del trabajo lo hacen John y el equipo; John hace de los demás integrantes cuando hace falta (por ejemplo, el compañero que entra desde Windows). Los compañeros podrán probar todo en clase con su guía |
+| — | Desde el 12/11, el resto del trabajo lo hace John, que hace de los demás integrantes cuando hace falta (por ejemplo, el compañero que entra desde Windows). Los compañeros podrán probar todo en clase con su guía |
 
 ## A. Servidor (laptop EXO): 90 %
 
@@ -59,7 +59,7 @@ Referencias: ✅ terminado · 🟡 en curso, con su porcentaje · ⬜ sin empeza
 | ✅ | Parte 3: acceso de los compañeros | 95 % | 13/11: probado desde la PC Windows de John (cliente OpenSSH, llave `companero-windows` en `tif`): entra por SSH, `tif estado` anda sin contraseña por la regla `/etc/sudoers.d/tif-comando` (solo `/usr/local/bin/tif`), no tiene otro sudo y ve Grafana. En el informe (sección 7 y Anexo D). Queda compartir la EXO por Tailscale en clase |
 | ✅ | Incidente de vm3: diagnóstico y recuperación | 100 % | 12/11. Post-mortem en `docs/postmortems/` |
 | ✅ | Watchdog en las 4 VMs | 100 % | 12/11. Aplicado con Ansible (`--tags watchdog`) y `scripts/watchdog_vms.sh`. Probado con `scripts/probar_watchdog.sh`: una VM congelada vuelve sola en 35 s; un pánico común, en 18 s (k3s deja `kernel.panic=10`) |
-| ✅ | Parte 4: subir `results/` a GitHub | 100 % | 13/11: John bajó un `.tar.gz` con `scp` y lo adjuntó en el chat; el equipo lo revisó (solo direcciones de la red de las VM) y lo subió (94 archivos). Para resultados nuevos se repite lo mismo |
+| ✅ | Parte 4: subir `results/` a GitHub | 100 % | 13/11: John bajó un `.tar.gz` con `scp` y lo adjuntó en el chat; se revisó (solo direcciones de la red de las VM) y se subió (94 archivos). Para resultados nuevos se repite lo mismo |
 
 ## B. Código y herramientas: 99 %
 
@@ -136,7 +136,7 @@ El camino crítico:
 5. 🟡 resultados en el informe: completos (13/11); falta citar los post-mortem y acortar las líneas largas de código;
 6. defensa.
 
-Mientras John prepara la laptop, el equipo:
+Mientras se prepara la laptop:
 - ✅ pasa al informe las decisiones 3, 8 y 12 (11/11);
 - ✅ escribe la política de respaldo, el runbook y la plantilla de post-mortem (12/11);
 - ✅ hace el diagrama de arquitectura y carga en el informe todo lo del 12/11.
