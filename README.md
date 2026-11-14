@@ -202,6 +202,19 @@ python verify.py --copia ../respaldo/actas           # verifica las actas y guar
 | `scripts/probar_watchdog.sh vm4` | Cuelga a propósito el núcleo de una VM y mide cuánto tarda en volver sola |
 | `scripts/watchdog_vms.sh` | Agrega el *watchdog* a las VM ya creadas y las reinicia de a una |
 
+## Un archivo suelto (demo)
+
+Para mostrar el sistema con un archivo cualquiera, no solo con las actas generadas:
+
+```bash
+cd scripts
+python archivo.py subir foto.jpg               # sube a MinIO (prefijo demo/) y registra el SHA-256 en etcd
+python archivo.py ver foto                     # estado, hash, tamaño y objeto según el servicio de metadatos
+python archivo.py bajar foto --salida /tmp/    # baja, recalcula el hash y lo compara con el de etcd
+```
+
+Con un nodo apagado, `bajar` sigue funcionando: el cliente prueba los demás nodos. Los objetos de `demo/` no entran en `verify.py`, que trabaja con el manifiesto de las actas.
+
 ## Pruebas del servicio de metadatos
 
 Levantan un clúster etcd real de 3 miembros en la máquina local:
