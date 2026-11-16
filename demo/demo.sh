@@ -6,12 +6,14 @@
 #
 # Uso, en el anfitrión, con el entorno del TIF (venv activado, MINIO_USER, MINIO_PASS y KUBECONFIG):
 #   demo/demo.sh estado               ¿está todo bien? (VM, nodos, etcd, MinIO, API)
-#   demo/demo.sh subir <archivo>      sube un archivo real y registra su SHA-256 en etcd
-#   demo/demo.sh ver <nombre>         muestra lo que etcd guarda de ese archivo
-#   demo/demo.sh bajar <nombre>       lo baja y compara el hash (queda en /tmp/demo-tif/)
+#   demo/demo.sh subir <archivo>      sube un archivo real y registra su SHA-256 en etcd, con un nombre
+#                                     propio (foto-<8 letras del hash>): dos fotos distintas no chocan
+#   demo/demo.sh ver [nombre]         muestra lo que etcd guarda de ese archivo (sin nombre: el último subido)
+#   demo/demo.sh bajar [nombre]       lo baja y compara el hash; el último subido queda en /tmp/demo-tif/
+#                                     con su nombre original (por ejemplo, /tmp/demo-tif/foto.jpg)
 #   demo/demo.sh bloqueo              exclusión mutua: dos clientes a la vez y el fencing token
 #   demo/demo.sh lider                mata al líder de etcd y mide cuánto tarda en haber otro
-#   demo/demo.sh nodo [nombre]        apaga vm4 de golpe; al minuto baja el archivo (si se pasa el nombre);
+#   demo/demo.sh nodo [nombre]        apaga vm4 de golpe; al minuto baja el archivo (sin nombre: el último);
 #                                     con Enter la vuelve a prender
 #   demo/demo.sh particion            aísla vm3 de las otras tres VM y prueba cada lado; Enter para reunificar
 #   demo/demo.sh actas                verifica las 1.000 actas con su SHA-256
@@ -28,6 +30,17 @@ mkdir -p "$TMP"
 export EVENTOS=$TMP/eventos.csv          # los scripts de chaos/ anotan acá en vez de en results/
 SSH=(ssh -F "${SSH_CONFIG:-../ansible/ssh_config}" -o ConnectTimeout=5 -o LogLevel=ERROR)
 ARCHIVO=(python -u ../demo/subir_y_verificar_archivo.py)
+ULTIMO=$TMP/ultimo-subido               # «<nombre en etcd> <archivo original>» del último «subir»
+
+ultimo_id() { [ -f "$ULTIMO" ] && cut -d' ' -f1 "$ULTIMO"; }
+nombre_o_ultimo() {  # el nombre que se pasó o, si no, el último subido
+  local n=${1:-$(ultimo_id)}
+  [ -n "$n" ] || { echo "Todavía no se subió ningún archivo: primero, demo/demo.sh subir /tmp/foto.jpg" >&2; exit 1; }
+  echo "$n"
+}
+salida_de() {  # dónde dejar lo bajado: el último subido, con su nombre original; otro, en la carpeta
+  if [ "$1" = "$(ultimo_id)" ]; then echo "$TMP/$(cut -d' ' -f2- "$ULTIMO")"; else echo "$TMP/"; fi
+}
 
 titulo() { printf '\n\033[1m== %s\033[0m\n' "$1"; }
 esperas() { printf '   \033[2mTiene que verse: %s\033[0m\n\n' "$1"; }
@@ -59,19 +72,26 @@ case "$paso" in
       echo "No encuentro $archivo: primero hay que pasarlo desde la Lenovo con scp." >&2
       exit 1
     fi
-    titulo "Subir un archivo real: $(basename "$archivo")"
+    base=$(basename "$archivo")
+    raiz=${base%.*}
+    id="${raiz//[^A-Za-z0-9_-]/-}-$(sha256sum "$archivo" | cut -c1-8)"
+    titulo "Subir un archivo real: $base"
     esperas "el SHA-256 del archivo y «Registrado en etcd»"
-    "${ARCHIVO[@]}" subir "$archivo" ;;
+    "${ARCHIVO[@]}" subir "$archivo" --id "$id" || exit 1
+    echo "$id $base" > "$ULTIMO"
+    echo "   En etcd se llama «$id»: los pasos que siguen lo usan solos." ;;
 
   ver)
     titulo "Qué guarda etcd del archivo"
     esperas "el mismo SHA-256, el tamaño y el estado «borrador»"
-    "${ARCHIVO[@]}" ver "${2:?uso: demo/demo.sh ver <nombre>}" ;;
+    n=$(nombre_o_ultimo "${2:-}") || exit 1
+    "${ARCHIVO[@]}" ver "$n" ;;
 
   bajar)
     titulo "Bajar el archivo y comprobar que está intacto"
     esperas "los dos hashes iguales y «OK: el archivo está intacto»"
-    "${ARCHIVO[@]}" bajar "${2:?uso: demo/demo.sh bajar <nombre>}" --salida "$TMP/" ;;
+    n=$(nombre_o_ultimo "${2:-}") || exit 1
+    "${ARCHIVO[@]}" bajar "$n" --salida "$(salida_de "$n")" ;;
 
   bloqueo)
     titulo "Exclusión mutua: dos clientes piden el bloqueo de la misma acta a la vez"
@@ -87,7 +107,7 @@ case "$paso" in
     python -u leader_election.py --modo kill --repeticiones 1 --eventos "$TMP/e2.csv" --salida "$TMP/e2-resultado.csv" ;;
 
   nodo)
-    nombre=${2:-}
+    nombre=${2:-$(ultimo_id)}
     titulo "Caída de un nodo: vm4 se apaga de golpe, como un corte de luz"
     esperas "en Grafana, vm4 en rojo y MinIO con 3 de 4 discos; etcd no cambia (vm4 no tiene miembro)"
     trap '../chaos/e1_caida_nodo.sh encender vm4; exit 130' INT
@@ -96,7 +116,7 @@ case "$paso" in
     if [ -n "$nombre" ]; then
       titulo "Con vm4 apagada: bajar el archivo"
       esperas "«OK: el archivo está intacto»"
-      "${ARCHIVO[@]}" bajar "$nombre" --salida "$TMP/"
+      "${ARCHIVO[@]}" bajar "$nombre" --salida "$(salida_de "$nombre")"
     fi
     esperar_enter "Enter para volver a prender vm4…"
     trap - INT
