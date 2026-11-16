@@ -55,6 +55,10 @@ case "$paso" in
 
   subir)
     archivo=${2:?uso: demo/demo.sh subir <archivo>}
+    if [ ! -f "$archivo" ]; then
+      echo "No encuentro $archivo: primero hay que pasarlo desde la Lenovo con scp." >&2
+      exit 1
+    fi
     titulo "Subir un archivo real: $(basename "$archivo")"
     esperas "el SHA-256 del archivo y «Registrado en etcd»"
     "${ARCHIVO[@]}" subir "$archivo" ;;
@@ -101,7 +105,7 @@ case "$paso" in
 
   particion)
     titulo "Partición de red: vm3 queda aislada de vm1, vm2 y vm4"
-    esperas "del lado de vm3 (minoría) etcd no escribe y MinIO no tiene quórum; del lado de vm1 (mayoría), sí"
+    esperas "etcd no escribe desde vm3 (minoría) y sí desde vm1 (mayoría); MinIO no responde en vm3 y en vm1 puede dar 503, porque espera al disco de vm3 (lo mismo que en E3); el servicio de metadatos responde 200"
     trap '../chaos/e3_particion.sh revertir vm3 >/dev/null; echo; echo "   reunificado"; exit 130' INT
     ../chaos/e3_particion.sh aislar vm3
     cuenta_atras 10 "dejo que etcd note la partición"

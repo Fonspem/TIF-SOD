@@ -30,7 +30,7 @@ Grafana abierto en `http://<anfitrión>:3000/d/tif-estado`, con los últimos 15 
 | `bloqueo` | Exclusión mutua: dos clientes a la vez y el fencing token | Un 200 y un 409; el token viejo rechazado con 409 | 40 s |
 | `lider` | Caída del líder de etcd (`kill -9`) | Un líder nuevo en 1 o 2 s; en Grafana cambia «Líder actual de etcd» | 40 s |
 | `nodo [nombre]` | Caída de un nodo: vm4 apagada de golpe. Al minuto baja el archivo; con Enter, la prende | vm4 en rojo, MinIO con 3 de 4 discos y el archivo intacto | 1,5 a 2 min |
-| `particion` | Partición de red: vm3 aislada de las otras tres. Prueba cada lado; con Enter, reunifica | En vm3 (minoría), etcd no escribe y MinIO no tiene quórum; en vm1 (mayoría), sí; la API sigue respondiendo | 1 a 1,5 min |
+| `particion` | Partición de red: vm3 aislada de las otras tres. Prueba cada lado; con Enter, reunifica | etcd no escribe desde vm3 (minoría) y sí desde vm1 (mayoría); MinIO no responde en vm3 y en vm1 puede dar 503, porque espera al disco de vm3 (como en E3); la API sigue respondiendo | 1 a 1,5 min |
 | `actas` | Las 1.000 actas, una por una, con su SHA-256 | `OK: 1000 / 1000` | 5 s (40 s con un nodo caído) |
 | `deshacer` | Por las dudas: reunifica vm3 y prende vm4 | — | 5 s |
 
@@ -65,6 +65,8 @@ demo/demo.sh estado
 
 - **Se cortó un paso a la mitad** (se cerró la terminal, se colgó): `demo/demo.sh deshacer` y, al minuto, `demo/demo.sh estado`.
 - **`bajar` falla o tarda con vm4 recién apagada:** es lo que pasó en E1, MinIO tarda cerca de un minuto en dejar de esperar a un nodo que muere sin avisar. Por eso `nodo` espera 60 s antes de bajar. Si igual falla, repetir `demo/demo.sh bajar foto`.
+- **No pegar todos los comandos juntos:** `nodo` y `particion` esperan un Enter, y la línea pegada siguiente lo reemplaza. Un comando por vez.
+- **`subir` dice que no encuentra el archivo:** falta pasarlo desde la otra computadora con `scp`.
 - **En la partición, etcd escribe desde vm3:** las reglas no llegaron a aplicarse. Ver `chaos/e3_particion.sh` y repetir.
 - Los resultados de la demo quedan en `/tmp/demo-tif/` y no se mezclan con los de la jornada de caos en `results/`.
 
